@@ -1,0 +1,8 @@
+name: rMLST
+description: A Nextflow module for running rMLST (Reference-based Multilocus Sequence Typing).
+author: Andreas Evenstad
+license: MIT
+version: '1.0.0'
+container:
+  engine: singularity
+  image: '/path/to/local/rmlst.sif'

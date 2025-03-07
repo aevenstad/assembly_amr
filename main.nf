@@ -1,9 +1,10 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    kres/annotate_genomes
+    kres/nanopore_assembly
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/kres/annotate_genomes
+    Github : https://github.com/kres-UNN/nanopore_assembly
+    Author : Andreas Evenstad
 ----------------------------------------------------------------------------------------
 */
 
@@ -13,9 +14,9 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { ANNOTATE_GENOMES  } from './workflows/annotate_genomes'
-include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_annotate_genomes_pipeline'
-include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_annotate_genomes_pipeline'
+include { NANOPORE_ASSEMBLY_ANNOTATION  } from './workflows/nanopore_assembly'
+include { PIPELINE_INITIALISATION       } from './subworkflows/local/utils_nfcore_nanopore_assembly_pipeline'
+include { PIPELINE_COMPLETION           } from './subworkflows/local/utils_nfcore_nanopore_assembly_pipeline'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NAMED WORKFLOWS FOR PIPELINE
@@ -25,7 +26,7 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_anno
 //
 // WORKFLOW: Run main analysis pipeline depending on type of input
 //
-workflow KRES_ANNOTATE_GENOMES {
+workflow KRES_NANOPORE_ASSEMBLY_ANNOTATION {
 
     take:
     samplesheet // channel: samplesheet read in from --input
@@ -35,11 +36,11 @@ workflow KRES_ANNOTATE_GENOMES {
     //
     // WORKFLOW: Run pipeline
     //
-    ANNOTATE_GENOMES (
+    NANOPORE_ASSEMBLY_ANNOTATION (
         samplesheet
     )
     emit:
-    multiqc_report = ANNOTATE_GENOMES.out.multiqc_report // channel: /path/to/multiqc_report.html
+    multiqc_report = NANOPORE_ASSEMBLY_ANNOTATION.out.multiqc_report // channel: /path/to/multiqc_report.html
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -65,7 +66,7 @@ workflow {
     //
     // WORKFLOW: Run main workflow
     //
-    KRES_ANNOTATE_GENOMES (
+    KRES_NANOPORE_ASSEMBLY_ANNOTATION (
         PIPELINE_INITIALISATION.out.samplesheet
     )
     //
@@ -74,7 +75,7 @@ workflow {
     PIPELINE_COMPLETION (
         params.outdir,
         params.monochrome_logs,
-        KRES_ANNOTATE_GENOMES.out.multiqc_report
+        KRES_NANOPORE_ASSEMBLY_ANNOTATION.out.multiqc_report
     )
 }
 
