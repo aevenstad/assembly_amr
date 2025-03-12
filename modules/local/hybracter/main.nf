@@ -1,6 +1,5 @@
 process HYBRACTER {
     publishDir "${params.outdir}/hybracter", mode: 'copy'
-    containerOptions "-B ${params.hybracter_config}"
     tag "$meta.id"
     label 'process_medium'
 
@@ -28,7 +27,6 @@ process HYBRACTER {
     script:
     def args = task.ext.args   ?: '--auto'
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def config = task.ext.config ?: "${params.hybracter_config}"
     def cacheDir = task.workDir ? task.workDir.toAbsolutePath().toString() + "/.cache" : "/tmp/.cache"
 
     """
@@ -39,9 +37,18 @@ process HYBRACTER {
         -2 $shortreads_2 \\
         --sample $prefix \\
         --output $prefix \\
-        --configfile $config \\
         --threads $task.cpus \\
         $args
+    
+    # Copy *_final.fasta so that both complete and incomplete assemblies can be used for input channel
+    if [ -f "${prefix}/FINAL_OUTPUT/complete/${prefix}_final.fasta" ]; then
+        cp "${prefix}/FINAL_OUTPUT/complete/${prefix}_final.fasta" "${prefix}/FINAL_OUTPUT/${prefix}_final.fasta"
+    elif [ -f "${prefix}/FINAL_OUTPUT/incomplete/${prefix}_final.fasta" ]; then
+        cp "${prefix}/FINAL_OUTPUT/incomplete/${prefix}_final.fasta" "${prefix}/FINAL_OUTPUT/${prefix}_final.fasta"
+    else
+        echo "Error! No *_final.fasta found"
+    fi
+
 
     cat <<-END_VERSIONS > ${prefix}/versions.yml
     "${task.process}":

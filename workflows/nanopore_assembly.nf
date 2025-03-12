@@ -53,7 +53,7 @@ workflow NANOPORE_ASSEMBLY_ANNOTATION {
         ch_samplesheet
     )
     ch_final_fasta = HYBRACTER.out.final_output.map { meta, dir -> 
-        tuple(meta, file("${dir}/complete/*_final.fasta"))
+        tuple(meta, file("${dir}/*_final.fasta"))
     }
     ch_trimmed_longreads = HYBRACTER.out.processing.map { meta, dir -> 
         def files = file("${dir}/qc/*filt_trim.fastq.gz")
@@ -93,9 +93,11 @@ workflow NANOPORE_ASSEMBLY_ANNOTATION {
     // MODULE KLEBORATE (Run Kleborate for Klebsiella)
     // Only run Kleborate fot Klebsiella assemblies identified through rMLST
     //
+    
+    ch_species_fasta = ch_rmlst.join(ch_final_fasta)
+
     KLEBORATE (
-        ch_rmlst,
-        ch_final_fasta
+        ch_species_fasta
     )
     ch_kleborate = KLEBORATE.out.txt // Outputs Kleborate results
     ch_versions = ch_versions.mix(KLEBORATE.out.versions.first())
@@ -104,8 +106,7 @@ workflow NANOPORE_ASSEMBLY_ANNOTATION {
     // MODULE AMRFINDERPLUS (Run AMRFinderPlus)
     //
     AMRFINDERPLUS_RUN (
-        ch_final_fasta,
-        ch_rmlst
+        ch_species_fasta
     )
     ch_amrfinderplus = AMRFINDERPLUS_RUN.out // Outputs AMRFinderPlus results
     ch_versions = ch_versions.mix(AMRFINDERPLUS_RUN.out.versions.first())

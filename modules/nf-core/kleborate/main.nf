@@ -8,8 +8,7 @@ process KLEBORATE {
         'biocontainers/kleborate:3.1.2--pyhdfd78af_0' }"
 
     input:
-    tuple val(meta), path(species)
-    tuple val(meta), path(fastas)
+    tuple val(meta), path(species), path(fastas)
 
     output:
     tuple val(meta), path("*/*.txt"), emit: txt

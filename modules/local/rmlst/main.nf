@@ -2,6 +2,7 @@ process RMLST {
     publishDir "${params.outdir}/rmlst/${meta.id}", mode: 'copy'
     tag "$meta.id"
     label 'process_low'
+    maxForks 4
 
     // conda "${moduleDir}/environment.yml"
     container '/bigdata/Jessin/Softwares/containers/rMLST.sif'
@@ -10,8 +11,8 @@ process RMLST {
     tuple val(meta), path(fasta)
 
     output:
-    tuple val(meta), path("*_rmlst.txt"), emit: rmlst
-    tuple val(meta), path("species.txt"), emit: species
+    tuple val(meta), path("${meta.id}_rmlst.txt"), emit: rmlst
+    tuple val(meta), path("${meta.id}_species.txt"), emit: species
 
 
     when:
@@ -26,6 +27,6 @@ process RMLST {
     
     grep "Taxon:" ${prefix}_rmlst.txt |\
     sed 's/Taxon://;;s/ /_/' \
-    > species.txt
+    > ${prefix}_species.txt
     """
 }
