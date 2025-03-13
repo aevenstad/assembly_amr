@@ -18,7 +18,7 @@ process HYBRACTER {
     tuple val(meta), path("${meta.id}/stderr")                                         , emit: stderr
     tuple val(meta), path("${meta.id}/supplementary_results")                          , emit: supplementary_results
     tuple val(meta), path("${meta.id}/versions")                                       , emit: hybracter_versions 
-    path "${meta.id}/processing/qc/fastp/*.json"                                       , optional: fastp_json
+    path "${meta.id}/processing/qc/fastp/*.json"                                       , optional: true, emit: fastp_json
     path "${meta.id}/versions.yml"                                                     , emit: versions
 
     when:
