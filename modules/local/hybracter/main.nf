@@ -32,7 +32,7 @@ process HYBRACTER {
     """
     export XDG_CACHE_HOME=$cacheDir
 
-    if (!shortreads_1 && !shortreads_2) {
+    if (shortreads_1 && shortreads_2 == null) {
         hybracter long-single \\
             -l $longreads \\
             --sample $prefix \\
