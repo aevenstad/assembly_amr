@@ -75,6 +75,7 @@ workflow PIPELINE_INITIALISATION {
                 illumina_R2 ? file(illumina_R2) : null 
             ]
         }
+        .set { ch_samplesheet }
 
     emit:
     samplesheet = ch_samplesheet
