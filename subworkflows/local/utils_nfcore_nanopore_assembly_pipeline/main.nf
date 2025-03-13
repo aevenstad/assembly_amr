@@ -68,10 +68,13 @@ workflow PIPELINE_INITIALISATION {
     Channel
         .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
         .map { meta, nanopore, illumina_R1, illumina_R2 -> 
-            return [ meta, file(nanopore), file(illumina_R1), file(illumina_R2) ] 
+            return [ 
+                meta, 
+                file(nanopore), 
+                illumina_R1 ? file(illumina_R1) : null, 
+                illumina_R2 ? file(illumina_R2) : null 
+        ] 
         }
-        //.view() // Add this line to check the channel output
-        .set { ch_samplesheet }
 
     emit:
     samplesheet = ch_samplesheet
