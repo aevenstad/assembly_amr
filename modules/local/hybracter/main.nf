@@ -18,7 +18,7 @@ process HYBRACTER {
     tuple val(meta), path("${meta.id}/stderr")                                         , emit: stderr
     tuple val(meta), path("${meta.id}/supplementary_results")                          , emit: supplementary_results
     tuple val(meta), path("${meta.id}/versions")                                       , emit: hybracter_versions 
-    path "${meta.id}/processing/qc/fastp/*.json"                                       , emit: fastp_json
+    path "${meta.id}/processing/qc/fastp/*.json"                                       , optional: fastp_json
     path "${meta.id}/versions.yml"                                                     , emit: versions
 
     when:
@@ -31,14 +31,27 @@ process HYBRACTER {
 
     """
     export XDG_CACHE_HOME=$cacheDir
-    hybracter hybrid-single \\
-        -l $longreads \\
-        -1 $shortreads_1 \\
-        -2 $shortreads_2 \\
-        --sample $prefix \\
-        --output $prefix \\
-        --threads $task.cpus \\
-        $args
+
+    if (!shortreads_1 && !shortreads_2) {
+        hybracter long-single \\
+            -l $longreads \\
+            --sample $prefix \\
+            --output $prefix \\
+            --threads $task.cpus \\
+            $args
+        exit 0
+    } else {
+        hybracter hybrid-single \\
+            -l $longreads \\
+            -1 $shortreads_1 \\
+            -2 $shortreads_2 \\
+            --sample $prefix \\
+            --output $prefix \\
+            --threads $task.cpus \\
+            $args
+        exit 0
+    }
+
     
     # Copy *_final.fasta so that both complete and incomplete assemblies can be used for input channel
     if [ -f "${prefix}/FINAL_OUTPUT/complete/${prefix}_final.fasta" ]; then
