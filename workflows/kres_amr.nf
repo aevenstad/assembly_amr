@@ -18,25 +18,43 @@ include { methodsDescriptionText      } from '../subworkflows/local/utils_nfcore
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow ASSEMBLY_AMR {
+workflow KRES_AMR {
 
     take:
     ch_samplesheet             // channel: samplesheet read in from --input
 
     main:
+    ch_versions = Channel.empty()
+    ch_multiqc_files = Channel.empty()
 
     // Run the appropriate assembly workflow based on the assembly type
     if (params.assembly_type == 'short') {
         SHORTREAD_ASSEMBLY(ch_samplesheet)
-            .set {ch_final_fasta, ch_trimmed, ch_versions, ch_multiqc_files }
+        ch_versions = ch_versions.mix(SHORTREAD_ASSEMBLY.out.ch_versions)
+        ch_multiqc_files = ch_multiqc_files.mix(SHORTREAD_ASSEMBLY.out.ch_multiqc_files)
+        ch_trimmed_shortreads = SHORTREAD_ASSEMBLY.out.ch_shortread_trimmed
+        ch_final_fasta = SHORTREAD_ASSEMBLY.out.ch_final_fasta
     } else {
         LONGREAD_ASSEMBLY(ch_samplesheet)
-            .set { ch_final_fasta, ch_trimmed, ch_versions, ch_multiqc_files }
+        ch_versions = ch_versions.mix(LONGREAD_ASSEMBLY.out.ch_versions)
+        ch_multiqc_files = ch_multiqc_files.mix(LONGREAD_ASSEMBLY.out.ch_multiqc_files)
+        ch_trimmed_longreads = LONGREAD_ASSEMBLY.out.ch_trimmed_longreads
+        ch_trimmed_shortreads = LONGREAD_ASSEMBLY.out.ch_trimmed_shortreads
+        ch_final_fasta = LONGREAD_ASSEMBLY.out.ch_final_fasta
+    }
+
+
+    if (params.assembly_type == 'long') {
+        ch_trimmed = ch_trimmed_longreads
+    } else {
+        ch_trimmed = ch_trimmed_shortreads
     }
 
     // Run the resistance analysis workflow
     RESISTANCE_ANALYSIS(ch_final_fasta, ch_trimmed)
-        .set { ch_multiqc_files, ch_versions }
+        ch_versions = ch_versions.mix(RESISTANCE_ANALYSIS.out.ch_versions)
+        ch_multiqc_files = ch_multiqc_files.mix(RESISTANCE_ANALYSIS.out.ch_multiqc_files)
+
 
 
     // Collate and save software versions
