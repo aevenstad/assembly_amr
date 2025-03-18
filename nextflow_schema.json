@@ -54,6 +54,13 @@
                     "exists": true,
                     "description": "Path to the AMRFinderPlus database",
                     "fa_icon": "fas fa-folder-open"
+                },
+                "assembly_type": {
+                    "type": "string",
+                    "description": "Type of assembly to perform",
+                    "enum": ["hybrid", "long", "short"],
+                    "default": "hybrid",
+                    "fa_icon": "fas fa-dna"
                 }
             }
         },

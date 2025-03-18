@@ -26,7 +26,7 @@ process MLST {
         $args \\
         --threads $task.cpus \\
         $fasta \\
-        > mlst.tsv
+        > ${prefix}_mlst.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
