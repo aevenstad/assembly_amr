@@ -3,6 +3,19 @@
 ## Author
 * Andreas Evenstad (https://github.com/aevenstad/)
 
+## Table of contents
+- [Introduction](#introduction)
+- [Requirements](#requirements)
+  - [Dependencies](#dependencies)
+  - [Databases](#databases)
+- [Quickstart](#quickstart)
+  - [Download the pipeline](#download-the-pipeline)
+  - [Arguments](#arguments)
+  - [Hybrid assembly](#hybrid-assembly)
+  - [Long read assembly](#long-read-assembly)
+  - [Short read assembly](#short-read-assembly)
+
+
 ## Introduction
 This is a Nextflow pipeline written using the nf-core template, and is made for analyzing whole-genome sequencing data from bacterial isolates.
 It`s main function is to asses antimicrobial resistance in the provided isolates and the main steps of the pipeline is:
@@ -41,7 +54,7 @@ Clone the repository:
 ```
 git clone https://github.com/aevenstad/assembly_amr.git
 ```
-#### Arguments
+### Arguments
 ```
 -profile                [string] Name of profile from `nextflow.conf` (Currently only <singularity> supported)
 --input                 [string] Path to input samplesheet
