@@ -21,7 +21,7 @@ This is a Nextflow pipeline written using the nf-core template, and is made for 
 It`s main function is to asses antimicrobial resistance in the provided isolates and the main steps of the pipeline is:
 * Genome assembly:
   - Hybrid mode with Hybracter (using Nanopore and Illumina data)
-  - Long read mode with Hybracter (using only Nanoporedata)
+  - Long read mode with Hybracter (using only Nanopore data)
   - Short read mode with Shovill (using only Illumina data)
 * Multi locus sequence typing:
     - MLST
