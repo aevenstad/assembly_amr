@@ -75,6 +75,12 @@
                     "enum": ["hybrid", "long", "short"],
                     "default": "hybrid",
                     "fa_icon": "fas fa-dna"
+                },
+                "bakta": {
+                    "type": "boolean",
+                    "description": "Run BAKTA",
+                    "default": true,
+                    "fa_icon": "fas fa-vial"
                 }
             }
         },

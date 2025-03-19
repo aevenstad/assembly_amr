@@ -46,8 +46,10 @@ workflow RESISTANCE_ANALYSIS {
     ch_versions = ch_versions.mix(AMRFINDERPLUS_RUN.out.versions.first())
 
     // MODULE: BAKTA
-    BAKTA_BAKTA (ch_final_fasta)
-    ch_versions = ch_versions.mix(BAKTA_BAKTA.out.versions)
+    if (params.bakta) {
+        BAKTA_BAKTA (ch_final_fasta)
+        ch_versions = ch_versions.mix(BAKTA_BAKTA.out.versions)
+    }
 
     // MODULE: LRE_FINDER
     LRE_FINDER (ch_rmlst, ch_reads)
