@@ -43,7 +43,7 @@ process LRE_FINDER {
     fi
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        LRE-Finder: \$(LRE-Finder.py -V)
+        LRE-Finder: \$(grep "VERSION =" /opt/bin/LRE-Finder.py | cut -d"\\"" -f2)
     END_VERSIONS
     """
 }
