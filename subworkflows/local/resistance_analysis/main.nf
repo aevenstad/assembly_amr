@@ -24,7 +24,6 @@ workflow RESISTANCE_ANALYSIS {
     ch_reads
 
     main:
-    ch_multiqc_files = Channel.empty()
     ch_versions = Channel.empty()
 
     // MODULE: MLST
@@ -49,11 +48,9 @@ workflow RESISTANCE_ANALYSIS {
     // MODULE: BAKTA
     BAKTA_BAKTA (ch_final_fasta)
     ch_versions = ch_versions.mix(BAKTA_BAKTA.out.versions)
-    ch_multiqc_files = ch_multiqc_files.mix(BAKTA_BAKTA.out.txt)
 
     // MODULE: LRE_FINDER
     LRE_FINDER (ch_rmlst, ch_reads)
-    ch_multiqc_files = ch_multiqc_files.mix(LRE_FINDER.out.txt)
     ch_versions = ch_versions.mix(LRE_FINDER.out.versions)
 
     // MODULE: PLASMIDFINDER
@@ -62,5 +59,4 @@ workflow RESISTANCE_ANALYSIS {
 
     emit:
     ch_versions
-    ch_multiqc_files
 }

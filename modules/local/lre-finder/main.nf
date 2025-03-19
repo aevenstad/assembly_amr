@@ -1,5 +1,5 @@
 process LRE_FINDER {
-    publishDir "${params.outdir}/${meta.id}/10_lre-finder", mode: 'copy'
+    publishDir "${params.outdir}/${meta.id}/lre-finder", mode: 'copy'
     containerOptions "-B ${params.lrefinder_db}"
     tag "$meta.id"
 

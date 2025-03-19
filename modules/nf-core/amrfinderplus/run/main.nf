@@ -1,5 +1,5 @@
 process AMRFINDERPLUS_RUN {
-    publishDir "${params.outdir}/amrfinderplus/${meta.id}", mode: 'copy'
+    publishDir "${params.outdir}/${meta.id}/amrfinderplus", mode: 'copy'
     containerOptions "-B ${params.amrfinderplus_db}"
     tag "$meta.id"
     label 'process_medium'

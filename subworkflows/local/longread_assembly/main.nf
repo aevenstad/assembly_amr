@@ -21,16 +21,13 @@ include { NANOSTAT_TRIMMED       } from '../../../modules/local/nanostat/main'
 workflow LONGREAD_ASSEMBLY {
 
     take:
-    ch_samplesheet // channel: samplesheet read in from --input
+    samplesheet // channel: samplesheet read in from --input
+
     main:
-
     ch_versions = Channel.empty()
-    ch_multiqc_files = Channel.empty()
-    ch_longreads = ch_samplesheet.map { meta, longreads, _shortreads_1, _shortreads_2 -> 
-        def metadata = [ id: meta ]    
-        tuple(metadata, longreads) 
+    ch_longreads = samplesheet.map { meta, nanopore, _illumina_R1, _illumina_R2 ->
+            tuple([id: meta], nanopore)
     }
-
 
     //
     // MODULE: NANOSTAT_RAW
@@ -39,24 +36,23 @@ workflow LONGREAD_ASSEMBLY {
         ch_longreads
     )
     ch_versions = ch_versions.mix(NANOSTAT_RAW.out.versions)
-    ch_multiqc_files = ch_multiqc_files.mix(NANOSTAT_RAW.out.nanostat_raw)
-
 
     //
     // MODULE: HYBRACTER
     //
 
     if (params.assembly_type == 'hybrid'){
+        ch_samplesheet = samplesheet.map { meta, nanopore, illumina_R1, illumina_R2 ->
+            tuple([id: meta], nanopore, illumina_R1, illumina_R2)
+        }
         HYBRACTER_HYBRID (ch_samplesheet)
         ch_final_fasta = HYBRACTER_HYBRID.out.final_output
         ch_trimmed = HYBRACTER_HYBRID.out.processing
-        ch_multiqc_files = ch_multiqc_files.mix(HYBRACTER_HYBRID.out.fastp_json)
         ch_versions = ch_versions.mix(HYBRACTER_HYBRID.out.versions)
     } else if (params.assembly_type == 'long') {
         HYBRACTER_LONG (ch_longreads)
         ch_final_fasta = HYBRACTER_LONG.out.final_output
         ch_trimmed = HYBRACTER_LONG.out.processing
-        ch_multiqc_files = ch_multiqc_files.mix(HYBRACTER_LONG.out.fastp_json)
         ch_versions = ch_versions.mix(HYBRACTER_LONG.out.versions)
     }
     
@@ -80,11 +76,9 @@ workflow LONGREAD_ASSEMBLY {
     NANOSTAT_TRIMMED (
         ch_trimmed_longreads
     )
-    ch_multiqc_files = ch_multiqc_files.mix(NANOSTAT_TRIMMED.out.nanostat_trimmed)
 
     emit:
     ch_final_fasta
-    ch_multiqc_files
     ch_versions
     ch_trimmed_longreads
     ch_trimmed_shortreads

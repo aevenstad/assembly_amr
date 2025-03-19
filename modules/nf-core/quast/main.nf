@@ -12,12 +12,12 @@ process QUAST {
     tuple val(meta), path(fasta)
 
     output:
-    path "*", emit: results
-    tuple val(meta), path("report.tsv"), emit: tsv
-    tuple val(meta), path("contigs_reports/all_alignments_transcriptome.tsv"), optional: true, emit: transcriptome
-    tuple val(meta), path("contigs_reports/misassemblies_report.tsv"), optional: true, emit: misassemblies
-    tuple val(meta), path("contigs_reports/unaligned_report.tsv"), optional: true, emit: unaligned
-    path "versions.yml", emit: versions
+    path "${meta.id}/quast/*", emit: results
+    tuple val(meta), path("${meta.id}/quast/report.tsv"), emit: tsv
+    tuple val(meta), path("${meta.id}/quast/contigs_reports/all_alignments_transcriptome.tsv"), optional: true, emit: transcriptome
+    tuple val(meta), path("${meta.id}/quast/contigs_reports/misassemblies_report.tsv"), optional: true, emit: misassemblies
+    tuple val(meta), path("${meta.id}/quast/contigs_reports/unaligned_report.tsv"), optional: true, emit: unaligned
+    path "${meta.id}/quast/versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -33,12 +33,12 @@ process QUAST {
         --threads $task.cpus \\
         $args
 
-    ln -s 4_quast/report.tsv ${prefix}.tsv
-    [ -f 4_quast/contigs_reports/all_alignments_transcriptome.tsv ] && ln -s 4_quast/contigs_reports/all_alignments_transcriptome.tsv ${prefix}_transcriptome.tsv
-    [ -f 4_quast/contigs_reports/misassemblies_report.tsv ] && ln -s 4_quast/contigs_reports/misassemblies_report.tsv ${prefix}_misassemblies.tsv
-    [ -f 4_quast/contigs_reports/unaligned_report.tsv ] && ln -s 4_quast/contigs_reports/unaligned_report.tsv ${prefix}_unaligned.tsv
+    ln -s ${prefix}/quast/report.tsv ${prefix}.tsv
+    [ -f ${prefix}/quast/contigs_reports/all_alignments_transcriptome.tsv ] && ln -s 4_quast/contigs_reports/all_alignments_transcriptome.tsv ${prefix}_transcriptome.tsv
+    [ -f ${prefix}/quast/contigs_reports/misassemblies_report.tsv ] && ln -s 4_quast/contigs_reports/misassemblies_report.tsv ${prefix}_misassemblies.tsv
+    [ -f ${prefix}/quast/contigs_reports/unaligned_report.tsv ] && ln -s 4_quast/contigs_reports/unaligned_report.tsv ${prefix}_unaligned.tsv
 
-    cat <<-END_VERSIONS > versions.yml
+    cat <<-END_VERSIONS > ${prefix}/quast/versions.yml
     "${task.process}":
         quast: \$(quast.py --version 2>&1 | sed 's/^.*QUAST v//; s/ .*\$//')
     END_VERSIONS

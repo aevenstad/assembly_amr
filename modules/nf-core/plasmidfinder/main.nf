@@ -1,5 +1,5 @@
 process PLASMIDFINDER {
-    publishDir "${params.outdir}/${meta.id}/9_plasmidfinder", mode: 'copy'
+    publishDir "${params.outdir}/${meta.id}/plasmidfinder", mode: 'copy'
     containerOptions "-B ${params.plasmidfinder_db}"
     tag "$meta.id"
     label 'process_low'

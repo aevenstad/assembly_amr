@@ -12,12 +12,12 @@ process SHOVILL {
     tuple val(meta), path(reads)
 
     output:
-    tuple val(meta), path("contigs.fa")                         , emit: contigs
-    tuple val(meta), path("shovill.corrections")                , emit: corrections
-    tuple val(meta), path("shovill.log")                        , emit: log
-    tuple val(meta), path("{skesa,spades,megahit,velvet}.fasta"), emit: raw_contigs
-    tuple val(meta), path("contigs.{fastg,gfa,LastGraph}")      , optional:true, emit: gfa
-    path "versions.yml"                                         , emit: versions
+    tuple val(meta), path("${meta.id}/shovill/contigs.fa")                         , emit: contigs
+    tuple val(meta), path("${meta.id}/shovill/shovill.corrections")                , emit: corrections
+    tuple val(meta), path("${meta.id}/shovill/shovill.log")                        , emit: log
+    tuple val(meta), path("${meta.id}/shovill/{skesa,spades,megahit,velvet}.fasta"), emit: raw_contigs
+    tuple val(meta), path("${meta.id}/shovill/contigs.{fastg,gfa,LastGraph}")      , optional:true, emit: gfa
+    path "${meta.id}/shovill/versions.yml"                                         , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -37,7 +37,7 @@ process SHOVILL {
         --outdir ./${prefix}/shovill \\
         --force
 
-    cat <<-END_VERSIONS > versions.yml
+    cat <<-END_VERSIONS > ${prefix}/shovill/versions.yml
     "${task.process}":
         shovill: \$(echo \$(shovill --version 2>&1) | sed 's/^.*shovill //')
     END_VERSIONS

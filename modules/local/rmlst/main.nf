@@ -1,5 +1,5 @@
 process RMLST {
-    publishDir "${params.outdir}/rmlst/${meta.id}", mode: 'copy'
+    publishDir "${params.outdir}/${meta.id}/rmlst", mode: 'copy'
     tag "$meta.id"
     label 'process_low'
     maxForks 4

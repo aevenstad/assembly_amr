@@ -1,5 +1,5 @@
 process BBMAP_ALIGN {
-    publishDir "${params.outdir}/${meta.id}/8_bbmap", mode: 'copy'
+    publishDir "${params.outdir}/${meta.id}/bbmap", mode: 'copy'
     tag "$meta.id"
     label 'process_medium'
 

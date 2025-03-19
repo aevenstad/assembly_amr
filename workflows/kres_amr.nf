@@ -6,7 +6,6 @@
 include { SHORTREAD_ASSEMBLY          } from '../subworkflows/local/shortread_assembly/main'
 include { LONGREAD_ASSEMBLY           } from '../subworkflows/local/longread_assembly/main'
 include { RESISTANCE_ANALYSIS         } from '../subworkflows/local/resistance_analysis/main'
-include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap            } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc        } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML      } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -21,23 +20,20 @@ include { methodsDescriptionText      } from '../subworkflows/local/utils_nfcore
 workflow KRES_AMR {
 
     take:
-    ch_samplesheet             // channel: samplesheet read in from --input
+    samplesheet             // channel: samplesheet read in from --input
 
     main:
     ch_versions = Channel.empty()
-    ch_multiqc_files = Channel.empty()
 
     // Run the appropriate assembly workflow based on the assembly type
     if (params.assembly_type == 'short') {
-        SHORTREAD_ASSEMBLY(ch_samplesheet)
+        SHORTREAD_ASSEMBLY(samplesheet)
         ch_versions = ch_versions.mix(SHORTREAD_ASSEMBLY.out.ch_versions)
-        ch_multiqc_files = ch_multiqc_files.mix(SHORTREAD_ASSEMBLY.out.ch_multiqc_files)
         ch_trimmed_shortreads = SHORTREAD_ASSEMBLY.out.ch_shortread_trimmed
         ch_final_fasta = SHORTREAD_ASSEMBLY.out.ch_final_fasta
     } else {
-        LONGREAD_ASSEMBLY(ch_samplesheet)
+        LONGREAD_ASSEMBLY(samplesheet)
         ch_versions = ch_versions.mix(LONGREAD_ASSEMBLY.out.ch_versions)
-        ch_multiqc_files = ch_multiqc_files.mix(LONGREAD_ASSEMBLY.out.ch_multiqc_files)
         ch_trimmed_longreads = LONGREAD_ASSEMBLY.out.ch_trimmed_longreads
         ch_trimmed_shortreads = LONGREAD_ASSEMBLY.out.ch_trimmed_shortreads
         ch_final_fasta = LONGREAD_ASSEMBLY.out.ch_final_fasta
@@ -53,8 +49,6 @@ workflow KRES_AMR {
     // Run the resistance analysis workflow
     RESISTANCE_ANALYSIS(ch_final_fasta, ch_trimmed)
         ch_versions = ch_versions.mix(RESISTANCE_ANALYSIS.out.ch_versions)
-        ch_multiqc_files = ch_multiqc_files.mix(RESISTANCE_ANALYSIS.out.ch_multiqc_files)
-
 
 
     // Collate and save software versions
@@ -67,46 +61,7 @@ workflow KRES_AMR {
         ).set { ch_collated_versions }
 
 
-    // MODULE: MultiQC
-    ch_multiqc_config        = Channel.fromPath(
-        "$projectDir/assets/multiqc_config.yml", checkIfExists: true)
-    ch_multiqc_custom_config = params.multiqc_config ?
-        Channel.fromPath(params.multiqc_config, checkIfExists: true) :
-        Channel.empty()
-    ch_multiqc_logo          = params.multiqc_logo ?
-        Channel.fromPath(params.multiqc_logo, checkIfExists: true) :
-        Channel.empty()
-
-    summary_params      = paramsSummaryMap(
-        workflow, parameters_schema: "nextflow_schema.json")
-    ch_workflow_summary = Channel.value(paramsSummaryMultiqc(summary_params))
-    ch_multiqc_files = ch_multiqc_files.mix(
-        ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
-    ch_multiqc_custom_methods_description = params.multiqc_methods_description ?
-        file(params.multiqc_methods_description, checkIfExists: true) :
-        file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
-    ch_methods_description                = Channel.value(
-        methodsDescriptionText(ch_multiqc_custom_methods_description))
-
-    ch_multiqc_files = ch_multiqc_files.mix(ch_collated_versions)
-    ch_multiqc_files = ch_multiqc_files.mix(
-        ch_methods_description.collectFile(
-            name: 'methods_description_mqc.yaml',
-            sort: true
-        )
-    )
-
-    MULTIQC (
-        ch_multiqc_files.collect(),
-        ch_multiqc_config.toList(),
-        ch_multiqc_custom_config.toList(),
-        ch_multiqc_logo.toList(),
-        [],
-        []
-    )
-
     emit:
-    multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 
 }

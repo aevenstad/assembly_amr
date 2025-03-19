@@ -1,5 +1,5 @@
 process NANOSTAT_RAW {
-    publishDir "${params.outdir}/nanostat/${meta.id}", mode: 'copy'
+    publishDir "${params.outdir}/${meta.id}/nanostat", mode: 'copy'
     tag "$meta.id"
     label 'process_medium'
 
@@ -40,7 +40,7 @@ process NANOSTAT_RAW {
 }
 
 process NANOSTAT_TRIMMED {
-    publishDir "${params.outdir}/nanostat/${meta.id}", mode: 'copy'
+    publishDir "${params.outdir}/${meta.id}/nanostat", mode: 'copy'
     tag "$meta.id"
     label 'process_medium'
 

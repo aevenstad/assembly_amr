@@ -68,12 +68,14 @@ workflow PIPELINE_INITIALISATION {
     Channel
         .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
         .map { meta, nanopore, illumina_R1, illumina_R2 ->  
-            println "Meta: $meta, Nanopore: $nanopore, Illumina_R1: $illumina_R1, Illumina_R2: $illumina_R2"
             if (!illumina_R1 && !illumina_R2) {
                 return tuple(meta.id, file(nanopore), null, null)
+            } else if (!nanopore) {
+                return tuple(meta.id, null, file(illumina_R1), file(illumina_R2))
             } else {
                 return tuple(meta.id, file(nanopore), file(illumina_R1), file(illumina_R2))
             }
+
         }
         .set { ch_samplesheet }
 
@@ -93,11 +95,9 @@ workflow PIPELINE_COMPLETION {
     take:
     outdir          //    path: Path to output directory where results will be published
     monochrome_logs // boolean: Disable ANSI colour codes in log output
-    multiqc_report  //  string: Path to MultiQC report
 
     main:
     summary_params = paramsSummaryMap(workflow, parameters_schema: "nextflow_schema.json")
-    def multiqc_reports = multiqc_report.toList()
 
     //
     // Completion email and summary

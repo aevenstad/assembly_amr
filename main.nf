@@ -32,15 +32,12 @@ workflow KRES_ASSEMBLY_AMR {
     samplesheet // channel: samplesheet read in from --input
 
     main:
-
     //
     // WORKFLOW: Run pipeline
     //
     KRES_AMR (
         samplesheet
     )
-    emit:
-    multiqc_report = KRES_AMR.out.multiqc_report // channel: /path/to/multiqc_report.html
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -75,7 +72,6 @@ workflow {
     PIPELINE_COMPLETION (
         params.outdir,
         params.monochrome_logs,
-        KRES_ASSEMBLY_AMR.out.multiqc_report
     )
 }
 

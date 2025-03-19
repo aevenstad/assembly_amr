@@ -1,5 +1,5 @@
 process BAKTA_BAKTA {
-    publishDir "${params.outdir}/bakta/${meta.id}", mode: 'copy'
+    publishDir "${params.outdir}/${meta.id}/bakta", mode: 'copy'
     containerOptions "-B ${params.bakta_db}"
     tag "$meta.id"
     label 'process_medium'
