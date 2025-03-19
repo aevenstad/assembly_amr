@@ -17,7 +17,7 @@ include { methodsDescriptionText      } from '../subworkflows/local/utils_nfcore
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow KRES_AMR {
+workflow ASSEMBLY_AMR {
 
     take:
     samplesheet             // channel: samplesheet read in from --input

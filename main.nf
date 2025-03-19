@@ -14,7 +14,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { KRES_AMR                      } from './workflows/kres_amr'
+include { ASSEMBLY_AMR                  } from './workflows/assembly_amr'
 include { PIPELINE_INITIALISATION       } from './subworkflows/local/utils_nfcore_nanopore_assembly_pipeline'
 include { PIPELINE_COMPLETION           } from './subworkflows/local/utils_nfcore_nanopore_assembly_pipeline'
 /*
@@ -35,7 +35,7 @@ workflow KRES_ASSEMBLY_AMR {
     //
     // WORKFLOW: Run pipeline
     //
-    KRES_AMR (
+    ASSEMBLY_AMR (
         samplesheet
     )
 }
