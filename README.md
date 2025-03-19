@@ -1,79 +1,97 @@
-# kres/annotate_genomes
+# Assembly & AMR
+***The pipeline is currently under development!***
+## Author
+* Andreas Evenstad (https://github.com/aevenstad/)
 
 ## Introduction
+This is a Nextflow pipeline written using the nf-core template, and is made for analyzing whole-genome sequencing data from bacterial isolates.
+It`s main function is to asses antimicrobial resistance in the provided isolates and the main steps of the pipeline is:
+* Genome assembly:
+  - Hybrid mode with Hybracter (using Nanopore and Illumina data)
+  - Long read mode with Hybracter (using only Nanoporedata)
+  - Short read mode with Shovill (using only Illumina data)
+* Multi locus sequence typing:
+    - MLST
+    - rMLST
+* Resistance analysis:
+    - AMRFinder
+    - Kleborate (for Klebsiella)
+    - PlasmidFinder
+    - LRE-Finder (for enterobactales)
+* Annotation:
+    - Bakta (optionally)
 
-**kres/annotate_genomes** is a bioinformatics pipeline that ...
+## Requirements
+### Dependencies
+This pipeline is developed with singularity for tool dependencies. Most of the containers used is accessible from public registries like `quay` and `biocontainers`
+but for the tools not available in the registries local builds are currently used.
 
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
+### Databases
+In order for the pipeline to run these databases must be available on the system:
+* AMRFinderPlus database (release 2024-10-22.1 or later)
+* PlasmidFinder database
+* LRE-Finder database
+* Bakta database (optionally for annotation)
 
-<!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
-     workflows use the "tube map" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   -->
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
 
-## Usage
+## Quickstart
 
-> [!NOTE]
-> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
+### Download the pipeline
+Clone the repository:
+```
+git clone https://github.com/aevenstad/assembly_amr.git
+```
+#### Arguments
+```
+-profile                [string] Name of profile from `nextflow.conf` (Currently only <singularity> supported)
+--input                 [string] Path to input samplesheet
+--outdir                [string] Path to output directory
+--assembly_type         [string] Type of assembly to perform  (accepted: hybrid, long, short)
+--amrfinder_db          [string] Path to the AMRFinderPlus database
+--plasmidfinder_db      [string] Path to the PlasmidFinder database
+--lrefinder_db          [string] Path to the LRE-Finder database
+--bakta                 [boolean] Run annotation with bakta [default: false]
+--bakta_db              [string] Path to the bakta database
+```
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
+### Hybrid assembly
+If you have both Nanopore and Illumina reads from the same isolate and want to run a hybrid assembly, input must be provided in a comma-separated file e.g. `samplesheet.csv`:
+```
+sample,nanopore,illumina_R1,illumina_R2
+isolate1,/path/to/nanopore/data/isolate1.fastq.gz,/path/to/illumina/data/isolate1_R1.fastq.gz,/path/to/illumina/data/isolate1_R2.fastq.gz
+isolate2,/path/to/nanopore/data/isolate2.fastq.gz,/path/to/illumina/data/isolate2_R1.fastq.gz,/path/to/illumina/data/isolate2_R2.fastq.gz
+```
 
-First, prepare a samplesheet with your input data that looks as follows:
+Run the pipeline with:
+```
+nextflow run /path/to/assembly_amr/main.nf -profile singularity --input samplesheet.csv --outdir <outdir> --assembly_type hybrid 
+```
 
+### Long read assembly
+For long read only assembly with Nanopore reads:
 `samplesheet.csv`:
-
-```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+```
+sample,nanopore
+isolate1,/path/to/nanopore/data/isolate1.fastq.gz
+isolate2,/path/to/nanopore/data/isolate2.fastq.gz
 ```
 
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
-
--->
-
-Now, you can run the pipeline using:
-
-<!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
-
-```bash
-nextflow run kres/annotate_genomes \
-   -profile <docker/singularity/.../institute> \
-   --input samplesheet.csv \
-   --outdir <OUTDIR>
+Run the pipeline with:
+```
+nextflow run /path/to/assembly_amr/main.nf -profile singularity --input samplesheet.csv --outdir <outdir> --assembly_type long 
 ```
 
-> [!WARNING]
-> Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/usage/getting_started/configuration#custom-configuration-files).
+### Short read assembly
+For short read only assembly with Illumina reads:
+`samplesheet.csv`:
+```
+sample,illumina_R1,illumina_R2
+isolate1,/path/to/illumina/data/isolate1_R1.fastq.gz,/path/to/illumina/data/isolate1_R2.fastq.gz
+isolate2,/path/to/illumina/data/isolate2_R1.fastq.gz,/path/to/illumina/data/isolate2_R2.fastq.gz
+```
 
-## Credits
+Run the pipeline with:
+```
+nextflow run /path/to/assembly_amr/main.nf -profile singularity --input samplesheet.csv --outdir <outdir> --assembly_type short 
+```
 
-kres/annotate_genomes was originally written by Andreas Evenstad.
-
-We thank the following people for their extensive assistance in the development of this pipeline:
-
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
-
-## Contributions and Support
-
-If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
-
-## Citations
-
-<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-<!-- If you use kres/annotate_genomes for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
-
-<!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
-
-An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
-
-This pipeline uses code and infrastructure developed and maintained by the [nf-core](https://nf-co.re) community, reused here under the [MIT license](https://github.com/nf-core/tools/blob/main/LICENSE).
-
-> **The nf-core framework for community-curated bioinformatics pipelines.**
->
-> Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.
->
-> _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).
