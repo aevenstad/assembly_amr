@@ -1,6 +1,8 @@
 process KLEBORATE {
-    publishDir "${params.outdir}/kleborate", mode: 'copy'
+    publishDir "${params.outdir}", mode: 'copy'
+    tag "$meta.id"
     label 'process_medium'
+
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -11,8 +13,8 @@ process KLEBORATE {
     tuple val(meta), path(species), path(fastas)
 
     output:
-    tuple val(meta), path("*/*.txt"), emit: txt
-    path "*/versions.yml"           , emit: versions
+    tuple val(meta), path("${meta.id}/kleborate/*.txt"), emit: txt
+    path "${meta.id}/kleborate/versions.yml"           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,7 +30,7 @@ process KLEBORATE {
     if [[ "\$species_content" == *"Klebsiella"* ]]; then
         kleborate \\
         $args \\
-        --outdir $prefix \\
+        --outdir $prefix/kleborate \\
         --assemblies $fastas
 
     else
@@ -39,8 +41,8 @@ process KLEBORATE {
 
     kleborate_version=\$(kleborate --version 2>&1 | grep "Kleborate v" | sed 's/Kleborate v//;')
     echo "Kleborate version: \$kleborate_version"
-    echo '"'"${task.process}"'":' > ${prefix}//versions.yml
-    echo "    kleborate: \$kleborate_version" >> ${prefix}//versions.yml
+    echo '"'"${task.process}"'":' > ${prefix}/kleborate/versions.yml
+    echo "    kleborate: \$kleborate_version" >> ${prefix}/kleborate/versions.yml
     """
 
     stub:
@@ -48,7 +50,7 @@ process KLEBORATE {
     """
     touch ${prefix}.results.txt
 
-    cat <<-END_VERSIONS > versions.yml
+    cat <<-END_VERSIONS > ${prefix}/kleborate/versions_test.yml
     "${task.process}":
         kleborate: \$(kleborate --version 2>&1 | sed 's/Kleborate v//;')
     END_VERSIONS

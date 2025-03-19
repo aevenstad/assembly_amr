@@ -1,5 +1,5 @@
 process HYBRACTER_HYBRID {
-    publishDir "${params.outdir}/hybracter", mode: 'copy'
+    publishDir "${params.outdir}/${meta.id}/hybracter", mode: 'copy'
     tag "$meta.id"
     label 'process_medium'
 
@@ -25,6 +25,7 @@ process HYBRACTER_HYBRID {
     task.ext.when == null || task.ext.when
 
     script:
+    println "META CONTENTS: " + meta
     def args = task.ext.args   ?: '--auto'
     def prefix = task.ext.prefix ?: "${meta.id}"
     def cacheDir = task.workDir ? task.workDir.toAbsolutePath().toString() + "/.cache" : "/tmp/.cache"
@@ -66,7 +67,7 @@ process HYBRACTER_HYBRID {
 }
 
 process HYBRACTER_LONG {
-    publishDir "${params.outdir}/hybracter", mode: 'copy'
+    publishDir "${params.outdir}${meta.id}/hybracter", mode: 'copy'
     tag "$meta.id"
     label 'process_medium'
 
@@ -92,6 +93,7 @@ process HYBRACTER_LONG {
     task.ext.when == null || task.ext.when
 
     script:
+    println "META CONTENTS: " + meta
     def args = task.ext.args   ?: '--auto'
     def prefix = task.ext.prefix ?: "${meta.id}"
     def cacheDir = task.workDir ? task.workDir.toAbsolutePath().toString() + "/.cache" : "/tmp/.cache"

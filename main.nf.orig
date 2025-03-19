@@ -14,7 +14,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { KRES_AMR                      } from './workflows/kres_amr'
+include { NANOPORE_ASSEMBLY_ANNOTATION  } from './workflows/nanopore_assembly'
 include { PIPELINE_INITIALISATION       } from './subworkflows/local/utils_nfcore_nanopore_assembly_pipeline'
 include { PIPELINE_COMPLETION           } from './subworkflows/local/utils_nfcore_nanopore_assembly_pipeline'
 /*
@@ -26,18 +26,21 @@ include { PIPELINE_COMPLETION           } from './subworkflows/local/utils_nfcor
 //
 // WORKFLOW: Run main analysis pipeline depending on type of input
 //
-workflow KRES_ASSEMBLY_AMR {
+workflow KRES_NANOPORE_ASSEMBLY_ANNOTATION {
 
     take:
     samplesheet // channel: samplesheet read in from --input
 
     main:
+
     //
     // WORKFLOW: Run pipeline
     //
-    KRES_AMR (
+    NANOPORE_ASSEMBLY_ANNOTATION (
         samplesheet
     )
+    emit:
+    multiqc_report = NANOPORE_ASSEMBLY_ANNOTATION.out.multiqc_report // channel: /path/to/multiqc_report.html
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -63,7 +66,7 @@ workflow {
     //
     // WORKFLOW: Run main workflow
     //
-    KRES_ASSEMBLY_AMR (
+    KRES_NANOPORE_ASSEMBLY_ANNOTATION (
         PIPELINE_INITIALISATION.out.samplesheet
     )
     //
@@ -72,6 +75,7 @@ workflow {
     PIPELINE_COMPLETION (
         params.outdir,
         params.monochrome_logs,
+        KRES_NANOPORE_ASSEMBLY_ANNOTATION.out.multiqc_report
     )
 }
 

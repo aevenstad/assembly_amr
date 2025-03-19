@@ -10,7 +10,7 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "outdir", "bakta_db"],
+            "required": ["input", "outdir", "bakta_db", "amrfinderplus_db", "plasmidfinder_db", "lrefinder_db"],
             "properties": {
                 "input": {
                     "type": "string",
@@ -54,6 +54,27 @@
                     "exists": true,
                     "description": "Path to the AMRFinderPlus database",
                     "fa_icon": "fas fa-folder-open"
+                },
+                "plasmidfinder_db": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "exists": true,
+                    "description": "Path to the PlasmidFinder database",
+                    "fa_icon": "fas fa-folder-open"
+                },
+                "lrefinder_db": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "exists": true,
+                    "description": "Path to the LRE-Finder database",
+                    "fa_icon": "fas fa-folder-open"
+                },
+                "assembly_type": {
+                    "type": "string",
+                    "description": "Type of assembly to perform",
+                    "enum": ["hybrid", "long", "short"],
+                    "default": "hybrid",
+                    "fa_icon": "fas fa-dna"
                 }
             }
         },

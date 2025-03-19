@@ -1,5 +1,5 @@
 process MLST {
-    publishDir "${params.outdir}/mlst/${meta.id}", mode: 'copy'
+    publishDir "${params.outdir}/${meta.id}/mlst", mode: 'copy'
     tag "$meta.id"
     label 'process_low'
 
@@ -26,7 +26,7 @@ process MLST {
         $args \\
         --threads $task.cpus \\
         $fasta \\
-        > mlst.tsv
+        > ${prefix}_mlst.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
