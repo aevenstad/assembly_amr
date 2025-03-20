@@ -1,6 +1,5 @@
 process LRE_FINDER {
     publishDir "${params.outdir}/${meta.id}/lre-finder", mode: 'copy'
-    containerOptions "-B ${params.lrefinder_db}"
     tag "$meta.id"
 
     container '/bigdata/Jessin/Softwares/containers/lre-finder_v1.0.0.sif'
@@ -33,7 +32,7 @@ process LRE_FINDER {
         LRE-Finder.py \\
         -ipe ${reads[0]} ${reads[1]} \\
         -o ./${prefix} \\
-        -t_db ${params.lrefinder_db}/elm \\
+        -t_db /lre-finder/elmDB/elm \\
         $args |\\
         html2text > LRE-Finder_out.txt
     
