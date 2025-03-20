@@ -43,7 +43,6 @@ but for the tools not available in the registries local builds are currently use
 In order for the pipeline to run these databases must be available on the system:
 * AMRFinderPlus database (release 2024-10-22.1 or later)
 * PlasmidFinder database
-* LRE-Finder database
 * Bakta database (optionally for annotation)
 
 
