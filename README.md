@@ -53,6 +53,24 @@ Clone the repository:
 ```
 git clone https://github.com/aevenstad/assembly_amr.git
 ```
+
+### Get dependencies
+You can optionally install dependencies before running the pipeline using the helper scripts in `bin/`.  
+It’s recommended to set the container directory using the Nextflow variable `$NXF_SINGULARITY_CACHEDIR`:
+```
+NXF_SINGULARITY_CACHEDIR=/path/to/containers/
+```
+To pull containers from public registries, run:
+```
+bash bin/pull_containers.sh $NXF_SINGULARITY_CACHEDIR
+```
+
+For dependencies without publicly available container images, use:
+```
+bash bin/build_containers.sh $NXF_SINGULARITY_CACHEDIR
+```
+This will build the required containers using custom definition files in `singularity/`.
+
 ### Arguments
 ```
 -profile                [string] Name of profile from `nextflow.conf` (Currently only <singularity> supported)
