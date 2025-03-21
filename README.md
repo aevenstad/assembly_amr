@@ -10,10 +10,13 @@
   - [Databases](#databases)
 - [Quickstart](#quickstart)
   - [Download the pipeline](#download-the-pipeline)
+  - [Get dependencies](#get-dependencies)
+  - [Download databases](#download-databases)
   - [Arguments](#arguments)
-  - [Hybrid assembly](#hybrid-assembly)
-  - [Long read assembly](#long-read-assembly)
-  - [Short read assembly](#short-read-assembly)
+  - [Run the pipeline](#run-the-pipeline)
+  - [Hybrid input](#hybrid-input)
+  - [Long-read input](#long-read-input)
+  - [Short-read input](#short-read-input)
 
 
 ## Introduction
@@ -104,7 +107,19 @@ singularity exec <bakta_image> bakta_db download --output ./ --type [light|full]
 --bakta_db              [string] Path to the bakta database
 ```
 
-### Hybrid assembly
+### Run the pipeline
+
+```
+nextflow run /path/to/assembly_amr/main.nf \
+-profile singularity \
+--input samplesheet.csv \
+--outdir <outdir> \
+--assembly_type [hybrid|long|short] \
+--amrfinder_db <amrfinder_db> \
+--plasmidfinder_db <plasmidfinder_db>
+```
+
+#### Hybrid input
 If you have both Nanopore and Illumina reads from the same isolate and want to run a hybrid assembly, input must be provided in a comma-separated file e.g. `samplesheet.csv`:
 ```
 sample,nanopore,illumina_R1,illumina_R2
@@ -112,12 +127,7 @@ isolate1,/path/to/nanopore/data/isolate1.fastq.gz,/path/to/illumina/data/isolate
 isolate2,/path/to/nanopore/data/isolate2.fastq.gz,/path/to/illumina/data/isolate2_R1.fastq.gz,/path/to/illumina/data/isolate2_R2.fastq.gz
 ```
 
-Run the pipeline with:
-```
-nextflow run /path/to/assembly_amr/main.nf -profile singularity --input samplesheet.csv --outdir <outdir> --assembly_type hybrid 
-```
-
-### Long read assembly
+#### Long-read input
 For long read only assembly with Nanopore reads:
 `samplesheet.csv`:
 ```
@@ -125,13 +135,7 @@ sample,nanopore
 isolate1,/path/to/nanopore/data/isolate1.fastq.gz
 isolate2,/path/to/nanopore/data/isolate2.fastq.gz
 ```
-
-Run the pipeline with:
-```
-nextflow run /path/to/assembly_amr/main.nf -profile singularity --input samplesheet.csv --outdir <outdir> --assembly_type long 
-```
-
-### Short read assembly
+#### Short-read input
 For short read only assembly with Illumina reads:
 `samplesheet.csv`:
 ```
@@ -140,8 +144,5 @@ isolate1,/path/to/illumina/data/isolate1_R1.fastq.gz,/path/to/illumina/data/isol
 isolate2,/path/to/illumina/data/isolate2_R1.fastq.gz,/path/to/illumina/data/isolate2_R2.fastq.gz
 ```
 
-Run the pipeline with:
-```
-nextflow run /path/to/assembly_amr/main.nf -profile singularity --input samplesheet.csv --outdir <outdir> --assembly_type short 
-```
+
 
