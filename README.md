@@ -23,19 +23,18 @@
 This is a Nextflow pipeline written using the nf-core template, and is made for analyzing whole-genome sequencing data from bacterial isolates.
 It`s main function is to asses antimicrobial resistance in the provided isolates and the main steps of the pipeline is:
 * Genome assembly:
-  - Hybrid mode with Hybracter (using Nanopore and Illumina data)
-  - Long read mode with Hybracter (using only Nanopore data)
-  - Short read mode with Shovill (using only Illumina data)
+  - `hybrid` or `long` mode with hybracter (0.11.0)
+  - Short read mode with shovill (1.1.0) (using spades assembler)
 * Multi locus sequence typing:
-    - MLST
-    - rMLST
+    - MLST (2.23.0)
+    - rMLST (https://gist.github.com/kjolley/703fa2f00c3b2abeef9242fa193ea901#file-species_api_upload-py)
 * Resistance analysis:
-    - AMRFinder
-    - Kleborate (for Klebsiella)
-    - PlasmidFinder
-    - LRE-Finder (for enterobactales)
+    - AMRFinderPlus (4.0.3)
+    - Kleborate (3.1.2) (for Klebsiella)
+    - PlasmidFinder (2.1.6)
+    - LRE-Finder (1.0.0) (for enterobactales)
 * Annotation:
-    - Bakta (optionally)
+    - Bakta (1.10.4)
 
 ## Requirements
 ### Dependencies
