@@ -59,25 +59,22 @@ You can optionally install dependencies before running the pipeline using the he
 It’s recommended to set the container directory using the Nextflow variable `$NXF_SINGULARITY_CACHEDIR`:
 ```
 NXF_SINGULARITY_CACHEDIR=/path/to/containers/
-```
-To pull containers from public registries, run:
-```
-bash bin/pull_containers.sh $NXF_SINGULARITY_CACHEDIR
-```
 
-For dependencies without publicly available container images, use:
-```
+# to pull containers from public registries, run:
+bash bin/pull_containers.sh $NXF_SINGULARITY_CACHEDIR
+
+# for dependencies without publicly available container images, use:
 bash bin/build_containers.sh $NXF_SINGULARITY_CACHEDIR
 ```
 This will build the required containers using custom definition files in `singularity/`.
 
 ### Download databases
-Get the AMRFinderPlus database:
+AMRFinderPlus database:
 ```
 singularity exec <amrfinderplus_image> amrfinder_update -d <database_dir>
 ```
 
-Get PlasmidFinder database:
+PlasmidFinder database:
 ```
 # go to preferred database directory
 cd <database_dir>
@@ -89,6 +86,12 @@ PLASMID_DB=$(pwd)
 singularity exec <plasmidfinder_image> python3 INSTALL.py kma_index
 ```
 
+Bakta database:
+```
+cd <database_dir>
+singularity exec <bakta_image> bakta_db download --output ./ --type [light|full]
+```
+
 ### Arguments
 ```
 -profile                [string] Name of profile from `nextflow.conf` (Currently only <singularity> supported)
@@ -97,7 +100,6 @@ singularity exec <plasmidfinder_image> python3 INSTALL.py kma_index
 --assembly_type         [string] Type of assembly to perform  (accepted: hybrid, long, short)
 --amrfinder_db          [string] Path to the AMRFinderPlus database
 --plasmidfinder_db      [string] Path to the PlasmidFinder database
---lrefinder_db          [string] Path to the LRE-Finder database
 --bakta                 [boolean] Run annotation with bakta [default: false]
 --bakta_db              [string] Path to the bakta database
 ```
