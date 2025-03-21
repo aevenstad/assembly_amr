@@ -9,7 +9,7 @@
         "properties": {
             "sample": {
                 "type": ["string","integer"],
-                "pattern": "^[A-Za-z0-9]+$",
+                "pattern": "^[A-Za-z0-9-]+$",
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
                 "meta": ["id"]
             },
