@@ -71,6 +71,24 @@ bash bin/build_containers.sh $NXF_SINGULARITY_CACHEDIR
 ```
 This will build the required containers using custom definition files in `singularity/`.
 
+### Download databases
+Get the AMRFinderPlus database:
+```
+singularity exec <amrfinderplus_image> amrfinder_update -d <database_dir>
+```
+
+Get PlasmidFinder database:
+```
+# go to preferred database directory
+cd <database_dir>
+# clone the latest version of the database:
+git clone https://bitbucket.org/genomicepidemiology/plasmidfinder_db.git
+cd plasmidfinder_db
+PLASMID_DB=$(pwd)
+# install the database:
+singularity exec <plasmidfinder_image> python3 INSTALL.py kma_index
+```
+
 ### Arguments
 ```
 -profile                [string] Name of profile from `nextflow.conf` (Currently only <singularity> supported)
