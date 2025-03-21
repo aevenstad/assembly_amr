@@ -14,9 +14,9 @@
   - [Download databases](#download-databases)
   - [Arguments](#arguments)
   - [Run the pipeline](#run-the-pipeline)
-  - [Hybrid input](#hybrid-input)
-  - [Long-read input](#long-read-input)
-  - [Short-read input](#short-read-input)
+    - [Hybrid input](#hybrid-input)
+    - [Long-read input](#long-read-input)
+    - [Short-read input](#short-read-input)
 
 
 ## Introduction
