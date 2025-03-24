@@ -17,6 +17,9 @@ process QUAST {
     tuple val(meta), path("${meta.id}/quast/contigs_reports/all_alignments_transcriptome.tsv"), optional: true, emit: transcriptome
     tuple val(meta), path("${meta.id}/quast/contigs_reports/misassemblies_report.tsv"), optional: true, emit: misassemblies
     tuple val(meta), path("${meta.id}/quast/contigs_reports/unaligned_report.tsv"), optional: true, emit: unaligned
+    tuple val(meta), env(N_CONTIGS), emit: n_contigs
+    tuple val(meta), env(N50), emit: n50
+    tuple val(meta), env(LENGTH), emit: length
     path "${meta.id}/quast/versions.yml", emit: versions
 
     when:
@@ -32,6 +35,10 @@ process QUAST {
         $assembly \\
         --threads $task.cpus \\
         $args
+
+    N_CONTIGS=\$(grep '# contigs (>= 0 bp)' ${prefix}/quast/report.tsv | cut -f2)
+    N50=\$(grep 'N50' ${prefix}/quast/report.tsv | cut -f2)
+    LENGTH=\$(grep 'Total length (>= 0 bp)' ${prefix}/quast/report.tsv | cut -f2)
 
     ln -s ${prefix}/quast/report.tsv ${prefix}.tsv
     [ -f ${prefix}/quast/contigs_reports/all_alignments_transcriptome.tsv ] && ln -s 4_quast/contigs_reports/all_alignments_transcriptome.tsv ${prefix}_transcriptome.tsv
