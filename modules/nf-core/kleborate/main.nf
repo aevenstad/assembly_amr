@@ -14,6 +14,7 @@ process KLEBORATE {
 
     output:
     tuple val(meta), path("${meta.id}/kleborate/*.txt"), emit: txt
+    tuple val(meta), env(KLEBORATE_SPECIES), emit: kleborate_species
     path "${meta.id}/kleborate/versions.yml"           , emit: versions
 
     when:
@@ -32,11 +33,14 @@ process KLEBORATE {
         $args \\
         --outdir $prefix/kleborate \\
         --assemblies $fastas
+        
+        KLEBORATE_SPECIES=\$(tail -n1 $prefix/kleborate/klebsiella_pneumo_complex_output.txt | cut -f2)
 
     else
         echo "Skipping Kleborate..."
         mkdir -p $prefix/kleborate
         echo "Kleborate skipped for \$species_content" > ${prefix}/kleborate/kleborate_skipped.txt
+        KLEBORATE_SPECIES="NA"
     fi
 
     kleborate_version=\$(kleborate --version 2>&1 | grep "Kleborate v" | sed 's/Kleborate v//;')
