@@ -25,7 +25,6 @@ process HYBRACTER_HYBRID {
     task.ext.when == null || task.ext.when
 
     script:
-    println "META CONTENTS: " + meta
     def args = task.ext.args   ?: '--auto'
     def prefix = task.ext.prefix ?: "${meta.id}"
     def cacheDir = task.workDir ? task.workDir.toAbsolutePath().toString() + "/.cache" : "/tmp/.cache"
@@ -93,7 +92,6 @@ process HYBRACTER_LONG {
     task.ext.when == null || task.ext.when
 
     script:
-    println "META CONTENTS: " + meta
     def args = task.ext.args   ?: '--auto'
     def prefix = task.ext.prefix ?: "${meta.id}"
     def cacheDir = task.workDir ? task.workDir.toAbsolutePath().toString() + "/.cache" : "/tmp/.cache"
