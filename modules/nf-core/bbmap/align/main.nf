@@ -15,6 +15,7 @@ process BBMAP_ALIGN {
     output:
     tuple val(meta), path("*.bam"), emit: bam
     tuple val(meta), path("*.txt"), emit: txt
+    tuple val(meta), env(COVERAGE), emit: coverage
     path "versions.yml"           , emit: versions
 
     when:
@@ -50,7 +51,7 @@ process BBMAP_ALIGN {
         1>bbmap_statistics.txt 2>&1
 
     # Extract the average coverage from the bbmap statistics file
-    grep "Average coverage:" bbmap_statistics.txt | rev | cut -f1 | rev > bbmap_coverage.txt
+    COVERAGE=\$(grep "Average coverage:" bbmap_statistics.txt | rev | cut -f1 | rev)
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
