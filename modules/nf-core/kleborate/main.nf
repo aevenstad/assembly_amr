@@ -35,8 +35,8 @@ process KLEBORATE {
 
     else
         echo "Skipping Kleborate..."
-        mkdir -p $prefix
-        echo "Kleborate skipped for \$species_content" > ${prefix}/kleborate_skipped.txt
+        mkdir -p $prefix/kleborate
+        echo "Kleborate skipped for \$species_content" > ${prefix}/kleborate/kleborate_skipped.txt
     fi
 
     kleborate_version=\$(kleborate --version 2>&1 | grep "Kleborate v" | sed 's/Kleborate v//;')
