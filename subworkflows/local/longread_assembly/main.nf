@@ -61,12 +61,10 @@ workflow LONGREAD_ASSEMBLY {
     }
     ch_trimmed_longreads = ch_trimmed.map { meta, dir -> 
         def files = file("${dir}/qc/*filt_trim.fastq.gz")
-        println "Files in directory ${dir}: $files"
         tuple(meta, files)
     }
     ch_trimmed_shortreads = ch_trimmed.map { meta, dir -> 
         def files = file("${dir}/qc/fastp/*.fastq.gz")
-        println "Files in directory ${dir}: $files"
         tuple(meta, files)
     }
 
