@@ -19,6 +19,7 @@ process PLASMIDFINDER {
     tuple val(meta), path("*.tsv")                  , emit: tsv
     tuple val(meta), path("*-hit_in_genome_seq.fsa"), emit: genome_seq
     tuple val(meta), path("*-plasmid_seqs.fsa")     , emit: plasmid_seq
+    tuple val(meta), env(PLASMIDS)             , emit: plasmids
     path "versions.yml"                             , emit: versions
 
     when:
@@ -42,6 +43,10 @@ process PLASMIDFINDER {
     mv results_tab.tsv ${prefix}.tsv
     mv Hit_in_genome_seq.fsa ${prefix}-hit_in_genome_seq.fsa
     mv Plasmid_seqs.fsa ${prefix}-plasmid_seqs.fsa
+
+    plasmid_id=\$(cut -f2 ${prefix}.tsv | grep -v "Plasmid")
+    identity=\$(cut -f3 ${prefix}.tsv | grep -v "Identity")
+    PLASMIDS=\$(echo -e "\$plasmid_id (\$identity) |")
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

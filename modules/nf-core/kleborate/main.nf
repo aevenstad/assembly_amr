@@ -39,11 +39,11 @@ process KLEBORATE {
         # Create variables for summary
         KLEBORATE_SPECIES=\$(tail -n1 $prefix/kleborate/klebsiella_pneumo_complex_output.txt | cut -f2)
         OMP_MUTATIONS=\$(awk -F'\t' -v col="klebsiella_pneumo_complex__amr__Omp_mutations" \\
-            'NR==1 {for (i=1; i<=NF; i++) if ($i == col) c=i} c {print $c}' \\
-            F="\t" kleborate/klebsiella_pneumo_complex_output.txt | tail -n1)
+            'NR==1 {for (i=1; i<=NF; i++) if (\$i == col) c=i} c {print \$c}' \\
+            F="\t" $prefix/kleborate/klebsiella_pneumo_complex_output.txt | tail -n1)
         COL_MUTATIONS=\$(awk -F'\t' -v col="klebsiella_pneumo_complex__amr__Col_mutations" \\
-            'NR==1 {for (i=1; i<=NF; i++) if ($i == col) c=i} c {print $c}' \\
-            F="\t" kleborate/klebsiella_pneumo_complex_output.txt | tail -n1)        
+            'NR==1 {for (i=1; i<=NF; i++) if (\$i == col) c=i} c {print \$c}' \\
+            F="\t" $prefix/kleborate/klebsiella_pneumo_complex_output.txt | tail -n1)        
 
     else
         echo "Skipping Kleborate..."
