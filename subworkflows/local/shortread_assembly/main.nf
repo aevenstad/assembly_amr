@@ -65,6 +65,7 @@ workflow SHORTREAD_ASSEMBLY {
     QUAST (
         ch_final_fasta
     )
+    ch_quast_results = QUAST.out.tsv
     ch_versions = ch_versions.mix(QUAST.out.versions)
 
     //
@@ -75,10 +76,13 @@ workflow SHORTREAD_ASSEMBLY {
         ch_final_fasta
     )
     // Outputs BBMap results
+    ch_bbmap_results = BBMAP_ALIGN.out.txt
     ch_versions = ch_versions.mix(BBMAP_ALIGN.out.versions)
 
     emit:
     ch_shortread_trimmed
     ch_final_fasta
+    ch_quast_results
+    ch_bbmap_results
     ch_versions
 }

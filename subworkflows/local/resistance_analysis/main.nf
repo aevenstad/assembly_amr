@@ -28,10 +28,12 @@ workflow RESISTANCE_ANALYSIS {
 
     // MODULE: MLST
     MLST (ch_final_fasta)
+    ch_mlst_results = MLST.out.tsv
     ch_versions = ch_versions.mix(MLST.out.versions)
 
     // MODULE: RMLST
     RMLST (ch_final_fasta)
+    ch_rmlst_results = RMLST.out.rmlst
     ch_rmlst = RMLST.out.species
 
     // MODULE KLEBORATE (Run Kleborate for Klebsiella)
@@ -39,10 +41,12 @@ workflow RESISTANCE_ANALYSIS {
     ch_species_fasta = ch_rmlst.join(ch_final_fasta)
 
     KLEBORATE (ch_species_fasta)
+    ch_kleborate_results = KLEBORATE.out.results
     ch_versions = ch_versions.mix(KLEBORATE.out.versions.first())
 
     // MODULE AMRFINDERPLUS (Run AMRFinderPlus)
     AMRFINDERPLUS_RUN (ch_species_fasta, file("../../../assets/amrfinder_organism_list.txt"))
+    ch_amrfinder_results = AMRFINDERPLUS_RUN.out.report
     ch_versions = ch_versions.mix(AMRFINDERPLUS_RUN.out.versions.first())
 
     // MODULE: BAKTA
@@ -57,8 +61,14 @@ workflow RESISTANCE_ANALYSIS {
 
     // MODULE: PLASMIDFINDER
     PLASMIDFINDER (ch_final_fasta)
+    ch_plasmidfinder_results = PLASMIDFINDER.out.tsv
     ch_versions = ch_versions.mix(PLASMIDFINDER.out.versions)
 
     emit:
+    ch_mlst_results 
+    ch_rmlst_results 
+    ch_kleborate_results
+    ch_amrfinder_results
+    ch_plasmidfinder_results
     ch_versions
 }

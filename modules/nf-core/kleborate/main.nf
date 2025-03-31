@@ -13,11 +13,9 @@ process KLEBORATE {
     tuple val(meta), path(species), path(fastas)
 
     output:
-    tuple val(meta), path("${meta.id}/kleborate/*.txt"), emit: txt
-    tuple val(meta), env(KLEBORATE_SPECIES), emit: kleborate_species
-    tuple val(meta), env(OMP_MUTATIONS), emit: kleborate_omp
-    tuple val(meta), env(COL_MUTATIONS), emit: kleborate_col
-    path "${meta.id}/kleborate/versions.yml"           , emit: versions
+    tuple val(meta), path("${meta.id}/kleborate")        , emit: results
+    tuple val(meta), path("${meta.id}/kleborate/*.txt")  , emit: txt
+    path "${meta.id}/kleborate/versions.yml"             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -34,24 +32,12 @@ process KLEBORATE {
         kleborate \\
         $args \\
         --outdir $prefix/kleborate \\
-        --assemblies $fastas
-
-        # Create variables for summary
-        KLEBORATE_SPECIES=\$(tail -n1 $prefix/kleborate/klebsiella_pneumo_complex_output.txt | cut -f2)
-        OMP_MUTATIONS=\$(awk -F'\t' -v col="klebsiella_pneumo_complex__amr__Omp_mutations" \\
-            'NR==1 {for (i=1; i<=NF; i++) if (\$i == col) c=i} c {print \$c}' \\
-            F="\t" $prefix/kleborate/klebsiella_pneumo_complex_output.txt | tail -n1)
-        COL_MUTATIONS=\$(awk -F'\t' -v col="klebsiella_pneumo_complex__amr__Col_mutations" \\
-            'NR==1 {for (i=1; i<=NF; i++) if (\$i == col) c=i} c {print \$c}' \\
-            F="\t" $prefix/kleborate/klebsiella_pneumo_complex_output.txt | tail -n1)        
+        --assemblies $fastas      
 
     else
         echo "Skipping Kleborate..."
         mkdir -p $prefix/kleborate
         echo "Kleborate skipped for \$species_content" > ${prefix}/kleborate/kleborate_skipped.txt
-        KLEBORATE_SPECIES="NA"
-        OMP_MUTATIONS="NA"
-        COL_MUTATIONS="NA"
     fi
 
     kleborate_version=\$(kleborate --version 2>&1 | grep "Kleborate v" | sed 's/Kleborate v//;')
