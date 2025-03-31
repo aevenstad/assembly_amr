@@ -13,8 +13,6 @@ process MLST {
 
     output:
     tuple val(meta), path("*.tsv"), emit: tsv
-    tuple val(meta), env(ST), emit: sequence_type
-    tuple val(meta), env(MLST_SPECIES), emit: mlst_species
     path "versions.yml"           , emit: versions
 
     when:
@@ -29,9 +27,6 @@ process MLST {
         --threads $task.cpus \\
         $fasta \\
         > ${prefix}_mlst.tsv
-
-    ST=\$(cut -f3 ${prefix}_mlst.tsv)
-    MLST_SPECIES=\$(cut -f2 ${prefix}_mlst.tsv)
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

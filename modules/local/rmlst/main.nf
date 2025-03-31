@@ -13,7 +13,6 @@ process RMLST {
     output:
     tuple val(meta), path("${meta.id}_rmlst.txt"), emit: rmlst
     tuple val(meta), path("${meta.id}_species.txt"), emit: species
-    tuple val(meta), env(rMLST_SPECIES), emit: rmlst_species
 
 
     when:
