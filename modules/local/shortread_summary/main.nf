@@ -1,4 +1,4 @@
-process SAMPLE_SUMMARY {
+process SHORTREAD_SUMMARY {
     publishDir "${params.outdir}/summary", mode: 'copy'
     tag "$meta_id"
     label 'process_low'
@@ -9,7 +9,7 @@ process SAMPLE_SUMMARY {
                         path(mlst_results), \
                         path(rmlst_results), \
                         path(kleborate_results), \
-                        path(amrfinderplus_results), \
+                        path(amrfinder_results), \
                         path(plasmidfinder_results)
     
     output:
@@ -49,6 +49,17 @@ process SAMPLE_SUMMARY {
         COL_MUTATIONS=\$(grep -w "Col_mutations" kleborate_long.txt | cut -f2)
 
     fi
+
+    # Get AMRFinderPlus results
+    BETA-LACTAM=\$(awk -F'\t' '\$11=="BETA-LACTAM" && \$16 > 90 && \$17 > 90 {print \$6,"("\$16,\$17")"}' $amrfinder_results | tr '\n' ' ')
+    AMINOGLYCOSIDE=\$(awk -F'\t' '\$11=="AMINOGLYCOSIDE" && \$16 > 90 && \$17 > 90 {print \$6,"("\$16,\$17")"}' $amrfinder_results | tr '\n' ' ')
+    FLUOROQUINOLONE=\$(awk -F'\t' '\$11=="FLUOROQUINOLONE" && \$16 > 90 && \$17 > 90 {print \$6,"("\$16,\$17")"}' $amrfinder_results | tr '\n' ' ')
+    TETRACYCLINE=\$(awk -F'\t' '\$11=="TETRACYCLINE" && \$16 > 90 && \$17 > 90 {print \$6,"("\$16,\$17")"}' $amrfinder_results | tr '\n' ' ')
+    SULFONAMIDE=\$(awk -F'\t' '\$11=="SULFONAMIDE" && \$16 > 90 && \$17 > 90 {print \$6,"("\$16,\$17")"}' $amrfinder_results | tr '\n' ' ')
+    PHENICOL=\$(awk -F'\t' '\$11=="PHENICOL" && \$16 > 90 && \$17 > 90 {print \$6,"("\$16,\$17")"}' $amrfinder_results | tr '\n' ' ')
+    FOSFOMYCIN=\$(awk -F'\t' '\$11=="FOSFOMYCIN" && \$16 > 90 && \$17 > 90 {print \$6,"("\$16,\$17")"}' $amrfinder_results | tr '\n' ' ')
+    QUATERNARY_AMMONIUM=\$(awk -F'\t' '\$11=="QUATERNARY AMMONIUM" && \$16 > 90 && \$17 > 90 {print \$6,"("\$16,\$17")"}' $amrfinder_results | tr '\n' ' ')
+    TRIMETHOPRIM=\$(awk -F'\t' '\$11=="TRIMETHOPRIM" && \$16 > 90 && \$17 > 90 {print \$6,"("\$16,\$17")"}' $amrfinder_results | tr '\n' ' ')
 
     # Get PlasmidFinder results
     plasmid_id=\$(cut -f2 $plasmidfinder_results | grep -v "Plasmid")

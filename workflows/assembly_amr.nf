@@ -6,7 +6,8 @@
 include { SHORTREAD_ASSEMBLY          } from '../subworkflows/local/shortread_assembly/main'
 include { LONGREAD_ASSEMBLY           } from '../subworkflows/local/longread_assembly/main'
 include { RESISTANCE_ANALYSIS         } from '../subworkflows/local/resistance_analysis/main'
-include { SAMPLE_SUMMARY              } from '../modules/local/summary/main'
+include { SHORTREAD_SUMMARY           } from '../modules/local/shortread_summary/main'
+include { HYBRACTER_SUMMARY           } from '../modules/local/hybracter_summary/main'
 include { paramsSummaryMap            } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc        } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML      } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -41,6 +42,7 @@ workflow ASSEMBLY_AMR {
         ch_trimmed_longreads = LONGREAD_ASSEMBLY.out.ch_trimmed_longreads
         ch_trimmed_shortreads = LONGREAD_ASSEMBLY.out.ch_trimmed_shortreads
         ch_final_fasta = LONGREAD_ASSEMBLY.out.ch_final_fasta
+        ch_hybracter_summary = LONGREAD_ASSEMBLY.out.ch_hybracter_summary
     }
 
 
@@ -73,17 +75,13 @@ workflow ASSEMBLY_AMR {
 
 
         // Run the summary module
-        SAMPLE_SUMMARY(ch_summary_input)
+        SHORTREAD_SUMMARY(ch_summary_input)
     
     }
     // else do nothing
     else {
-        ch_summary_input = ch_mlst_results
-            .join(ch_rmlst_results)
-            .join(ch_kleborate_results)
-            .join(ch_amrfinder_results)
-            .join(ch_plasmidfinder_results)
-            .map { tuple -> [tuple[0].id] + tuple[1..-1] }
+        ch_summary_input = ch_hybracter_summary.map { meta, file -> file }.collect()
+        HYBRACTER_SUMMARY(ch_summary_input)
     }
 
 
