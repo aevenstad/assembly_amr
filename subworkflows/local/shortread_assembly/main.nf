@@ -71,10 +71,8 @@ workflow SHORTREAD_ASSEMBLY {
     //
     // MODULE: BBMAP_ALIGN
     //
-    BBMAP_ALIGN (
-        ch_shortread_trimmed,
-        ch_final_fasta
-    )
+    ch_for_mapping = ch_shortread_trimmed.join(ch_final_fasta)
+    BBMAP_ALIGN(ch_for_mapping)
     // Outputs BBMap results
     ch_bbmap_results = BBMAP_ALIGN.out.txt
     ch_versions = ch_versions.mix(BBMAP_ALIGN.out.versions)

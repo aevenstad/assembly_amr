@@ -1,19 +1,14 @@
-process SHORTREAD_SUMMARY {
-    publishDir "${params.outdir}/summary", mode: 'copy'
+process SHORTREAD_STATS {
+    publishDir "${params.outdir}/${meta_id}", mode: 'copy'
     tag "$meta_id"
     label 'process_low'
 
     input:
     tuple val(meta_id), path(quast_results), \
-                        path(bbmap_results), \
-                        path(mlst_results), \
-                        path(rmlst_results), \
-                        path(kleborate_results), \
-                        path(amrfinder_results), \
-                        path(plasmidfinder_results)
+                        path(bbmap_results)
     
     output:
-    tuple val(meta_id), path("*summary.tsv"), emit: summary
+    tuple val(meta_id), path("*assembly.tsv"), emit: summary
     
     script:
     def prefix = task.ext.prefix ?: "${meta_id}"
@@ -26,59 +21,30 @@ process SHORTREAD_SUMMARY {
     # Get BBMap coverage
     COVERAGE=\$(grep "Average coverage:" $bbmap_results | rev | cut -f1 | rev)
 
-    # Get MLST species and ST
-    ST=\$(cut -f3 $mlst_results)
-    MLST_SPECIES=\$(cut -f2 $mlst_results)
-
-    # Get rMLST results
-    support=\$(grep "Support:" $rmlst_results | sed 's/Support://')
-    species=\$(grep "Taxon:" $rmlst_results | sed 's/Taxon://')
-    rMLST_SPECIES=\$(echo -e "\$species (\$support)")
-
-    # Get Kleborate results
-    if [[ -f $kleborate_results/kleborate_skipped.txt ]]; then
-        KLEBORATE_SPECIES="NA"
-        OMP_MUTATIONS="NA"
-        COL_MUTATIONS="NA"
-    else
-        cat $kleborate_results/klebsiella_pneumo_complex_output.txt | datamash transpose | perl -pe 's/ /_/g' | sed 's/.*__//' > kleborate_long.txt
-        KLEBORATE_SPECIES=\$(grep -w "species" kleborate_long.txt | cut -f2)
-        KLEBORATE_MATCH=\$(grep -w "species_match" kleborate_long.txt | cut -f2)
-        KLEBORATE_QC=\$(grep -w "QC_warnings" kleborate_long.txt | cut -f2)
-        OMP_MUTATIONS=\$(grep -w "Omp_mutations" kleborate_long.txt | cut -f2)
-        COL_MUTATIONS=\$(grep -w "Col_mutations" kleborate_long.txt | cut -f2)
-
-    fi
-
-    # Get AMRFinderPlus results
-    BETA-LACTAM=\$(awk -F'\t' '\$11=="BETA-LACTAM" && \$16 > 90 && \$17 > 90 {print \$6,"("\$16,\$17")"}' $amrfinder_results | tr '\n' ' ')
-    AMINOGLYCOSIDE=\$(awk -F'\t' '\$11=="AMINOGLYCOSIDE" && \$16 > 90 && \$17 > 90 {print \$6,"("\$16,\$17")"}' $amrfinder_results | tr '\n' ' ')
-    FLUOROQUINOLONE=\$(awk -F'\t' '\$11=="FLUOROQUINOLONE" && \$16 > 90 && \$17 > 90 {print \$6,"("\$16,\$17")"}' $amrfinder_results | tr '\n' ' ')
-    TETRACYCLINE=\$(awk -F'\t' '\$11=="TETRACYCLINE" && \$16 > 90 && \$17 > 90 {print \$6,"("\$16,\$17")"}' $amrfinder_results | tr '\n' ' ')
-    SULFONAMIDE=\$(awk -F'\t' '\$11=="SULFONAMIDE" && \$16 > 90 && \$17 > 90 {print \$6,"("\$16,\$17")"}' $amrfinder_results | tr '\n' ' ')
-    PHENICOL=\$(awk -F'\t' '\$11=="PHENICOL" && \$16 > 90 && \$17 > 90 {print \$6,"("\$16,\$17")"}' $amrfinder_results | tr '\n' ' ')
-    FOSFOMYCIN=\$(awk -F'\t' '\$11=="FOSFOMYCIN" && \$16 > 90 && \$17 > 90 {print \$6,"("\$16,\$17")"}' $amrfinder_results | tr '\n' ' ')
-    QUATERNARY_AMMONIUM=\$(awk -F'\t' '\$11=="QUATERNARY AMMONIUM" && \$16 > 90 && \$17 > 90 {print \$6,"("\$16,\$17")"}' $amrfinder_results | tr '\n' ' ')
-    TRIMETHOPRIM=\$(awk -F'\t' '\$11=="TRIMETHOPRIM" && \$16 > 90 && \$17 > 90 {print \$6,"("\$16,\$17")"}' $amrfinder_results | tr '\n' ' ')
-
-    # Get PlasmidFinder results
-    plasmid_id=\$(cut -f2 $plasmidfinder_results | grep -v "Plasmid")
-    identity=\$(cut -f3 $plasmidfinder_results | grep -v "Identity")
-    PLASMIDS=\$(paste <(echo "\$plasmid_id") <(echo "\$identity") | awk '{printf "%s (%s) | ", \$1, \$2}' | sed 's/ | \$//')
-
     # Write summary table
-    echo -e "Metric\tValue" > ${prefix}_summary.tsv
-    echo -e "Sample\t${meta_id}" >> ${prefix}_summary.tsv
-    echo -e "No. contigs\t\${N_CONTIGS}" >> ${prefix}_summary.tsv
-    echo -e "N50\t\${N50}" >> ${prefix}_summary.tsv
-    echo -e "Length\t\${LENGTH}" >> ${prefix}_summary.tsv
-    echo -e "Coverage\t\${COVERAGE}" >> ${prefix}_summary.tsv
-    echo -e "Species pubMLST\t\${MLST_SPECIES}" >> ${prefix}_summary.tsv
-    echo -e "MLST\t\${ST}" >> ${prefix}_summary.tsv
-    echo -e "Species rMLST\t\${rMLST_SPECIES}" >> ${prefix}_summary.tsv
-    echo -e "Species Kleborate\t\${KLEBORATE_SPECIES}" >> ${prefix}_summary.tsv
-    echo -e "Kleborate Omp mutations\t\${OMP_MUTATIONS}" >> ${prefix}_summary.tsv
-    echo -e "Kleborate Col mutations\t\${COL_MUTATIONS}" >> ${prefix}_summary.tsv
-    echo -e "Plasmids\t\${PLASMIDS}" >> ${prefix}_summary.tsv
-   """                        
+    echo -e "Sample\tNo. contigs\tN50\tLength\tCoverage" > ${prefix}_assembly.tsv
+    echo -e "${meta_id}\t\${N_CONTIGS}\t\${N50}\t\${LENGTH}\t\${COVERAGE}" >> ${prefix}_assembly.tsv
+   """
+}
+
+process MERGE_SHORTREAD_STATS {
+    publishDir "${params.outdir}", mode: 'copy'
+    label 'process_low'
+
+    input:
+    path(assembly_summary)
+
+    output:
+    path("assembly_summary.tsv"), emit: summary
+
+    script:
+    """
+    # Get header from the first file
+    head -n 1 \$(ls $assembly_summary | head -n 1) > assembly_summary.tsv
+
+    # Append rows from all summaries
+    for file in $assembly_summary; do
+        tail -n +2 \$file >> assembly_summary.tsv
+    done
+   """
 }

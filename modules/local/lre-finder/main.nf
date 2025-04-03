@@ -5,8 +5,8 @@ process LRE_FINDER {
     container '/bigdata/Jessin/Softwares/containers/lre-finder_v1.0.0.sif'
 
     input:
-    tuple val(meta), path(species)
-    tuple val(meta), path(reads)
+    tuple val(meta), path(species), path(reads)
+
 
     output:
     tuple val(meta), path("*.txt")                 , emit: txt

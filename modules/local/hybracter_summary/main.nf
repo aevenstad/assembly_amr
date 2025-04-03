@@ -1,4 +1,4 @@
-process HYBRACTER_SUMMARY {
+process HYBRACTER_TABLE {
     publishDir "${params.outdir}", mode: 'copy'
     label 'process_low'
     

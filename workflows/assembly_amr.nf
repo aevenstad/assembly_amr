@@ -3,15 +3,14 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { SHORTREAD_ASSEMBLY          } from '../subworkflows/local/shortread_assembly/main'
-include { LONGREAD_ASSEMBLY           } from '../subworkflows/local/longread_assembly/main'
-include { RESISTANCE_ANALYSIS         } from '../subworkflows/local/resistance_analysis/main'
-include { SHORTREAD_SUMMARY           } from '../modules/local/shortread_summary/main'
-include { HYBRACTER_SUMMARY           } from '../modules/local/hybracter_summary/main'
-include { paramsSummaryMap            } from 'plugin/nf-schema'
-include { paramsSummaryMultiqc        } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { softwareVersionsToYAML      } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText      } from '../subworkflows/local/utils_nfcore_nanopore_assembly_pipeline'
+include { SHORTREAD_ASSEMBLY            } from '../subworkflows/local/shortread_assembly/main'
+include { LONGREAD_ASSEMBLY             } from '../subworkflows/local/longread_assembly/main'
+include { RESISTANCE_ANALYSIS           } from '../subworkflows/local/resistance_analysis/main'
+include { WRITE_SUMMARY                 } from '../subworkflows/local/write_summary/main'
+include { paramsSummaryMap              } from 'plugin/nf-schema'
+include { paramsSummaryMultiqc          } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML        } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText        } from '../subworkflows/local/utils_nfcore_nanopore_assembly_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -35,6 +34,7 @@ workflow ASSEMBLY_AMR {
         ch_final_fasta = SHORTREAD_ASSEMBLY.out.ch_final_fasta
         ch_quast_results = SHORTREAD_ASSEMBLY.out.ch_quast_results
         ch_bbmap_results = SHORTREAD_ASSEMBLY.out.ch_bbmap_results
+        ch_hybracter_summary = Channel.empty()
        
     } else {
         LONGREAD_ASSEMBLY(samplesheet)
@@ -62,28 +62,17 @@ workflow ASSEMBLY_AMR {
         ch_plasmidfinder_results = RESISTANCE_ANALYSIS.out.ch_plasmidfinder_results
 
 
-
-    if (params.assembly_type == 'short') {
-        ch_summary_input = ch_quast_results
-            .join(ch_bbmap_results)
-            .join(ch_mlst_results)
-            .join(ch_rmlst_results)
-            .join(ch_kleborate_results)
-            .join(ch_amrfinder_results)
-            .join(ch_plasmidfinder_results)
-            .map { tuple -> [tuple[0].id] + tuple[1..-1] }
-
-
-        // Run the summary module
-        SHORTREAD_SUMMARY(ch_summary_input)
-    
-    }
-    // else do nothing
-    else {
-        ch_summary_input = ch_hybracter_summary.map { meta, file -> file }.collect()
-        HYBRACTER_SUMMARY(ch_summary_input)
-    }
-
+    // Create summary tables
+    WRITE_SUMMARY(
+        ch_quast_results,
+        ch_bbmap_results,
+        ch_hybracter_summary,
+        ch_mlst_results,
+        ch_rmlst_results,
+        ch_kleborate_results,
+        ch_amrfinder_results,
+        ch_plasmidfinder_results
+    )
 
 
     // Collate and save software versions

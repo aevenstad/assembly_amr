@@ -41,7 +41,7 @@ workflow RESISTANCE_ANALYSIS {
     ch_species_fasta = ch_rmlst.join(ch_final_fasta)
 
     KLEBORATE (ch_species_fasta)
-    ch_kleborate_results = KLEBORATE.out.results
+    ch_kleborate_results = KLEBORATE.out.txt
     ch_versions = ch_versions.mix(KLEBORATE.out.versions.first())
 
     // MODULE AMRFINDERPLUS (Run AMRFinderPlus)
@@ -56,7 +56,9 @@ workflow RESISTANCE_ANALYSIS {
     }
 
     // MODULE: LRE_FINDER
-    LRE_FINDER (ch_rmlst, ch_reads)
+    // Only run LRE-Finder for Enterococcus assemblies identified through rMLST
+    ch_species_reads = ch_rmlst.join(ch_reads)
+    LRE_FINDER (ch_species_reads)
     ch_versions = ch_versions.mix(LRE_FINDER.out.versions)
 
     // MODULE: PLASMIDFINDER
