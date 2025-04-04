@@ -25,6 +25,9 @@ workflow ASSEMBLY_AMR {
 
     main:
     ch_versions = Channel.empty()
+    ch_hybracter_summary = Channel.empty()
+    ch_quast_results = Channel.empty()
+    ch_bbmap_results = Channel.empty()
 
     // Run the appropriate assembly workflow based on the assembly type
     if (params.assembly_type == 'short') {
@@ -34,7 +37,7 @@ workflow ASSEMBLY_AMR {
         ch_final_fasta = SHORTREAD_ASSEMBLY.out.ch_final_fasta
         ch_quast_results = SHORTREAD_ASSEMBLY.out.ch_quast_results
         ch_bbmap_results = SHORTREAD_ASSEMBLY.out.ch_bbmap_results
-        ch_hybracter_summary = Channel.empty()
+        
        
     } else {
         LONGREAD_ASSEMBLY(samplesheet)
