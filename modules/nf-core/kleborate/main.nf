@@ -34,6 +34,7 @@ process KLEBORATE {
         --outdir $prefix/kleborate \\
         --assemblies $fastas      
 
+
     else
         echo "Skipping Kleborate..."
         mkdir -p $prefix/kleborate

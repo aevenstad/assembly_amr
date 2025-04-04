@@ -15,6 +15,7 @@ process BBMAP_ALIGN {
     tuple val(meta), path("*.bam"), emit: bam
     tuple val(meta), path("bbmap_statistics.txt"), emit: txt
     tuple val(meta), path("bbmap_covstats.txt"), emit: covstats
+
     path "versions.yml"           , emit: versions
 
     when:
