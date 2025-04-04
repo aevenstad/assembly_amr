@@ -74,6 +74,12 @@
                     "description": "Run BAKTA",
                     "default": true,
                     "fa_icon": "fas fa-vial"
+                },
+                "bakta_forks": {
+                    "type": "integer",
+                    "description": "Number of BAKTA processes to run in parallel",
+                    "default": 1,
+                    "fa_icon": "fas fa-cogs"
                 }
             }
         },

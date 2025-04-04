@@ -3,7 +3,7 @@ process BAKTA_BAKTA {
     containerOptions "-B ${params.bakta_db}"
     tag "$meta.id"
     label 'process_medium'
-    maxForks 1
+    maxForks "${params.bakta_forks}"
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
