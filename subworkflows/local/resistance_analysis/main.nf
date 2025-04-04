@@ -10,6 +10,7 @@ include { LRE_FINDER             } from '../../../modules/local/lre-finder/main'
 include { MLST                   } from '../../../modules/nf-core/mlst/main'
 include { PLASMIDFINDER          } from '../../../modules/nf-core/plasmidfinder/main'
 include { RMLST                  } from '../../../modules/local/rmlst/main'
+include { SPLIT_BAKTA            } from '../../../modules/local/split_bakta/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -52,7 +53,14 @@ workflow RESISTANCE_ANALYSIS {
     // MODULE: BAKTA
     if (params.bakta) {
         BAKTA_BAKTA (ch_final_fasta)
+        ch_bakta_gff = BAKTA_BAKTA.out.gff
+        ch_bakta_fasta = BAKTA_BAKTA.out.fna
+        ch_bakta_results = ch_bakta_gff.join(ch_bakta_fasta)
         ch_versions = ch_versions.mix(BAKTA_BAKTA.out.versions)
+    }
+    // MODULE: SPLIT BAKTA
+    if (params.assembly_type != 'short') {
+        SPLIT_BAKTA (ch_bakta_results)
     }
 
     // MODULE: LRE_FINDER
