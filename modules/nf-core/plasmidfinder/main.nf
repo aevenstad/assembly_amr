@@ -39,7 +39,7 @@ process PLASMIDFINDER {
     # Rename hard-coded outputs with prefix to avoid name collisions
     mv data.json ${prefix}.json
     mv results.txt ${prefix}.txt
-    mv results_tab.tsv ${prefix}.tsv
+    mv results_tab.tsv ${prefix}_results.tsv
     mv Hit_in_genome_seq.fsa ${prefix}-hit_in_genome_seq.fsa
     mv Plasmid_seqs.fsa ${prefix}-plasmid_seqs.fsa
 

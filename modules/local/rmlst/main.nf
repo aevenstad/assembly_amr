@@ -28,9 +28,5 @@ process RMLST {
     grep "Taxon:" ${prefix}_rmlst.txt |\
     sed 's/Taxon://;;s/ /_/' \
     > ${prefix}_species.txt
-
-    support=\$(grep "Support:" ${prefix}_rmlst.txt | sed 's/Support://')
-    species=\$(grep "Taxon:" ${prefix}_rmlst.txt | sed 's/Taxon://')
-    rMLST_SPECIES=\$(echo -e "\$species (\$support)")
     """
 }

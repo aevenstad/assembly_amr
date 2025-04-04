@@ -13,8 +13,9 @@ process KLEBORATE {
     tuple val(meta), path(species), path(fastas)
 
     output:
-    tuple val(meta), path("${meta.id}/kleborate/*.txt"), emit: txt
-    path "${meta.id}/kleborate/versions.yml"           , emit: versions
+    tuple val(meta), path("${meta.id}/kleborate")        , emit: results
+    tuple val(meta), path("${meta.id}/kleborate/*.txt")  , emit: txt
+    path "${meta.id}/kleborate/versions.yml"             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -31,7 +32,7 @@ process KLEBORATE {
         kleborate \\
         $args \\
         --outdir $prefix/kleborate \\
-        --assemblies $fastas
+        --assemblies $fastas      
 
 
     else

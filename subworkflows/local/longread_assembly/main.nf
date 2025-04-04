@@ -46,17 +46,17 @@ workflow LONGREAD_ASSEMBLY {
             tuple([id: meta], nanopore, illumina_R1, illumina_R2)
         }
         HYBRACTER_HYBRID (ch_samplesheet)
-        ch_final_fasta = HYBRACTER_HYBRID.out.final_output
+        ch_hybracter_final_out = HYBRACTER_HYBRID.out.final_output
         ch_trimmed = HYBRACTER_HYBRID.out.processing
         ch_versions = ch_versions.mix(HYBRACTER_HYBRID.out.versions)
     } else if (params.assembly_type == 'long') {
         HYBRACTER_LONG (ch_longreads)
-        ch_final_fasta = HYBRACTER_LONG.out.final_output
+        ch_hybracter_final_out = HYBRACTER_LONG.out.final_output
         ch_trimmed = HYBRACTER_LONG.out.processing
         ch_versions = ch_versions.mix(HYBRACTER_LONG.out.versions)
     }
     
-    ch_final_fasta = ch_final_fasta.map { meta, dir -> 
+    ch_final_fasta = ch_hybracter_final_out.map { meta, dir -> 
         tuple(meta, file("${dir}/*_final.fasta"))
     }
     ch_trimmed_longreads = ch_trimmed.map { meta, dir -> 
@@ -65,6 +65,10 @@ workflow LONGREAD_ASSEMBLY {
     }
     ch_trimmed_shortreads = ch_trimmed.map { meta, dir -> 
         def files = file("${dir}/qc/fastp/*.fastq.gz")
+        tuple(meta, files)
+    }
+    ch_hybracter_summary = ch_hybracter_final_out.map { meta, dir -> 
+        def files = file("${dir}/*_hybracter_summary.tsv")
         tuple(meta, files)
     }
 
@@ -80,4 +84,5 @@ workflow LONGREAD_ASSEMBLY {
     ch_versions
     ch_trimmed_longreads
     ch_trimmed_shortreads
+    ch_hybracter_summary
 }

@@ -9,12 +9,13 @@ process BBMAP_ALIGN {
         'biocontainers/mulled-v2-008daec56b7aaf3f162d7866758142b9f889d690:e8a286b2e789c091bac0a57302cdc78aa0112353-0' }"
 
     input:
-    tuple val(meta), path(fastq)
-    tuple val(meta), path(ref)
+    tuple val(meta), path(fastq), path(ref)
 
     output:
     tuple val(meta), path("*.bam"), emit: bam
-    tuple val(meta), path("*.txt"), emit: txt
+    tuple val(meta), path("bbmap_statistics.txt"), emit: txt
+    tuple val(meta), path("bbmap_covstats.txt"), emit: covstats
+
     path "versions.yml"           , emit: versions
 
     when:
