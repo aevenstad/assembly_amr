@@ -12,6 +12,7 @@ include { MERGE_SHORTREAD_STATS                 } from '../../../modules/local/s
 include { HYBRACTER_TABLE                       } from '../../../modules/local/hybracter_summary/main'
 include { TYPING_AND_RESISTANCE_TABLE           } from '../../../modules/local/typing_and_resistance_summary/main'
 include { MERGE_TYPING_AND_RESISTANCE_TABLES    } from '../../../modules/local/typing_and_resistance_summary/main'
+include { CREATE_RUN_TABLE                      } from '../../../modules/local/create_run_table/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -34,18 +35,20 @@ workflow WRITE_SUMMARY {
     main:
     // Create shortread assembly summary
     if (params.assembly_type == 'short') {
-    ch_assembly = (ch_quast_results)
-        .join(ch_bbmap_results)
-        .map { tuple -> [tuple[0].id] + tuple[1..-1] }
-    SHORTREAD_STATS(ch_assembly)
-    ch_assembly_summary = SHORTREAD_STATS.out.summary.map { meta, file -> file }.collect()
-    MERGE_SHORTREAD_STATS(ch_assembly_summary)
+        ch_assembly_stats = (ch_quast_results)
+            .join(ch_bbmap_results)
+            .map { tuple -> [tuple[0].id] + tuple[1..-1] }
+        SHORTREAD_STATS(ch_assembly_stats)
+        ch_assembly_sample_table = SHORTREAD_STATS.out.summary.map { meta, file -> file }.collect()
+        MERGE_SHORTREAD_STATS(ch_assembly_sample_table)
+        ch_assembly_run_summary = MERGE_SHORTREAD_STATS.out.summary
     }
     
     // Create hybracter summary
     else {
-        ch_assembly_summary = ch_hybracter_summary.map { meta, file -> file }.collect()
-        HYBRACTER_TABLE(ch_assembly_summary)
+        ch_assembly_sample_table = ch_hybracter_summary.map { meta, file -> file }.collect()
+        HYBRACTER_TABLE(ch_assembly_sample_table)
+        ch_assembly_run_summary = HYBRACTER_TABLE.out.summary
     }
 
     // Create typing and resistance summary
@@ -56,7 +59,13 @@ workflow WRITE_SUMMARY {
         .join(ch_plasmidfinder_results)
         .map { tuple -> [tuple[0].id] + tuple[1..-1] }
     TYPING_AND_RESISTANCE_TABLE(ch_typing_and_resistance)
-    ch_typing_and_resistance_summary = TYPING_AND_RESISTANCE_TABLE.out.summary.map { meta, file -> file }.collect()
-    MERGE_TYPING_AND_RESISTANCE_TABLES(ch_typing_and_resistance_summary)
+    ch_typing_and_resistance_sample_summary = TYPING_AND_RESISTANCE_TABLE.out.summary.map { meta, file -> file }.collect()
+    MERGE_TYPING_AND_RESISTANCE_TABLES(ch_typing_and_resistance_sample_summary)
+    ch_typing_and_resistance_run_summary = MERGE_TYPING_AND_RESISTANCE_TABLES.out.summary
+
+    // Merge assembly and resistance tables
+    ch_run_summary = (ch_assembly_run_summary)
+        .combine(ch_typing_and_resistance_run_summary)
+    CREATE_RUN_TABLE(ch_run_summary)
 }
 
