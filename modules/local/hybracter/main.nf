@@ -25,7 +25,7 @@ process HYBRACTER_HYBRID {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args   ?: '--auto'
+    def args = task.ext.args   ?: '--chromosome 2000000'
     def prefix = task.ext.prefix ?: "${meta.id}"
     def cacheDir = task.workDir ? task.workDir.toAbsolutePath().toString() + "/.cache" : "/tmp/.cache"
 
