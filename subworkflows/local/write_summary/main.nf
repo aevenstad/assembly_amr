@@ -10,7 +10,7 @@
 include { SHORTREAD_STATS                       } from '../../../modules/local/shortread_summary/main'
 include { MERGE_SHORTREAD_STATS                 } from '../../../modules/local/shortread_summary/main'
 include { HYBRACTER_TABLE                       } from '../../../modules/local/hybracter_summary/main'
-include { TYPING_AND_RESISTANCE_TABLE           } from '../../../modules/local/typing_and_resistance_summary/main'
+include { TYPING_AND_RESISTANCE_TABLE_PY        } from '../../../modules/local/typing_and_resistance_summary/main'
 include { MERGE_TYPING_AND_RESISTANCE_TABLES    } from '../../../modules/local/typing_and_resistance_summary/main'
 include { CREATE_RUN_TABLE                      } from '../../../modules/local/create_run_table/main'
 
@@ -58,8 +58,12 @@ workflow WRITE_SUMMARY {
         .join(ch_amrfinder_results)
         .join(ch_plasmidfinder_results)
         .map { tuple -> [tuple[0].id] + tuple[1..-1] }
-    TYPING_AND_RESISTANCE_TABLE(ch_typing_and_resistance)
-    ch_typing_and_resistance_sample_summary = TYPING_AND_RESISTANCE_TABLE.out.summary.map { meta, file -> file }.collect()
+    TYPING_AND_RESISTANCE_TABLE_PY (
+        ch_typing_and_resistance,
+        file("../../assets/mlst_species_translations.tsv"),
+        file("../../assets/amrfinderplus_classes.txt")
+        )
+    ch_typing_and_resistance_sample_summary = TYPING_AND_RESISTANCE_TABLE_PY.out.summary.map { meta, file -> file }.collect()
     MERGE_TYPING_AND_RESISTANCE_TABLES(ch_typing_and_resistance_sample_summary)
     ch_typing_and_resistance_run_summary = MERGE_TYPING_AND_RESISTANCE_TABLES.out.summary
 
@@ -68,4 +72,8 @@ workflow WRITE_SUMMARY {
         .combine(ch_typing_and_resistance_run_summary)
     CREATE_RUN_TABLE(ch_run_summary)
 }
-
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    END OF WORKFLOW
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/

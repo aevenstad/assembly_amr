@@ -153,3 +153,37 @@ process MERGE_TYPING_AND_RESISTANCE_TABLES {
     done
     """
 }
+
+process TYPING_AND_RESISTANCE_TABLE_PY {
+    publishDir "${params.outdir}/${meta_id}", mode: 'copy'
+    tag "$meta_id"
+    label 'process_low'
+    container "/bigdata/Jessin/Softwares/containers/pip_pandas_b119e1f6a52aae23.sif"
+
+    input:
+    tuple val(meta_id), path(mlst_results), \
+                        path(rmlst_results), \
+                        path(kleborate_results), \
+                        path(amrfinder_results), \
+                        path(plasmidfinder_results)
+    path(mlst_species_translation)
+    path(amrfinderplus_classes)
+
+    output:
+    tuple val(meta_id), path("${meta_id}_resistance_table.tsv"), emit: summary
+
+    script:
+    def prefix = task.ext.prefix ?: "${meta_id}"
+    """
+    shortread_resistance_summary.py \\
+        $mlst_results \\
+        $mlst_species_translation \\
+        $rmlst_results \\
+        $kleborate_results \\
+        $amrfinder_results \\
+        $amrfinderplus_classes \\
+        $plasmidfinder_results \\
+        $prefix \\
+        ${prefix}_resistance_table.tsv
+    """
+}
