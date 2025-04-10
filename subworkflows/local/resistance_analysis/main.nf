@@ -59,7 +59,8 @@ workflow RESISTANCE_ANALYSIS {
         ch_versions = ch_versions.mix(BAKTA_BAKTA.out.versions)
     }
     // MODULE: SPLIT BAKTA
-    if (params.assembly_type != 'short') {
+    if (params.assembly_type != 'short' && params.bakta) {
+        // Only run SPLIT BAKTA for long-read assemblies
         SPLIT_BAKTA (ch_bakta_results)
     }
 
