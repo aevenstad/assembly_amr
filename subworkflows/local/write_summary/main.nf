@@ -61,8 +61,8 @@ workflow WRITE_SUMMARY {
         .map { tuple -> [tuple[0].id] + tuple[1..-1] }
     TYPING_AND_RESISTANCE_TABLE (
         ch_typing_and_resistance,
-        file("../../assets/mlst_species_translations.tsv"),
-        file("../../assets/amrfinderplus_classes.txt")
+        file("${projectDir}/assets/mlst_species_translations.tsv"),
+        file("${projectDir}/assets/amrfinderplus_classes.txt")
         )
     ch_typing_and_resistance_sample_summary = TYPING_AND_RESISTANCE_TABLE.out.summary.map { meta, file -> file }.collect()
     MERGE_TYPING_AND_RESISTANCE_TABLES(ch_typing_and_resistance_sample_summary)
