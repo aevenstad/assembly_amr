@@ -81,9 +81,9 @@ if __name__ == "__main__":
     output_table = sys.argv[4]
 
     # TESTING
-    #plasmidfinder_output = "/bigdata/Jessin/Sequencing_projects/andreas/torunn/toalettstudie/resultater/2025_run3_assembly_amr_out/51575456/plasmidfinder/51575456.tsv"
+    #plasmidfinder_output = "/bigdata/Jessin/Sequencing_projects/andreas/torunn/toalettstudie/resultater/2025_run3_assembly_amr_out/xxx/plasmidfinder/xxx.tsv"
     #plasmidfinder_df = get_plasmidfinder_results(plasmidfinder_output)
-    #amrfinder_output = "/bigdata/Jessin/Sequencing_projects/andreas/torunn/toalettstudie/resultater/2025_run3_assembly_amr_out/51575456/amrfinderplus/51575456.tsv"
+    #amrfinder_output = "/bigdata/Jessin/Sequencing_projects/andreas/torunn/toalettstudie/resultater/2025_run3_assembly_amr_out/xxx/amrfinderplus/xxx.tsv"
     #amrfinder_classes = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/assets/amrfinderplus_classes.txt"
     #amrfinder_df = get_amrfinder_results(amrfinder_output, amrfinder_classes)
 
