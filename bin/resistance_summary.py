@@ -181,15 +181,15 @@ if __name__ == "__main__":
     outfile = sys.argv[9]
     
     # TESTING
-    #mlst_results = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/50808021/mlst/50808021_mlst.tsv"
+    #mlst_results = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/xxx/mlst/_mlst.tsv"
     #translation_table = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/assets/mlst_species_translations.tsv"
-    #rmlst_results = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/50808021/rmlst/50808021_rmlst.txt"
-    #kleborate_results = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/50808021/kleborate/kleborate_skipped.txt"
-    #amrfinder_output = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/50808021/amrfinderplus/50808021.tsv"
+    #rmlst_results = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/xxx/rmlst/_rmlst.txt"
+    #kleborate_results = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/xxx/kleborate/kleborate_skipped.txt"
+    #amrfinder_output = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/xxx/amrfinderplus/.tsv"
     #amrfinder_classes = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/assets/amrfinderplus_classes.txt"
-    #plasmidfinder_output = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/50808021/plasmidfinder/50808021_results.tsv"
-    #sample_id = "50808021"
-    #outfile = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/50808021/testout.tsv"
+    #plasmidfinder_output = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/xxx/plasmidfinder/results.tsv"
+    #sample_id = "xxx"
+    #outfile = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/xxx/testout.tsv"
 
 
 
