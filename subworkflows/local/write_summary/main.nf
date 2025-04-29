@@ -75,7 +75,7 @@ workflow WRITE_SUMMARY {
             .map { tuple -> [tuple[0].id] + tuple[1..-1] }
         PER_CONTIG_RESISTANCE_SUMMARY (
             ch_per_contig_resistance,
-            file("../../assets/amrfinderplus_classes.txt")
+            file("${projectDir}/assets/amrfinderplus_classes.txt")
             )
     }
 
