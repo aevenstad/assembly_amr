@@ -27,7 +27,7 @@ process SPLIT_BAKTA {
 
     # Rename split fasta files based on header
     for file in ${bakta_fasta}.split/*; do 
-        new_name=\$(grep -o ">\S*" \$file | sed 's/>//g')
+        new_name=\$(grep -o ">\\S*" \$file | sed 's/>//g')
         mv \$file ${prefix}_\${new_name}.fasta
     done
 
