@@ -18,6 +18,8 @@ process SPLIT_BAKTA {
     """
     # Get gff header
     head -n7 $bakta_gff > gff_header.txt
+    # Create FASTA line between annotations and sequence in gff
+    echo "##FASTA" > fasta.line
 
     # Get contig identifiers
     contigs=\$(grep -E "^>" $bakta_gff | sed 's/>//g')
@@ -36,7 +38,7 @@ process SPLIT_BAKTA {
         gff_file="\${contig}.gff3"
         awk -v contig="\$contig" '\$1 == contig' $bakta_gff > \$gff_file
 	    grep "##sequence-region \${contig}" $bakta_gff > \${contig}_annot_header.txt
-	    cat gff_header.txt \${contig}_annot_header.txt \$gff_file ${prefix}_\${contig}.fasta > ${prefix}_\${gff_file}
+	    cat gff_header.txt \${contig}_annot_header.txt \$gff_file fasta.line ${prefix}_\${contig}.fasta > ${prefix}_\${gff_file}
     done
     """
 }
