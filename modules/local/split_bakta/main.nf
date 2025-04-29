@@ -36,7 +36,7 @@ process SPLIT_BAKTA {
         gff_file="\${contig}.gff3"
         awk -v contig="\$contig" '\$1 == contig' $bakta_gff > \$gff_file
 	    grep "##sequence-region \${contig}" $bakta_gff > \${contig}_annot_header.txt
-	    cat gff_header.txt \${contig}_annot_header.txt \$gff_file \${contig}.fasta > ${prefix}_\${gff_file}
+	    cat gff_header.txt \${contig}_annot_header.txt \$gff_file ${prefix}_\${contig}.fasta > ${prefix}_\${gff_file}
     done
     """
 }
