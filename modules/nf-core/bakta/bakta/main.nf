@@ -40,7 +40,8 @@ process BAKTA_BAKTA {
         $args \\
         --threads $task.cpus \\
         --prefix $prefix \\
-        --db $db
+        --db $db \\
+        --keep-contig-headers
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
