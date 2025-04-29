@@ -11,7 +11,7 @@ process SPLIT_BAKTA {
     tuple val(meta), path(bakta_gff), path(bakta_fasta)
 
     output:
-    tuple val(meta), path("${meta.id}_contig_*.gff3"), emit : bakta_split
+    tuple val(meta), path("${meta.id}*.gff3"), emit : bakta_split
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
