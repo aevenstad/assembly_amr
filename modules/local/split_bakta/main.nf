@@ -20,15 +20,15 @@ process SPLIT_BAKTA {
     head -n7 $bakta_gff > gff_header.txt
 
     # Get contig identifiers
-    contigs=\$(grep -E "^contig_" $bakta_gff | cut -f1 | sort -u)
+    contigs=\$(grep -E "^>" $bakta_gff | sed 's/>//g')
 
     # Get fasta file from gff
     seqkit split -s 1 $bakta_fasta
 
     # Rename split fasta files based on header
-    for file in ${bakta_fasta}.split/*; do
-        new_name=\$(grep -o "contig_\\S*" \$file | cut -f1 -d ' ')
-        mv \$file \${new_name}.fasta
+    for file in ${bakta_fasta}.split/*; do 
+        new_name=\$(grep -o ">\S*" \$file | sed 's/>//g')
+        mv \$file ${prefix}_\${new_name}.fasta
     done
 
     # Split gff file into separate files for each contig
