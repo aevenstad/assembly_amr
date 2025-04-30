@@ -76,12 +76,17 @@ workflow LONGREAD_ASSEMBLY {
         def files = file("${dir}/complete/*_plasmid.fasta")
         tuple(meta, files)
     }
+    ch_plasmid_stats = ch_hybracter_final_out.map { meta, dir -> 
+        def files = file("${dir}/complete/*_per_contig_stats.tsv")
+        tuple(meta, files)
+    }
+    ch_split_plasmids = ch_plasmid_fasta.join(ch_plasmid_stats)
 
     // 
     // MODULE: PLASMID_FASTA
     //
     PLASMID_FASTA (
-        ch_plasmid_fasta
+        ch_split_plasmids
     )
 
     //
