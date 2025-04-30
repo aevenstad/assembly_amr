@@ -11,6 +11,7 @@ include { HYBRACTER_HYBRID       } from '../../../modules/local/hybracter/main'
 include { HYBRACTER_LONG         } from '../../../modules/local/hybracter/main'
 include { NANOSTAT_RAW           } from '../../../modules/local/nanostat/main'
 include { NANOSTAT_TRIMMED       } from '../../../modules/local/nanostat/main'
+include { PLASMID_FASTA          } from '../../../modules/local/plasmid_fasta/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,6 +72,17 @@ workflow LONGREAD_ASSEMBLY {
         def files = file("${dir}/*_hybracter_summary.tsv")
         tuple(meta, files)
     }
+    ch_plasmid_fasta = ch_hybracter_final_out.map { meta, dir -> 
+        def files = file("${dir}/complete/*_plasmid.fasta")
+        tuple(meta, files)
+    }
+
+    // 
+    // MODULE: PLASMID_FASTA
+    //
+    PLASMID_FASTA (
+        ch_plasmid_fasta
+    )
 
     //
     // MODULE: NANOSTAT_TRIMMED
