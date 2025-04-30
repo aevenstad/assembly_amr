@@ -16,12 +16,20 @@ process PLASMID_FASTA {
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
+    mkdir -p circular
+    mkdir -p linear
+
     seqkit split -s 1 $plasmid_fasta
 
     # Rename split fasta files based on header
     for file in ${plasmid_fasta}.split/*; do 
-        new_name=\$(grep -o ">\\S*" \$file | sed 's/>//g')
-        mv \$file ${prefix}_\${new_name}.fasta
+        plasmid_name=\$(grep -o ">\\w*" \$file)
+        plasmid_topology=\$(grep -o "circular=\\w*" \$file | cut -f2 -d"=")
+        if [ "\$plasmid_topology" == "true" ]; then
+            mv \$file circular/${prefix}_\${plasmid_name}.fasta
+        else
+            mv \$file linear/${prefix}_\${plasmid_name}.fasta
+        fi
     done
     """
 }
