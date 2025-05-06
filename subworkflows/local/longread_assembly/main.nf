@@ -26,7 +26,7 @@ workflow LONGREAD_ASSEMBLY {
 
     main:
     ch_versions = Channel.empty()
-    ch_longreads = samplesheet.map { meta, nanopore, _illumina_R1, _illumina_R2 ->
+    ch_longreads = samplesheet.map { meta, nanopore, _illumina_R1, _illumina_R2, _fasta ->
             tuple([id: meta], nanopore)
     }
 
@@ -43,7 +43,7 @@ workflow LONGREAD_ASSEMBLY {
     //
 
     if (params.assembly_type == 'hybrid'){
-        ch_samplesheet = samplesheet.map { meta, nanopore, illumina_R1, illumina_R2 ->
+        ch_samplesheet = samplesheet.map { meta, nanopore, illumina_R1, illumina_R2, _fasta ->
             tuple([id: meta], nanopore, illumina_R1, illumina_R2)
         }
         HYBRACTER_HYBRID (ch_samplesheet)

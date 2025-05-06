@@ -33,12 +33,20 @@
                 "exists": true,
                 "pattern": "^\\S+\\.f(ast)?q\\.gz$",
                 "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+            },
+            "fasta": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.f(ast)?a$",
+                "errorMessage": "Fasta file must be provided, cannot contain spaces and must have extension '.fa' or '.fasta'"
             }
         },
         "required": ["sample"],
         "anyOf": [
             {"required": ["nanopore"]},
-            {"required": ["illumina_R1", "illumina_R2"]}
+            {"required": ["illumina_R1", "illumina_R2"]},
+            {"required": ["fasta"]}
         ],
         "additionalProperties": false
     }

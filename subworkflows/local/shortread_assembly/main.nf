@@ -26,7 +26,7 @@ workflow SHORTREAD_ASSEMBLY {
     main:
 
     ch_versions = Channel.empty()
-    ch_shortreads = samplesheet.map { meta, _longreads, shortreads_1, shortreads_2 ->
+    ch_shortreads = samplesheet.map { meta, _longreads, shortreads_1, shortreads_2, _fasta ->
         tuple([id: meta], [file(shortreads_1), file(shortreads_2)])
     }
 

@@ -80,6 +80,12 @@
                     "description": "Number of BAKTA processes to run in parallel",
                     "default": 1,
                     "fa_icon": "fas fa-cogs"
+                },
+                "from_fasta": {
+                    "type": "boolean",
+                    "description": "Use FASTA files as input instead of FASTQ files",
+                    "default": false,
+                    "fa_icon": "fas fa-file-alt"
                 }
             }
         },

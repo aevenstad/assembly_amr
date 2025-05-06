@@ -8,6 +8,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { SHORTREAD_STATS                       } from '../../../modules/local/shortread_summary/main'
+include { STATS_FROM_FASTA            } from '../../../modules/local/shortread_summary/main'
 include { MERGE_SHORTREAD_STATS                 } from '../../../modules/local/shortread_summary/main'
 include { HYBRACTER_TABLE                       } from '../../../modules/local/hybracter_summary/main'
 include { TYPING_AND_RESISTANCE_TABLE           } from '../../../modules/local/typing_and_resistance_summary/main'
@@ -34,8 +35,17 @@ workflow WRITE_SUMMARY {
     ch_plasmidfinder_results
 
     main:
+
+    if (params.from_fasta) {
+        ch_assembly_stats = (ch_quast_results)
+            .map { tuple -> [tuple[0].id] + tuple[1..-1] }
+        STATS_FROM_FASTA(ch_assembly_stats)
+        ch_assembly_sample_table = STATS_FROM_FASTA.out.summary.map { meta, file -> file }.collect()
+        MERGE_SHORTREAD_STATS(ch_assembly_sample_table)
+        ch_assembly_run_summary = MERGE_SHORTREAD_STATS.out.summary
+    }
     // Create shortread assembly summary
-    if (params.assembly_type == 'short') {
+    if (!params.from_fasta && params.assembly_type == 'short') {
         ch_assembly_stats = (ch_quast_results)
             .join(ch_bbmap_results)
             .map { tuple -> [tuple[0].id] + tuple[1..-1] }
@@ -46,7 +56,7 @@ workflow WRITE_SUMMARY {
     }
     
     // Create hybracter summary
-    else {
+    else if (!params.from_fasta && params.assembly_type != 'short') {
         ch_assembly_sample_table = ch_hybracter_summary.map { meta, file -> file }.collect()
         HYBRACTER_TABLE(ch_assembly_sample_table)
         ch_assembly_run_summary = HYBRACTER_TABLE.out.summary
@@ -69,7 +79,7 @@ workflow WRITE_SUMMARY {
     ch_typing_and_resistance_run_summary = MERGE_TYPING_AND_RESISTANCE_TABLES.out.summary
 
     // Create per contig resistance summary for hybracter assemblies
-    if (params.assembly_type != 'short') {
+    if (!params.from_fasta && params.assembly_type != 'short') {
         ch_per_contig_resistance = (ch_amrfinder_results)
             .join(ch_plasmidfinder_results)
             .map { tuple -> [tuple[0].id] + tuple[1..-1] }
@@ -80,9 +90,11 @@ workflow WRITE_SUMMARY {
     }
 
     // Merge assembly and resistance tables
+    
     ch_run_summary = (ch_assembly_run_summary)
         .combine(ch_typing_and_resistance_run_summary)
     CREATE_RUN_TABLE(ch_run_summary)
+    
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
