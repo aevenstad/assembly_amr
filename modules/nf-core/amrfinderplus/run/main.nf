@@ -41,7 +41,7 @@ process AMRFINDERPLUS_RUN {
             --organism \$organism \\
             $args \\
             --database ${params.amrfinderplus_db} \\
-            --threads $task.cpus > ${prefix}.tsv
+            --threads 1 > ${prefix}.tsv
 
     else
         # Run AMRFinder without organism option
@@ -49,7 +49,7 @@ process AMRFINDERPLUS_RUN {
             --nucleotide $fasta \\
             $args \\
             --database ${params.amrfinderplus_db} \\
-            --threads ${task.cpus} > ${prefix}.tsv
+            --threads 1 > ${prefix}.tsv
     fi
 
 
