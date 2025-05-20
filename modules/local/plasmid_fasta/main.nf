@@ -21,20 +21,24 @@ process PLASMID_FASTA {
     mkdir -p circular
     mkdir -p linear
 
-    if [ -z "$plasmid_fasta" ]; then
-        echo "No plasmid fasta file provided"
-    else
-        seqkit split -s 1 $plasmid_fasta
-        # Rename split fasta files based on header
-        for file in ${plasmid_fasta}.split/*; do 
-            plasmid_name=\$(grep -o "plasmid00\\w*" \$file)
-            circular=\$(grep \$plasmid_name $plasmid_stats | cut -f 5)
-            if [ "\$circular" == "True" ]; then
-                mv \$file circular/${prefix}_\${plasmid_name}.fasta
-            else
-                mv \$file linear/${prefix}_\${plasmid_name}.fasta
-            fi
-        done
+    # Skip process if no plasmid fasta is generated or file is empty
+    if [ ! -s "$plasmid_fasta" ]; then
+        echo "No plasmid fasta file provided or file is empty"
+        exit 0
     fi
+
+    # Split plasmid fasta into separate files for each plasmid
+    seqkit split -s 1 $plasmid_fasta
+    
+    # Move files to appropriate directories based on circularity
+    for file in ${plasmid_fasta}.split/*; do 
+        plasmid_name=\$(grep -o "plasmid00\\w*" \$file)
+        circular=\$(grep \$plasmid_name $plasmid_stats | cut -f 5)
+        if [ "\$circular" == "True" ]; then
+            mv \$file circular/${prefix}_\${plasmid_name}.fasta
+        else
+            mv \$file linear/${prefix}_\${plasmid_name}.fasta
+        fi
+    done
     """
 }
