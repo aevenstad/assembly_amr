@@ -27,9 +27,12 @@ output:
           description: |
             Groovy Map containing sample information
             e.g. [ id:'test', single_end:false ]
-      - contigs.fa:
-          type: file
-          description: The final assembly produced by Shovill
+          pattern: "contigs.fa"
+      - ${meta.id}/shovill/contigs.fa:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
           pattern: "contigs.fa"
   - corrections:
       - meta:
@@ -37,9 +40,12 @@ output:
           description: |
             Groovy Map containing sample information
             e.g. [ id:'test', single_end:false ]
-      - shovill.corrections:
-          type: file
-          description: List of post-assembly corrections made by Shovill
+          pattern: "shovill.corrections"
+      - ${meta.id}/shovill/shovill.corrections:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
           pattern: "shovill.corrections"
   - log:
       - meta:
@@ -47,9 +53,12 @@ output:
           description: |
             Groovy Map containing sample information
             e.g. [ id:'test', single_end:false ]
-      - shovill.log:
-          type: file
-          description: Full log file for bug reporting
+          pattern: "shovill.log"
+      - ${meta.id}/shovill/shovill.log:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
           pattern: "shovill.log"
   - raw_contigs:
       - meta:
@@ -57,10 +66,12 @@ output:
           description: |
             Groovy Map containing sample information
             e.g. [ id:'test', single_end:false ]
-      - "{skesa,spades,megahit,velvet}.fasta":
-          type: file
-          description: Raw assembly produced by the assembler (SKESA, SPAdes, MEGAHIT,
-            or Velvet)
+          pattern: "{skesa,spades,megahit,velvet}.fasta"
+      - ${meta.id}/shovill/{skesa,spades,megahit,velvet}.fasta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
           pattern: "{skesa,spades,megahit,velvet}.fasta"
   - gfa:
       - meta:
@@ -68,12 +79,15 @@ output:
           description: |
             Groovy Map containing sample information
             e.g. [ id:'test', single_end:false ]
-      - contigs.{fastg,gfa,LastGraph}:
-          type: file
-          description: Assembly graph produced by MEGAHIT, SPAdes, or Velvet
+          pattern: "contigs.{fastg,gfa,LastGraph}"
+      - ${meta.id}/shovill/contigs.{fastg,gfa,LastGraph}:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
           pattern: "contigs.{fastg,gfa,LastGraph}"
   - versions:
-      - versions.yml:
+      - ${meta.id}/shovill/versions.yml:
           type: file
           description: File containing software versions
           pattern: "versions.yml"
