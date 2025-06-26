@@ -26,7 +26,7 @@ input:
         description: |
           List of input FastQ files of size 1 and 2 for single-end and paired-end data,
           respectively.
-  - - ref:
+    - ref:
         type: file
         description: |
           Either "ref" a directory containing an index, the name of another directory
@@ -39,20 +39,33 @@ output:
           description: |
             Groovy Map containing sample information
             e.g. [ id:'test', single_end:false ]
-      - "*.bam":
-          type: file
-          description: BAM file
           pattern: "*.{bam}"
-  - log:
+      - "*.bam":
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
+          pattern: "*.{bam}"
+  - txt:
       - meta:
           type: map
           description: |
             Groovy Map containing sample information
             e.g. [ id:'test', single_end:false ]
-      - "*.log":
+      - bbmap_statistics.txt:
           type: file
-          description: Log file
-          pattern: "*.{log}"
+          description: |
+            File containing statistics from the BBMap alignment.
+  - covstats:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
+      - bbmap_covstats.txt:
+          type: file
+          description: |
+            File containing coverage statistics from the BBMap alignment.
   - versions:
       - versions.yml:
           type: file
