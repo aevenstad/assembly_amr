@@ -1,6 +1,6 @@
 {
-    "name": "kres/annotate_genomes",
-    "homePage": "https://github.com/kres/annotate_genomes",
+    "name": "aevenstad/assembly_amr",
+    "homePage": "https://github.com/aevenstad/assembly_amr",
     "repos": {
         "https://github.com/nf-core/modules.git": {
             "modules": {
