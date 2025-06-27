@@ -1,5 +1,5 @@
 name: Feature request
-description: Suggest an idea for the kres/annotate_genomes pipeline
+description: Suggest an idea for the aevenstad/assembly_amr pipeline
 labels: enhancement
 body:
   - type: textarea
