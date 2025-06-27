@@ -22,23 +22,40 @@ input:
         description: |
           Groovy Map containing sample information
           e.g. [ id:'test', single_end:false ]
+    - species:
+        type: string
+        description: |
+          The species to use for the analysis.
     - fastas:
         type: list
         description: Klebsiella genome assemblies to be screened
         pattern: "*.fasta"
 output:
+  - results:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
+      - ${meta.id}/kleborate:
+          type: directory
+          description: Directory containing the results of the Kleborate analysis
+          pattern: "kleborate"
   - txt:
       - meta:
           type: map
           description: |
             Groovy Map containing sample information
             e.g. [ id:'test', single_end:false ]
-      - "*.txt":
-          type: file
-          description: Result file generated after screening
+          pattern: "*.txt"
+      - ${meta.id}/kleborate/*.txt:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
           pattern: "*.txt"
   - versions:
-      - versions.yml:
+      - ${meta.id}/kleborate/versions.yml:
           type: file
           description: File containing software versions
           pattern: "versions.yml"

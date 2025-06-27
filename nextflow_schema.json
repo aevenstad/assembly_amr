@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://raw.githubusercontent.com/kres/nanopore_assembly/master/nextflow_schema.json",
-    "title": "kres/nanopore_assembly pipeline parameters",
+    "$id": "https://raw.githubusercontent.com/aevenstad/assembly_amr/master/nextflow_schema.json",
+    "title": "aevenstad/assembly_amr pipeline parameters",
     "description": "Hybrid assembly of Nanopore and Illumina reads",
     "type": "object",
     "$defs": {
@@ -41,13 +41,6 @@
                     "description": "Path to the BAKTA database",
                     "fa_icon": "fas fa-folder-open"
                 },
-                "hybracter_config": {
-                    "type": "string",
-                    "format": "file-path",
-                    "exists": true,
-                    "description": "Path to the Hybracter config file",
-                    "fa_icon": "fas fa-cog"
-                },
                 "amrfinderplus_db": {
                     "type": "string",
                     "format": "directory-path",
@@ -72,7 +65,7 @@
                 "bakta": {
                     "type": "boolean",
                     "description": "Run BAKTA",
-                    "default": true,
+                    "default": false,
                     "fa_icon": "fas fa-vial"
                 },
                 "bakta_forks": {

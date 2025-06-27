@@ -23,16 +23,6 @@ input:
         type: file
         description: |
           FASTA file to be annotated. Has to contain at least a non-empty string dummy value.
-  - - db:
-        type: file
-        description: |
-          Path to the Bakta database. Must have amrfinderplus database directory already installed within it (in a directory called 'amrfinderplus-db/').
-  - - proteins:
-        type: file
-        description: FASTA/GenBank file of trusted proteins to first annotate from (optional)
-  - - prodigal_tf:
-        type: file
-        description: Training file to use for Prodigal (optional)
 output:
   - embl:
       - meta:
@@ -40,9 +30,12 @@ output:
           description: |
             Groovy Map containing sample information
             e.g. [ id:'test', single_end:false ]
+          pattern: "*.embl"
       - ${prefix}.embl:
-          type: file
-          description: annotations & sequences in (multi) EMBL format
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
           pattern: "*.embl"
   - faa:
       - meta:
@@ -50,9 +43,12 @@ output:
           description: |
             Groovy Map containing sample information
             e.g. [ id:'test', single_end:false ]
+          pattern: "*.faa"
       - ${prefix}.faa:
-          type: file
-          description: CDS/sORF amino acid sequences as FASTA
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
           pattern: "*.faa"
   - ffn:
       - meta:
@@ -60,9 +56,12 @@ output:
           description: |
             Groovy Map containing sample information
             e.g. [ id:'test', single_end:false ]
+          pattern: "*.ffn"
       - ${prefix}.ffn:
-          type: file
-          description: feature nucleotide sequences as FASTA
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
           pattern: "*.ffn"
   - fna:
       - meta:
@@ -70,9 +69,12 @@ output:
           description: |
             Groovy Map containing sample information
             e.g. [ id:'test', single_end:false ]
+          pattern: "*.fna"
       - ${prefix}.fna:
-          type: file
-          description: replicon/contig DNA sequences as FASTA
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
           pattern: "*.fna"
   - gbff:
       - meta:
@@ -80,9 +82,12 @@ output:
           description: |
             Groovy Map containing sample information
             e.g. [ id:'test', single_end:false ]
+          pattern: "*.gbff"
       - ${prefix}.gbff:
-          type: file
-          description: annotations & sequences in (multi) GenBank format
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
           pattern: "*.gbff"
   - gff:
       - meta:
@@ -90,9 +95,12 @@ output:
           description: |
             Groovy Map containing sample information
             e.g. [ id:'test', single_end:false ]
+          pattern: "*.gff3"
       - ${prefix}.gff3:
-          type: file
-          description: annotations & sequences in GFF3 format
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
           pattern: "*.gff3"
   - hypotheticals_tsv:
       - meta:
@@ -100,10 +108,12 @@ output:
           description: |
             Groovy Map containing sample information
             e.g. [ id:'test', single_end:false ]
+          pattern: "*.hypotheticals.tsv"
       - ${prefix}.hypotheticals.tsv:
-          type: file
-          description: additional information on hypothetical protein CDS as simple human
-            readable tab separated values
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
           pattern: "*.hypotheticals.tsv"
   - hypotheticals_faa:
       - meta:
@@ -111,9 +121,12 @@ output:
           description: |
             Groovy Map containing sample information
             e.g. [ id:'test', single_end:false ]
+          pattern: "*.hypotheticals.faa"
       - ${prefix}.hypotheticals.faa:
-          type: file
-          description: hypothetical protein CDS amino acid sequences as FASTA
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
           pattern: "*.hypotheticals.faa"
   - tsv:
       - meta:
@@ -121,19 +134,19 @@ output:
           description: |
             Groovy Map containing sample information
             e.g. [ id:'test', single_end:false ]
-      - ${prefix}.tsv:
-          type: file
-          description: annotations as simple human readable tab separated values
           pattern: "*.tsv"
-  - txt:
-      - meta:
+      - ${prefix}.tsv:
           type: map
           description: |
             Groovy Map containing sample information
             e.g. [ id:'test', single_end:false ]
+          pattern: "*.tsv"
+  - txt:
       - ${prefix}.txt:
-          type: file
-          description: genome statistics and annotation summary
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
           pattern: "*.txt"
   - versions:
       - versions.yml:
