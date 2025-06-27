@@ -72,7 +72,7 @@
                 "bakta": {
                     "type": "boolean",
                     "description": "Run BAKTA",
-                    "default": true,
+                    "default": false,
                     "fa_icon": "fas fa-vial"
                 },
                 "bakta_forks": {
