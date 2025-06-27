@@ -101,7 +101,7 @@ workflow ASSEMBLY_AMR {
     softwareVersionsToYAML(ch_versions)
         .collectFile(
             storeDir: "${params.outdir}/pipeline_info",
-            name:  'nanopore_assembly_software_'  + 'mqc_'  + 'versions.yml',
+            name:  'assembly_amr'  + '_'  + 'versions.yml',
             sort: true,
             newLine: true
         ).set { ch_collated_versions }
