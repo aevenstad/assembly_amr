@@ -45,7 +45,8 @@ process PLASMIDFINDER {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        plasmidfinder: $VERSION
+        PlasmidFinder: $VERSION
+        PlasmidFinder database: \$(cat ${params.plasmidfinder_db}/VERSION.txt)
     END_VERSIONS
     """
 }
