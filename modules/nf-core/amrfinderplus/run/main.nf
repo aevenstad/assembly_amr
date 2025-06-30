@@ -26,7 +26,7 @@ process AMRFINDERPLUS_RUN {
     prefix = task.ext.prefix ?: "${meta.id}"
     """
     # Set organism name (E.coli must be changed to "Escherichia")
-    organism=\$(cat $species)
+    organism=\$(awk '{print \$2}' $species)
     if [[ "\$organism" == Escherichia* ]]; then
         organism="Escherichia"
     elif [[ "\$organism" == Klebsiella* ]]; then
