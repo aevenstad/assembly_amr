@@ -25,8 +25,7 @@ process KLEBORATE {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    species_content=\$(cat $species)
-    echo "Species file content: \$species_content"
+    species_content=\$(awk '{print \$2}' $species)
 
     if [[ "\$species_content" == *"Klebsiella"* ]]; then
         kleborate \\
