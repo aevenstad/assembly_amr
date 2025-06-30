@@ -1,44 +1,38 @@
 process WRITE_PDF_REPORT {
-    publishDir "/pdf_report", mode: 'copy'
-    tag "$meta.id"
+    publishDir "pdf_report", mode: 'copy'
+    tag "$meta_id"
     label 'process_medium'
 
-    container /bigdata/Jessin/Softwares/containers/pdf_report_0.1.0.sif
+    container '/bigdata/Jessin/Softwares/containers/pdf_report.sif'
 
-    input: val(meta), path(quast_out), path(bbmap_out), path(mlst_out), path(rmlst_out), path(kleborate_out), path(amrfinder_out), path(plasmidfinder_out), path(lrefinder_out)
-    path "assets/genome_size.csv"
-    path "assets/kleborate_columns.txt"
-    path (sw_versions)
-    path (db_versions)
-
+    input: 
+    tuple val(meta_id), path(quast), path(bbmap), path(mlst), path(rmlst), path(kleborate), path(amrfinder), path(plasmidfinder), path(lrefinder)
+    path(versions)
+    path(genome_size)
+    path(kleborate_columns)
+    
     output:
-    tuple val(meta), path("${meta.id}.pdf")  , emit: pdf_report
+    tuple val(meta_id), path("${meta_id}.pdf")  , emit: pdf_report
     // tuple val(meta), path("${meta.id}.tex") , emit: tex
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def prefix = task.ext.prefix ?: "${meta.id}"
-    def args = task.ext.args ?: ''
-    
+    def prefix = task.ext.prefix ?: "${meta_id}"
+
     """
-    Rscript -e "rmarkdown::render\('pdf_report.Rmd', 
-        output_file = '${prefix}.pdf', 
-        params = list(
-            prefix = '${prefix}',
-            quast_out = '${quast_out}',
-            bbmap_out = '${bbmap_out}',
-            mlst_out = '${mlst_out}',
-            rmlst_out = '${rmlst_out}',
-            kleborate_out = '${kleborate_out}',
-            amrfinder_out = '${amrfinder_out}',
-            plasmidfinder_out = '${plasmidfinder_out}',
-            lrefinder_out = '${lrefinder_out}',
-            genome_size_csv = 'assets/genome_size.csv',
-            kleborate_columns_txt = 'assets/kleborate_columns.txt',
-            sw_versions = ${sw_versions},
-            db_versions = ${db_versions}
-        ))"
+    echo "prefix: ${prefix}"
+    echo "quast: ${quast}"
+    echo "bbmap: ${bbmap}"
+    echo "mlst: ${mlst}"
+    echo "rmlst: ${rmlst}"
+    echo "kleborate: ${kleborate}"
+    echo "amrfinder: ${amrfinder}"
+    echo "plasmidfinder: ${plasmidfinder}"
+    echo "lrefinder: ${lrefinder}"
+    echo "genome_size: ${genome_size}"
+    echo "kleborate_columns: ${kleborate_columns}"
+    echo "versions: ${versions}"
     """
 }
