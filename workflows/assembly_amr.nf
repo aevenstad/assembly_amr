@@ -111,7 +111,7 @@ workflow ASSEMBLY_AMR {
     // Write PDF report
     ch_genome_size = Channel.fromPath("${projectDir}/assets/genome_size.csv")
     ch_kleborate_columns = Channel.fromPath("${projectDir}/assets/kleborate_columns.txt")
-    ch_test_rmd = Channel.fromPath("${projectDir}/bin/test.Rmd")
+    ch_test_rmd = Channel.fromPath("${projectDir}/bin/report.Rmd")
     
     ch_pdf_input = ch_quast_results
         .join(ch_bbmap_results)

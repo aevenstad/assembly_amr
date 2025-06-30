@@ -3,7 +3,7 @@ process WRITE_PDF_REPORT {
     tag "$meta_id"
     label 'process_medium'
 
-    container '/bigdata/Jessin/Softwares/containers/pdf_report.sif'
+    container '/bigdata/Jessin/Softwares/containers/definition_files/pdf_report.sif'
 
     input: 
     tuple val(meta_id), 
@@ -32,7 +32,7 @@ process WRITE_PDF_REPORT {
 
     """
     Rscript -e "rmarkdown::render(input = '${rscript}', output_file='${meta_id}_report.pdf', params=list(
-        prefix='${prefix}',
+        sample_id='${prefix}',
         quast_out='${quast}',
         bbmap_out='${bbmap}',
         mlst_out='${mlst}',
