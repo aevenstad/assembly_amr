@@ -69,6 +69,7 @@ workflow RESISTANCE_ANALYSIS {
     if (!params.from_fasta) {
         ch_species_reads = ch_rmlst.join(ch_reads)
         LRE_FINDER (ch_species_reads)
+        ch_lrefinder_results = LRE_FINDER.out.txt
         ch_versions = ch_versions.mix(LRE_FINDER.out.versions)
     }
 
@@ -84,5 +85,6 @@ workflow RESISTANCE_ANALYSIS {
     ch_kleborate_results
     ch_amrfinder_results
     ch_plasmidfinder_results
+    ch_lrefinder_results
     ch_versions
 }
