@@ -28,8 +28,12 @@ workflow RESISTANCE_ANALYSIS {
     ch_versions = Channel.empty()
 
     // MODULE: MLST
-    MLST (ch_final_fasta)
+    ch_mlst_rename = Channel.fromPath("bin/mlst_species_names.sh")
+    ch_mlst_input = ch_final_fasta
+        .combine(ch_mlst_rename)
+    MLST (ch_mlst_input)
     ch_mlst_results = MLST.out.tsv
+    ch_mlst_renamed = MLST.out.renamed_tsv
     ch_versions = ch_versions.mix(MLST.out.versions)
 
     // MODULE: RMLST
@@ -39,7 +43,7 @@ workflow RESISTANCE_ANALYSIS {
 
     // MODULE KLEBORATE (Run Kleborate for Klebsiella)
     // Only run Kleborate fot Klebsiella assemblies identified through rMLST
-    ch_species_fasta = ch_rmlst.join(ch_final_fasta)
+    ch_species_fasta = ch_mlst_renamed.join(ch_final_fasta)
 
     KLEBORATE (ch_species_fasta)
     ch_kleborate_results = KLEBORATE.out.txt
