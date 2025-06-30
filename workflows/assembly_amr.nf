@@ -109,6 +109,10 @@ workflow ASSEMBLY_AMR {
 
 
     // Write PDF report
+    ch_genome_size = Channel.fromPath("${projectDir}/assets/genome_size.csv")
+    ch_kleborate_columns = Channel.fromPath("${projectDir}/assets/kleborate_columns.txt")
+    ch_test_rmd = Channel.fromPath("${projectDir}/bin/test.Rmd")
+    
     ch_pdf_input = ch_quast_results
         .join(ch_bbmap_results)
         .join(ch_mlst_results)
@@ -117,18 +121,14 @@ workflow ASSEMBLY_AMR {
         .join(ch_amrfinder_results)
         .join(ch_plasmidfinder_results)
         .join(ch_lrefinder_results)
+        .combine(ch_genome_size)
+        .combine(ch_kleborate_columns)
+        .combine(ch_test_rmd)
+        .combine(ch_collated_versions)
         .map { tuple -> [tuple[0].id] + tuple[1..-1] }
 
-    ch_pdf_input.view { it -> 
-        log.info "PDF input: ${it}" 
-    }  
 
-    //WRITE_PDF_REPORT(
-    //    ch_pdf_input,
-    //    ch_collated_versions,
-    //    file("${projectDir}/assets/genome_size.csv"),
-    //    file("${projectDir}/assets/kleborate_columns.txt")
-    //)
+    WRITE_PDF_REPORT(ch_pdf_input)
 
 
 

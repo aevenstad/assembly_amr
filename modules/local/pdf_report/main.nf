@@ -1,18 +1,26 @@
 process WRITE_PDF_REPORT {
-    publishDir "pdf_report", mode: 'copy'
+    publishDir "${params.outdir}/pdf_report", mode: 'copy'
     tag "$meta_id"
     label 'process_medium'
 
     container '/bigdata/Jessin/Softwares/containers/pdf_report.sif'
 
     input: 
-    tuple val(meta_id), path(quast), path(bbmap), path(mlst), path(rmlst), path(kleborate), path(amrfinder), path(plasmidfinder), path(lrefinder)
-    path(versions)
-    path(genome_size)
-    path(kleborate_columns)
-    
+    tuple val(meta_id), 
+        path(quast), 
+        path(bbmap), 
+        path(mlst), 
+        path(rmlst), 
+        path(kleborate), 
+        path(amrfinder), 
+        path(plasmidfinder), 
+        path(lrefinder),
+        path(genome_size),
+        path(kleborate_columns),
+        path(rscript),
+        path(versions)
     output:
-    tuple val(meta_id), path("${meta_id}.pdf")  , emit: pdf_report
+    tuple val(meta_id), path("${meta_id}_report.pdf")  , emit: pdf
     // tuple val(meta), path("${meta.id}.tex") , emit: tex
 
     when:
@@ -20,19 +28,22 @@ process WRITE_PDF_REPORT {
 
     script:
     def prefix = task.ext.prefix ?: "${meta_id}"
+    
 
     """
-    echo "prefix: ${prefix}"
-    echo "quast: ${quast}"
-    echo "bbmap: ${bbmap}"
-    echo "mlst: ${mlst}"
-    echo "rmlst: ${rmlst}"
-    echo "kleborate: ${kleborate}"
-    echo "amrfinder: ${amrfinder}"
-    echo "plasmidfinder: ${plasmidfinder}"
-    echo "lrefinder: ${lrefinder}"
-    echo "genome_size: ${genome_size}"
-    echo "kleborate_columns: ${kleborate_columns}"
-    echo "versions: ${versions}"
+    Rscript -e "rmarkdown::render(input = '${rscript}', output_file='${meta_id}_report.pdf', params=list(
+        prefix='${prefix}',
+        quast_out='${quast}',
+        bbmap_out='${bbmap}',
+        mlst_out='${mlst}',
+        rmlst_out='${rmlst}',
+        kleborate_out='${kleborate}',
+        amrfinder_out='${amrfinder}',
+        plasmidfinder_out='${plasmidfinder}',
+        lrefinder_out='${lrefinder}',
+        genome_size='${genome_size}',
+        kleborate_columns='${kleborate_columns}',
+        versions='${versions}'
+        ))"
     """
 }
