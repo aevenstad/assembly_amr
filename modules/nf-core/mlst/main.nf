@@ -9,10 +9,12 @@ process MLST {
         'biocontainers/mlst:2.23.0--hdfd78af_0' }"
 
     input:
-    tuple val(meta), path(fasta)
+    tuple val(meta), path(fasta), path(mlst_species_names)
 
     output:
-    tuple val(meta), path("*.tsv"), emit: tsv
+    tuple val(meta), path("*_mlst.tsv"), emit: tsv
+    tuple val(meta), path("*renamed.tsv"), emit: renamed_tsv
+    path "log.txt"                   , emit: log
     path "versions.yml"           , emit: versions
 
     when:
@@ -27,6 +29,9 @@ process MLST {
         --threads $task.cpus \\
         $fasta \\
         > ${prefix}_mlst.tsv
+
+    # Rename species in MLST output
+    bash $mlst_species_names ${prefix}_mlst.tsv 2> log.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
