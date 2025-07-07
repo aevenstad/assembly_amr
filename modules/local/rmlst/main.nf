@@ -28,7 +28,7 @@ process RMLST {
     
     grep "Taxon:" ${prefix}_rmlst.txt |\\
     sed 's/Taxon://;;s/ /_/' |\\
-    awk 'NR==1{print $1}' \\
+    awk 'NR==1{print \$1}' \\
     > ${prefix}_species.txt
 
     species_number=\$(grep -c "Taxon:" ${prefix}_rmlst.txt)
