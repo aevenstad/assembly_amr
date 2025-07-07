@@ -16,6 +16,7 @@ process AMRFINDERPLUS_RUN {
     output:
     tuple val(meta), path("${prefix}.tsv")          , emit: report
     tuple val(meta), path("${prefix}-mutations.tsv"), emit: mutation_report, optional: true
+    path "AMRFinder.log"                            , emit: log
     path "versions.yml"                             , emit: versions
 
     when:
@@ -26,7 +27,7 @@ process AMRFINDERPLUS_RUN {
     prefix = task.ext.prefix ?: "${meta.id}"
     """
     # Set organism name (E.coli must be changed to "Escherichia")
-    organism=\$(cat $species)
+    organism=\$(awk '{print \$2}' $species)
     if [[ "\$organism" == Escherichia* ]]; then
         organism="Escherichia"
     elif [[ "\$organism" == Klebsiella* ]]; then
@@ -41,7 +42,8 @@ process AMRFINDERPLUS_RUN {
             --organism \$organism \\
             $args \\
             --database ${params.amrfinderplus_db} \\
-            --threads 1 > ${prefix}.tsv
+            --threads 1 > ${prefix}.tsv \\
+            2> AMRFinder.log
 
     else
         # Run AMRFinder without organism option
@@ -49,7 +51,8 @@ process AMRFINDERPLUS_RUN {
             --nucleotide $fasta \\
             $args \\
             --database ${params.amrfinderplus_db} \\
-            --threads 1 > ${prefix}.tsv
+            --threads 1 > ${prefix}.tsv \\
+            2> AMRFinder.log
     fi
 
 

@@ -8,6 +8,7 @@ include { LONGREAD_ASSEMBLY             } from '../subworkflows/local/longread_a
 include { RESISTANCE_ANALYSIS           } from '../subworkflows/local/resistance_analysis/main'
 include { QUAST                         } from '../modules/nf-core/quast/main'
 include { WRITE_SUMMARY                 } from '../subworkflows/local/write_summary/main'
+include { WRITE_PDF_REPORT              } from '../modules/local/pdf_report/main'
 include { paramsSummaryMap              } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc          } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML        } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -82,9 +83,9 @@ workflow ASSEMBLY_AMR {
         ch_kleborate_results = RESISTANCE_ANALYSIS.out.ch_kleborate_results
         ch_amrfinder_results = RESISTANCE_ANALYSIS.out.ch_amrfinder_results
         ch_plasmidfinder_results = RESISTANCE_ANALYSIS.out.ch_plasmidfinder_results
+        ch_lrefinder_results = RESISTANCE_ANALYSIS.out.ch_lrefinder_results
 
 
-    // Create summary tables
     WRITE_SUMMARY(
         ch_quast_results,
         ch_bbmap_results,
@@ -105,6 +106,30 @@ workflow ASSEMBLY_AMR {
             sort: true,
             newLine: true
         ).set { ch_collated_versions }
+
+
+    // Write PDF report
+    ch_genome_size = Channel.fromPath("${projectDir}/assets/genome_size.csv")
+    ch_kleborate_columns = Channel.fromPath("${projectDir}/assets/kleborate_columns.txt")
+    ch_test_rmd = Channel.fromPath("${projectDir}/bin/report.Rmd")
+    
+    ch_pdf_input = ch_quast_results
+        .join(ch_bbmap_results)
+        .join(ch_mlst_results)
+        .join(ch_rmlst_results)
+        .join(ch_kleborate_results)
+        .join(ch_amrfinder_results)
+        .join(ch_plasmidfinder_results)
+        .join(ch_lrefinder_results)
+        .combine(ch_genome_size)
+        .combine(ch_kleborate_columns)
+        .combine(ch_test_rmd)
+        .combine(ch_collated_versions)
+        .map { tuple -> [tuple[0].id] + tuple[1..-1] }
+
+
+    WRITE_PDF_REPORT(ch_pdf_input)
+
 
 
     emit:
