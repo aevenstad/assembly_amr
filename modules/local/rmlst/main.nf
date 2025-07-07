@@ -25,8 +25,9 @@ process RMLST {
     """
     python3 /opt/rMLST/species_api_upload.py $fastaOption > ${prefix}_rmlst.txt
     
-    grep "Taxon:" ${prefix}_rmlst.txt |\
-    sed 's/Taxon://;;s/ /_/' \
+    grep "Taxon:" ${prefix}_rmlst.txt |\\
+    sed 's/Taxon://;;s/ /_/' |\\
+    awk 'NR==1{print $1}' \\
     > ${prefix}_species.txt
     """
 }
