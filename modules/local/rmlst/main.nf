@@ -36,5 +36,6 @@ process RMLST {
         grep "Taxon:" ${prefix}_rmlst.txt |\\
         sed 's/Taxon://;;s/ /_/' \\
         > ${prefix}_species_list.txt
+    fi
     """
 }
