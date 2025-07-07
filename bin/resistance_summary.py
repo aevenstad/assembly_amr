@@ -68,7 +68,7 @@ def get_rmlst_results(rmlst_results):
                 current_support = line.split(sep=":")[1].strip()
                 if current_taxon is not None and current_support is not None:
                     try:
-                        support_val = float(current_support)
+                        support_val = float(current_support.replace('%', '').strip())
                     except ValueError:
                         support_val = -1
                     matches.append((current_taxon, support_val))
