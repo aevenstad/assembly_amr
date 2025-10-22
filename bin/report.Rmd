@@ -1,5 +1,5 @@
 ---
-output: 
+output:
   pdf_document:
     latex_engine: pdflatex
     keep_tex: true
@@ -41,6 +41,7 @@ library(kableExtra)
 library(tidyr)
 library(dplyr)
 library(yaml)
+library(tibble)
 
 sample_id <- params$sample_id
 ```
@@ -103,25 +104,32 @@ yml <- yaml::read_yaml(params$versions)  # replace with your filename
 yml <- yml[names(yml) != "Workflow"]
 
 # Initialize tibbles
-sw_versions <- tibble(software = character(), version = character())
-db_versions <- tibble(database = character(), version = character())
+#sw_versions <- tibble(software = character(), version = character())
+#db_versions <- tibble(database = character(), version = character())
 
-for (section in names(yml)) {
-  for (sw in names(yml[[section]])) {
-    if (grepl("database", sw, ignore.case = TRUE)) {
-      db_version <- add_row(db_versions, database = sw, version = as.character(yml[[section]][[sw]]))
-    } else {
-      sw_version <- add_row(sw_versions, software = sw, version = as.character(yml[[section]][[sw]]))
-    }
-  }
-}
+#for (section in names(yml)) {
+#  for (sw in names(yml[[section]])) {
+#    if (grepl("database", sw, ignore.case = TRUE)) {
+#      db_version <- add_row(db_versions, database = sw, version = as.character(yml[[section]][[sw]]))
+#    } else {
+#      sw_version <- add_row(sw_versions, software = sw, version = as.character(yml[[section]][[sw]]))
+#    }
+#  }
+#}
+
+sw_df <- enframe(unlist(yml)) %>%
+  separate(name, into = c("module", "Software"), fill = "right", sep = "\\.") %>%
+  rename(version = value) %>%
+  select(-module)
+
+
 ```
 
 \vspace{1em}
 `r format(Sys.Date(), "%d.%m.%Y")`
 
 \vspace{1em}
-\textbf{\color{violet}Sample identifier : `r sample_id`} 
+\textbf{\color{violet}Sample identifier : `r sample_id`}
 
 
 \subsection*{\color{violet}Results:}
@@ -203,7 +211,7 @@ if (grepl("Klebsiella", mlst_species) && length(kleborate_files) > 0) {
   kleborate_species <- kleborate[1, "enterobacterales__species__species"]
   kleborate_species_match <- kleborate[1, "enterobacterales__species__species_match"]
   kleborate_QC_warnings <- kleborate[1, "general__contig_stats__QC_warnings"]
-  
+
   cat("\\begin{tabular}{@{}ll}\n")
   cat("Species:                 & \\textbf{", kleborate_species, "} \\\\\n")
   cat("Species match:           & \\textbf{", kleborate_species_match, "} \\\\\n")
@@ -240,7 +248,7 @@ knitr::kable(
     booktabs = TRUE,
     linesep = "",
     align = "l",
-    ) %>% 
+    ) %>%
   kableExtra::kable_styling(
     latex_options = c("striped", "repeat_header"),
     full_width = FALSE,
@@ -269,7 +277,7 @@ knitr::kable(
     booktabs = TRUE,
     linesep = "",
     align = "l",
-    ) %>% 
+    ) %>%
   kableExtra::kable_styling(
     latex_options = c("striped", "repeat_header"),
     full_width = FALSE,
@@ -300,7 +308,7 @@ knitr::kable(
     booktabs = TRUE,
     linesep = "",
     align = "l",
-    ) %>% 
+    ) %>%
   kableExtra::kable_styling(
     latex_options = c("striped", "repeat_header"),
     full_width = FALSE,
@@ -323,7 +331,7 @@ AMR_4th_criteria <- AMR_out %>%
   filter(Scope == "plus" & !Type == "AMR") %>%
   arrange(Class, Subclass) %>%
   select(Element, Type, Subtype, Class, Subclass, Coverage, Identity)
-  
+
 knitr::kable(
   AMR_4th_criteria,
     format = "latex",
@@ -331,7 +339,7 @@ knitr::kable(
     longtable = TRUE,
     linesep = "",
     align = "l",
-    ) %>% 
+    ) %>%
   kableExtra::kable_styling(
     latex_options = c("striped", "repeat_header"),
     full_width = FALSE,
@@ -357,28 +365,28 @@ if (grepl("Klebsiella", mlst_species) && length(kleborate_files) > 0) {
     Pattern = names(kleborate),
     Value = as.character(unlist(kleborate[1, ]))
   )
-  
+
   kleborate_long <- kleborate_long %>%
     mutate(Pattern = gsub(".*__", "", Pattern))
-  
+
   kleborate_long_filtered <- kleborate_long[kleborate_long$Pattern %in% kleborate_patterns$Pattern, ]
   kleborate_long_filtered_metadata <- kleborate_long_filtered %>%
     left_join(kleborate_patterns, by = "Pattern") %>%
     arrange(Type)
-  
+
   # Separate tables by Type
   mutations_table <- kleborate_long_filtered_metadata %>%
     filter(Type == "mutations") %>%
     select(Pattern, Value)
-  
+
   virulence_table <- kleborate_long_filtered_metadata %>%
     filter(Type == "virulence") %>%
     select(Pattern, Value)
-  
+
   locus_table <- kleborate_long_filtered_metadata %>%
     filter(Type %in% c("K_locus", "O_locus")) %>%
     select(Pattern, Value)
-  
+
   # Render the mutations table
   cat("\\vspace{1em}\n\\par\n")
   cat("\\needspace{15\\baselineskip}\n")
@@ -424,7 +432,7 @@ if (grepl("Klebsiella", mlst_species) && length(kleborate_files) > 0) {
     column_spec(2, width = "4cm") %>%
     print()
     cat("0 = negative for all of yersiniabactin (ybt), colibactin (clb), aerobactin (iuc); 1 = yersiniabactin only; 2 = yersiniabactin and colibactin (or colibactin only); 3 = aerobactin (without yersiniabactin or colibactin); 4 = aerobactin with yersiniabactin (without colibactin); 5 = yersiniabactin, colibactin and aerobactin \n\\par\n")
-  
+
   # Render the O and K locus table
   cat("\\vspace{1em}\n")
   cat("\\needspace{15\\baselineskip}\n")
@@ -565,7 +573,7 @@ print(plasmid_tbl)
 
 ```{r results='asis', echo=FALSE}
 sw_tbl <- knitr::kable(
-  sw_versions,
+  sw_df,
   format = "latex",
   booktabs = TRUE,
   longtable = FALSE,
@@ -582,23 +590,23 @@ sw_tbl <- knitr::kable(
   column_spec(2, width = "3cm")
 print(sw_tbl)
 
-db_tbl <- knitr::kable(
-  db_version,
-  format = "latex",
-  booktabs = TRUE,
-  longtable = FALSE,
-  linesep = "",
-  align = "c"
-) %>%
-  kableExtra::kable_styling(
-    latex_options = c("striped", "repeat_header"),
-    full_width = FALSE,
-    position = "left",
-    font_size = 9
-  ) %>%
-  column_spec(1, width = "3cm") %>%
-  column_spec(2, width = "3cm")
-print(db_tbl)
+#db_tbl <- knitr::kable(
+#  db_version,
+#  format = "latex",
+#  booktabs = TRUE,
+#  longtable = FALSE,
+#  linesep = "",
+#  align = "c"
+#) %>%
+#  kableExtra::kable_styling(
+#    latex_options = c("striped", "repeat_header"),
+#    full_width = FALSE,
+#    position = "left",
+#    font_size = 9
+#  ) %>%
+#  column_spec(1, width = "3cm") %>%
+#  column_spec(2, width = "3cm")
+#print(db_tbl)
 ```
 
 
