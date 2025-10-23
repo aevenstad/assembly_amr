@@ -3,17 +3,17 @@ process WRITE_PDF_REPORT {
     tag "$meta_id"
     label 'process_medium'
 
-    container '/bigdata/Jessin/Softwares/containers/definition_files/pdf_report.sif'
+    container '/bigdata/Jessin/Softwares/containers/pdf_report.sif'
 
-    input: 
-    tuple val(meta_id), 
-        path(quast), 
-        path(bbmap), 
-        path(mlst), 
-        path(rmlst), 
-        path(kleborate), 
-        path(amrfinder), 
-        path(plasmidfinder), 
+    input:
+    tuple val(meta_id),
+        path(quast),
+        path(bbmap),
+        path(mlst),
+        path(rmlst),
+        path(kleborate),
+        path(amrfinder),
+        path(plasmidfinder),
         path(lrefinder),
         path(genome_size),
         path(kleborate_columns),
@@ -28,7 +28,7 @@ process WRITE_PDF_REPORT {
 
     script:
     def prefix = task.ext.prefix ?: "${meta_id}"
-    
+
 
     """
     Rscript -e "rmarkdown::render(input = '${rscript}', output_file='${meta_id}_report.pdf', params=list(
