@@ -59,7 +59,7 @@ process AMRFINDERPLUS_RUN {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         amrfinderplus: \$(amrfinder --version)
-        amrfinderplus-database: \$(echo \$(echo \$(amrfinder --database /mnt/db --database_version 2> stdout) | rev | cut -f 1 -d ' ' | rev))
+        amrfinderplus-database: \$(echo \$(echo \$(amrfinder --database ${params.amrfinderplus_db} --database_version 2> stdout) | rev | cut -f 1 -d ' ' | rev))
     END_VERSIONS
     """
 
