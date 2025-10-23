@@ -2,7 +2,7 @@ process LRE_FINDER {
     publishDir "${params.outdir}/${meta.id}/lre-finder", mode: 'copy'
     tag "$meta.id"
 
-    container '/bigdata/Jessin/Softwares/containers/lre-finder_v1.0.0.sif'
+    container 'docker://andreeve867/lrefinder:latest'
 
     input:
     tuple val(meta), path(species), path(reads)
@@ -35,7 +35,7 @@ process LRE_FINDER {
         -t_db /lre-finder/elmDB/elm \\
         $args |\\
         html2text > LRE-Finder_out.txt
-    
+
     else
         echo "Skipping LRE-Finder..."
         echo "LRE-Finder skipped for \$species_content" > lre-finder_skipped.txt
