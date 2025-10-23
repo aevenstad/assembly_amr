@@ -39,7 +39,7 @@ workflow ASSEMBLY_AMR {
         // Skip assembly workflows and use the provided FASTA files
         ch_trimmed = Channel.empty()
         ch_final_fasta = samplesheet.map { meta, _nanopore, _illumina_R1, _illumina_R2, fasta ->
-                tuple([id: meta], [file(fasta)])       
+                tuple([id: meta], [file(fasta)])
         }
         // Get assembly stats from quast
         QUAST(ch_final_fasta)
@@ -109,27 +109,28 @@ workflow ASSEMBLY_AMR {
 
 
     // Write PDF report
-    ch_genome_size = Channel.fromPath("${projectDir}/assets/genome_size.csv")
-    ch_kleborate_columns = Channel.fromPath("${projectDir}/assets/kleborate_columns.txt")
-    ch_test_rmd = Channel.fromPath("${projectDir}/bin/report.Rmd")
-    
-    ch_pdf_input = ch_quast_results
-        .join(ch_bbmap_results)
-        .join(ch_mlst_results)
-        .join(ch_rmlst_results)
-        .join(ch_kleborate_results)
-        .join(ch_amrfinder_results)
-        .join(ch_plasmidfinder_results)
-        .join(ch_lrefinder_results)
-        .combine(ch_genome_size)
-        .combine(ch_kleborate_columns)
-        .combine(ch_test_rmd)
-        .combine(ch_collated_versions)
-        .map { tuple -> [tuple[0].id] + tuple[1..-1] }
+    if (params.report) {
+        ch_genome_size = Channel.fromPath("${projectDir}/assets/genome_size.csv")
+        ch_kleborate_columns = Channel.fromPath("${projectDir}/assets/kleborate_columns.txt")
+        ch_test_rmd = Channel.fromPath("${projectDir}/bin/report.Rmd")
+
+        ch_pdf_input = ch_quast_results
+            .join(ch_bbmap_results)
+            .join(ch_mlst_results)
+            .join(ch_rmlst_results)
+            .join(ch_kleborate_results)
+            .join(ch_amrfinder_results)
+            .join(ch_plasmidfinder_results)
+            .join(ch_lrefinder_results)
+            .combine(ch_genome_size)
+            .combine(ch_kleborate_columns)
+            .combine(ch_test_rmd)
+            .combine(ch_collated_versions)
+            .map { tuple -> [tuple[0].id] + tuple[1..-1] }
 
 
-    WRITE_PDF_REPORT(ch_pdf_input)
-
+        WRITE_PDF_REPORT(ch_pdf_input)
+    }
 
 
     emit:
