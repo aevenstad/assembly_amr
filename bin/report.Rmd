@@ -118,9 +118,11 @@ yml <- yml[names(yml) != "Workflow"]
 #}
 
 sw_df <- enframe(unlist(yml)) %>%
-  separate(name, into = c("module", "Software"), fill = "right", sep = "\\.") %>%
-  rename(version = value) %>%
-  select(-module)
+  separate(name, into = c("module", "Name"), fill = "right", sep = "\\.") %>%
+  rename(Version = value) %>%
+  select(-module) %>%
+  filter(!Name == "samtools") %>%
+  filter(!Name == "pigz")
 
 
 ```
@@ -578,7 +580,7 @@ sw_tbl <- knitr::kable(
   booktabs = TRUE,
   longtable = FALSE,
   linesep = "",
-  align = "c"
+  align = "l"
 ) %>%
   kableExtra::kable_styling(
     latex_options = c("striped", "repeat_header"),
