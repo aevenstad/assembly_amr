@@ -4,8 +4,7 @@ process RMLST {
     label 'process_low'
     maxForks 4
 
-    // conda "${moduleDir}/environment.yml"
-    container '/bigdata/Jessin/Softwares/containers/rMLST.sif'
+    container 'docker://andreeve867/rmlst:latest'
 
     input:
     tuple val(meta), path(fasta)
