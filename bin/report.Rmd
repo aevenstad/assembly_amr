@@ -586,8 +586,8 @@ sw_tbl <- knitr::kable(
     position = "left",
     font_size = 9
   ) %>%
-  column_spec(1, width = "3cm") %>%
-  column_spec(2, width = "3cm")
+  column_spec(1, width = "4cm") %>%
+  column_spec(2, width = "4cm")
 print(sw_tbl)
 
 #db_tbl <- knitr::kable(

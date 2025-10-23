@@ -40,6 +40,7 @@ workflow RESISTANCE_ANALYSIS {
     RMLST (ch_final_fasta)
     ch_rmlst_results = RMLST.out.rmlst
     ch_rmlst = RMLST.out.species
+    ch_versions = ch_versions.mix(RMLST.out.versions)
 
     // MODULE KLEBORATE (Run Kleborate for Klebsiella)
     // Only run Kleborate fot Klebsiella assemblies identified through rMLST
@@ -84,8 +85,8 @@ workflow RESISTANCE_ANALYSIS {
     ch_versions = ch_versions.mix(PLASMIDFINDER.out.versions)
 
     emit:
-    ch_mlst_results 
-    ch_rmlst_results 
+    ch_mlst_results
+    ch_rmlst_results
     ch_kleborate_results
     ch_amrfinder_results
     ch_plasmidfinder_results
