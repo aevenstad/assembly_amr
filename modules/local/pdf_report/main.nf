@@ -3,7 +3,7 @@ process WRITE_PDF_REPORT {
     tag "$meta_id"
     label 'process_medium'
 
-    container '/bigdata/Jessin/Softwares/containers/pdf_report.sif'
+    container 'docker://andreeve867/pdf_report:latest'
 
     input:
     tuple val(meta_id),
