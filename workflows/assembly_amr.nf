@@ -5,7 +5,7 @@
 */
 include { SHORTREAD_ASSEMBLY            } from '../subworkflows/local/shortread_assembly/main'
 include { LONGREAD_ASSEMBLY             } from '../subworkflows/local/longread_assembly/main'
-include { RESISTANCE_ANALYSIS           } from '../subworkflows/local/resistance_analysis/main'
+include { TYPING_AND_RESISTANCE         } from '../subworkflows/local/typing_and_resistance/main'
 include { QUAST                         } from '../modules/nf-core/quast/main'
 include { WRITE_SUMMARY                 } from '../subworkflows/local/write_summary/main'
 include { WRITE_PDF_REPORT              } from '../modules/local/pdf_report/main'
@@ -76,14 +76,14 @@ workflow ASSEMBLY_AMR {
 
 
     // Run the resistance analysis workflow
-    RESISTANCE_ANALYSIS(ch_final_fasta, ch_trimmed)
-        ch_versions = ch_versions.mix(RESISTANCE_ANALYSIS.out.ch_versions)
-        ch_mlst_results = RESISTANCE_ANALYSIS.out.ch_mlst_results
-        ch_rmlst_results = RESISTANCE_ANALYSIS.out.ch_rmlst_results
-        ch_kleborate_results = RESISTANCE_ANALYSIS.out.ch_kleborate_results
-        ch_amrfinder_results = RESISTANCE_ANALYSIS.out.ch_amrfinder_results
-        ch_plasmidfinder_results = RESISTANCE_ANALYSIS.out.ch_plasmidfinder_results
-        ch_lrefinder_results = RESISTANCE_ANALYSIS.out.ch_lrefinder_results
+    TYPING_AND_RESISTANCE(ch_final_fasta, ch_trimmed)
+        ch_versions = ch_versions.mix(TYPING_AND_RESISTANCE.out.ch_versions)
+        ch_mlst_results = TYPING_AND_RESISTANCE.out.ch_mlst_results
+        ch_rmlst_results = TYPING_AND_RESISTANCE.out.ch_rmlst_results
+        ch_kleborate_results = TYPING_AND_RESISTANCE.out.ch_kleborate_results
+        ch_amrfinder_results = TYPING_AND_RESISTANCE.out.ch_amrfinder_results
+        ch_plasmidfinder_results = TYPING_AND_RESISTANCE.out.ch_plasmidfinder_results
+        ch_lrefinder_results = TYPING_AND_RESISTANCE.out.ch_lrefinder_results
 
 
     WRITE_SUMMARY(

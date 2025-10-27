@@ -18,7 +18,7 @@ include { SPLIT_BAKTA            } from '../../../modules/local/split_bakta/main
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow RESISTANCE_ANALYSIS {
+workflow TYPING_AND_RESISTANCE {
 
     take:
     ch_final_fasta
