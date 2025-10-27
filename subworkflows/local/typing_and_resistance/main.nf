@@ -7,6 +7,7 @@ include { AMRFINDERPLUS_RUN      } from '../../../modules/nf-core/amrfinderplus/
 include { BAKTA_BAKTA            } from '../../../modules/nf-core/bakta/bakta/main'
 include { KLEBORATE              } from '../../../modules/nf-core/kleborate/main'
 include { LRE_FINDER             } from '../../../modules/local/lre-finder/main'
+include { LRE_FINDER_LONGREAD    } from '../../../modules/local/lre-finder/main.nf'
 include { MLST                   } from '../../../modules/nf-core/mlst/main'
 include { PLASMIDFINDER          } from '../../../modules/nf-core/plasmidfinder/main'
 include { RMLST                  } from '../../../modules/local/rmlst/main'
@@ -73,9 +74,15 @@ workflow TYPING_AND_RESISTANCE {
     // Only run LRE-Finder for Enterococcus assemblies identified through rMLST
     if (!params.from_fasta) {
         ch_species_reads = ch_rmlst.join(ch_reads)
-        LRE_FINDER (ch_species_reads)
-        ch_lrefinder_results = LRE_FINDER.out.txt
-        ch_versions = ch_versions.mix(LRE_FINDER.out.versions)
+        if (params.assembly_type == "long") {
+            LRE_FINDER_LONGREAD (ch_species_reads)
+            ch_lrefinder_results = LRE_FINDER_LONGREAD.out.txt
+            ch_versions = ch_versions.mix(LRE_FINDER_LONGREAD.out.versions)
+        } else {
+            LRE_FINDER (ch_species_reads)
+            ch_lrefinder_results = LRE_FINDER.out.txt
+            ch_versions = ch_versions.mix(LRE_FINDER.out.versions)
+        }
     }
 
 
