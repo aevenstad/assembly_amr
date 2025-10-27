@@ -9,7 +9,7 @@ process LRE_FINDER {
 
 
     output:
-    tuple val(meta), path("*.txt")                 , emit: txt
+    tuple val(meta), path("*.txt")                 , optional: txt
     tuple val(meta), path("*.res")                 , optional: true
     tuple val(meta), path("*.pos")                 , optional: true
     tuple val(meta), path("*.fsa")                 , optional: true
@@ -35,11 +35,8 @@ process LRE_FINDER {
         -t_db /lre-finder/elmDB/elm \\
         $args |\\
         html2text > LRE-Finder_out.txt
-
-    else
-        echo "Skipping LRE-Finder..."
-        echo "LRE-Finder skipped for \$species_content" > lre-finder_skipped.txt
     fi
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         LRE-Finder: \$(grep "VERSION =" /opt/bin/LRE-Finder.py | cut -d"\\"" -f2)
