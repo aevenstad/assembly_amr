@@ -2,7 +2,7 @@ process TYPING_AND_RESISTANCE_TABLE {
     publishDir "${params.outdir}/${meta_id}", mode: 'copy'
     tag "$meta_id"
     label 'process_low'
-    container "/bigdata/Jessin/Softwares/containers/pip_pandas_b119e1f6a52aae23.sif"
+    container "community.wave.seqera.io/library/pip_pandas:9cf85c2568d5b002"
 
     input:
     tuple val(meta_id), path(mlst_results), \
@@ -60,13 +60,13 @@ process PER_CONTIG_RESISTANCE_SUMMARY {
 process MERGE_TYPING_AND_RESISTANCE_TABLES {
     publishDir "${params.outdir}", mode: 'copy'
     label 'process_low'
-    
+
     input:
     path(resistance_summaries)
 
     output:
     path("resistance_summary.tsv"), emit: summary
-    
+
     script:
     """
     # Get header from the first file

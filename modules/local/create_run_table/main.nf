@@ -1,7 +1,7 @@
 process CREATE_RUN_TABLE {
     publishDir "${params.outdir}" , mode: 'copy'
     label 'process_low'
-    container "/bigdata/Jessin/Softwares/containers/pip_pandas_b119e1f6a52aae23.sif"
+    container "community.wave.seqera.io/library/pip_pandas:9cf85c2568d5b002"
 
     input:
     tuple path(assembly_table), path(resistance_table)
