@@ -1,6 +1,6 @@
 process HYBRACTER_HYBRID {
     publishDir "${params.outdir}", mode: 'copy'
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
@@ -10,35 +10,35 @@ process HYBRACTER_HYBRID {
     tuple val(meta), path(longreads), path(shortreads_1), path(shortreads_2)
 
     output:
-    tuple val(meta), path("${meta.id}/hybracter/FINAL_OUTPUT")                                   , emit: final_output
-    tuple val(meta), path("${meta.id}/hybracter/benchmarks")                                     , emit: benchmarks
-    tuple val(meta), path("${meta.id}/hybracter/completeness")                                   , emit: completeness
-    tuple val(meta), path("${meta.id}/hybracter/flags")                                          , emit: flags
-    tuple val(meta), path("${meta.id}/hybracter/processing")                                     , emit: processing
-    tuple val(meta), path("${meta.id}/hybracter/stderr")                                         , emit: stderr
-    tuple val(meta), path("${meta.id}/hybracter/supplementary_results")                          , emit: supplementary_results
-    tuple val(meta), path("${meta.id}/hybracter/versions")                                       , emit: hybracter_versions
-    path "${meta.id}/hybracter/processing/qc/fastp/*.json"                                       , optional: true, emit: fastp_json
-    path "${meta.id}/hybracter/versions.yml"                                                     , emit: versions
+    tuple val(meta), path("${meta.id}/hybracter/FINAL_OUTPUT"), emit: final_output
+    tuple val(meta), path("${meta.id}/hybracter/benchmarks"), emit: benchmarks
+    tuple val(meta), path("${meta.id}/hybracter/completeness"), emit: completeness
+    tuple val(meta), path("${meta.id}/hybracter/flags"), emit: flags
+    tuple val(meta), path("${meta.id}/hybracter/processing"), emit: processing
+    tuple val(meta), path("${meta.id}/hybracter/stderr"), emit: stderr
+    tuple val(meta), path("${meta.id}/hybracter/supplementary_results"), emit: supplementary_results
+    tuple val(meta), path("${meta.id}/hybracter/versions"), emit: hybracter_versions
+    path "${meta.id}/hybracter/processing/qc/fastp/*.json", optional: true, emit: fastp_json
+    path "${meta.id}/hybracter/versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args   ?: '--chromosome 2000000'
+    def args = task.ext.args ?: '--auto --subsample_depth 500'
     def prefix = task.ext.prefix ?: "${meta.id}"
     def cacheDir = task.workDir ? task.workDir.toAbsolutePath().toString() + "/.cache" : "/tmp/.cache"
 
     """
-    export XDG_CACHE_HOME=$cacheDir
+    export XDG_CACHE_HOME=${cacheDir}
     hybracter hybrid-single \\
-        -l $longreads \\
-        -1 $shortreads_1 \\
-        -2 $shortreads_2 \\
-        --sample $prefix \\
-        --output $prefix/hybracter \\
-        --threads $task.cpus \\
-        $args
+        -l ${longreads} \\
+        -1 ${shortreads_1} \\
+        -2 ${shortreads_2} \\
+        --sample ${prefix} \\
+        --output ${prefix}/hybracter \\
+        --threads ${task.cpus} \\
+        ${args}
 
     # Copy *_final.fasta so that both complete and incomplete assemblies can be used for input channel
     if [ -f "${prefix}/hybracter/FINAL_OUTPUT/complete/${prefix}_final.fasta" ]; then
@@ -72,7 +72,7 @@ process HYBRACTER_HYBRID {
 
 process HYBRACTER_LONG {
     publishDir "${params.outdir}", mode: 'copy'
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
@@ -82,33 +82,33 @@ process HYBRACTER_LONG {
     tuple val(meta), path(longreads)
 
     output:
-    tuple val(meta), path("${meta.id}/hybracter/FINAL_OUTPUT")                                   , emit: final_output
-    tuple val(meta), path("${meta.id}/hybracter/benchmarks")                                     , emit: benchmarks
-    tuple val(meta), path("${meta.id}/hybracter/completeness")                                   , emit: completeness
-    tuple val(meta), path("${meta.id}/hybracter/flags")                                          , emit: flags
-    tuple val(meta), path("${meta.id}/hybracter/processing")                                     , emit: processing
-    tuple val(meta), path("${meta.id}/hybracter/stderr")                                         , emit: stderr
-    tuple val(meta), path("${meta.id}/hybracter/supplementary_results")                          , emit: supplementary_results
-    tuple val(meta), path("${meta.id}/hybracter/versions")                                       , emit: hybracter_versions
-    path "${meta.id}/hybracter/processing/qc/fastp/*.json"                                       , optional: true, emit: fastp_json
-    path "${meta.id}/hybracter/versions.yml"                                                     , emit: versions
+    tuple val(meta), path("${meta.id}/hybracter/FINAL_OUTPUT"), emit: final_output
+    tuple val(meta), path("${meta.id}/hybracter/benchmarks"), emit: benchmarks
+    tuple val(meta), path("${meta.id}/hybracter/completeness"), emit: completeness
+    tuple val(meta), path("${meta.id}/hybracter/flags"), emit: flags
+    tuple val(meta), path("${meta.id}/hybracter/processing"), emit: processing
+    tuple val(meta), path("${meta.id}/hybracter/stderr"), emit: stderr
+    tuple val(meta), path("${meta.id}/hybracter/supplementary_results"), emit: supplementary_results
+    tuple val(meta), path("${meta.id}/hybracter/versions"), emit: hybracter_versions
+    path "${meta.id}/hybracter/processing/qc/fastp/*.json", optional: true, emit: fastp_json
+    path "${meta.id}/hybracter/versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args   ?: '--auto'
+    def args = task.ext.args ?: '--auto --subsample_depth 500'
     def prefix = task.ext.prefix ?: "${meta.id}"
     def cacheDir = task.workDir ? task.workDir.toAbsolutePath().toString() + "/.cache" : "/tmp/.cache"
 
     """
-    export XDG_CACHE_HOME=$cacheDir
+    export XDG_CACHE_HOME=${cacheDir}
     hybracter long-single \\
-        -l $longreads \\
-        --sample $prefix \\
-        --output $prefix/hybracter \\
-        --threads $task.cpus \\
-        $args
+        -l ${longreads} \\
+        --sample ${prefix} \\
+        --output ${prefix}/hybracter \\
+        --threads ${task.cpus} \\
+        ${args}
 
 
     # Copy *_final.fasta so that both complete and incomplete assemblies can be used for input channel
