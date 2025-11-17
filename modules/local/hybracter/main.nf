@@ -30,6 +30,11 @@ process HYBRACTER_HYBRID {
     def cacheDir = task.workDir ? task.workDir.toAbsolutePath().toString() + "/.cache" : "/tmp/.cache"
 
     """
+    # Get estimated chrom size
+    lrge=/opt/miniforge3/pkgs/lrge-0.1.3-h9f13da3_0/bin/lrge
+    \$lrge -t4 -s42 ${longreads} -o chrom_size.txt
+    chrom_size=\$(cat chrom_size.txt)
+
     export XDG_CACHE_HOME=${cacheDir}
     hybracter hybrid-single \\
         -l ${longreads} \\
@@ -38,6 +43,7 @@ process HYBRACTER_HYBRID {
         --sample ${prefix} \\
         --output ${prefix}/hybracter \\
         --threads ${task.cpus} \\
+        --extra_params_flye "--genome-size \$chrom_size --asm-coverage 50" \\
         ${args}
 
     # Copy *_final.fasta so that both complete and incomplete assemblies can be used for input channel
@@ -102,12 +108,19 @@ process HYBRACTER_LONG {
     def cacheDir = task.workDir ? task.workDir.toAbsolutePath().toString() + "/.cache" : "/tmp/.cache"
 
     """
+    # Get estimated chrom size
+    lrge=/opt/miniforge3/pkgs/lrge-0.1.3-h9f13da3_0/bin/lrge
+    \$lrge -t4 -s42 ${longreads} -o chrom_size.txt
+    chrom_size=\$(cat chrom_size.txt)
+
+
     export XDG_CACHE_HOME=${cacheDir}
     hybracter long-single \\
         -l ${longreads} \\
         --sample ${prefix} \\
         --output ${prefix}/hybracter \\
         --threads ${task.cpus} \\
+        --extra_params_flye "--genome-size \$chrom_size --asm-coverage 50" \\
         ${args}
 
 
