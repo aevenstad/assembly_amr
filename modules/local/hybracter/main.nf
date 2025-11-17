@@ -10,16 +10,16 @@ process HYBRACTER_HYBRID {
     tuple val(meta), path(longreads), path(shortreads_1), path(shortreads_2)
 
     output:
-    tuple val(meta), path("${meta.id}/hybracter/FINAL_OUTPUT"), emit: final_output
-    tuple val(meta), path("${meta.id}/hybracter/benchmarks"), emit: benchmarks
-    tuple val(meta), path("${meta.id}/hybracter/completeness"), emit: completeness
-    tuple val(meta), path("${meta.id}/hybracter/flags"), emit: flags
-    tuple val(meta), path("${meta.id}/hybracter/processing"), emit: processing
-    tuple val(meta), path("${meta.id}/hybracter/stderr"), emit: stderr
-    tuple val(meta), path("${meta.id}/hybracter/supplementary_results"), emit: supplementary_results
-    tuple val(meta), path("${meta.id}/hybracter/versions"), emit: hybracter_versions
-    path "${meta.id}/hybracter/processing/qc/fastp/*.json", optional: true, emit: fastp_json
-    path "${meta.id}/hybracter/versions.yml", emit: versions
+    tuple val(meta), path("${meta.id}/hybracter/FINAL_OUTPUT")                                   , emit: final_output
+    tuple val(meta), path("${meta.id}/hybracter/benchmarks")                                     , emit: benchmarks
+    tuple val(meta), path("${meta.id}/hybracter/completeness")                                   , emit: completeness
+    tuple val(meta), path("${meta.id}/hybracter/flags")                                          , emit: flags
+    tuple val(meta), path("${meta.id}/hybracter/processing")                                     , emit: processing
+    tuple val(meta), path("${meta.id}/hybracter/stderr")                                         , emit: stderr
+    tuple val(meta), path("${meta.id}/hybracter/supplementary_results")                          , emit: supplementary_results
+    tuple val(meta), path("${meta.id}/hybracter/versions")                                       , emit: hybracter_versions
+    path "${meta.id}/hybracter/processing/qc/fastp/*.json"                                       , optional: true, emit: fastp_json
+    path "${meta.id}/hybracter/versions.yml"                                                     , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
