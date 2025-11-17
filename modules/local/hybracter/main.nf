@@ -25,7 +25,7 @@ process HYBRACTER_HYBRID {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: '--auto --subsample_depth 500'
+    def args = task.ext.args ?: '--auto --subsample_depth 250'
     def prefix = task.ext.prefix ?: "${meta.id}"
     def cacheDir = task.workDir ? task.workDir.toAbsolutePath().toString() + "/.cache" : "/tmp/.cache"
 
@@ -103,7 +103,7 @@ process HYBRACTER_LONG {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: '--auto --subsample_depth 500'
+    def args = task.ext.args ?: '--auto --subsample_depth 250'
     def prefix = task.ext.prefix ?: "${meta.id}"
     def cacheDir = task.workDir ? task.workDir.toAbsolutePath().toString() + "/.cache" : "/tmp/.cache"
 
