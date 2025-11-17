@@ -5,7 +5,7 @@
 */
 include { SHORTREAD_ASSEMBLY            } from '../subworkflows/local/shortread_assembly/main'
 include { LONGREAD_ASSEMBLY             } from '../subworkflows/local/longread_assembly/main'
-include { RESISTANCE_ANALYSIS           } from '../subworkflows/local/resistance_analysis/main'
+include { TYPING_AND_RESISTANCE         } from '../subworkflows/local/typing_and_resistance/main'
 include { QUAST                         } from '../modules/nf-core/quast/main'
 include { WRITE_SUMMARY                 } from '../subworkflows/local/write_summary/main'
 include { paramsSummaryMap              } from 'plugin/nf-schema'
@@ -38,7 +38,7 @@ workflow ASSEMBLY_AMR {
         // Skip assembly workflows and use the provided FASTA files
         ch_trimmed = Channel.empty()
         ch_final_fasta = samplesheet.map { meta, _nanopore, _illumina_R1, _illumina_R2, fasta ->
-                tuple([id: meta], [file(fasta)])       
+                tuple([id: meta], [file(fasta)])
         }
         // Get assembly stats from quast
         QUAST(ch_final_fasta)
@@ -75,16 +75,16 @@ workflow ASSEMBLY_AMR {
 
 
     // Run the resistance analysis workflow
-    RESISTANCE_ANALYSIS(ch_final_fasta, ch_trimmed)
-        ch_versions = ch_versions.mix(RESISTANCE_ANALYSIS.out.ch_versions)
-        ch_mlst_results = RESISTANCE_ANALYSIS.out.ch_mlst_results
-        ch_rmlst_results = RESISTANCE_ANALYSIS.out.ch_rmlst_results
-        ch_kleborate_results = RESISTANCE_ANALYSIS.out.ch_kleborate_results
-        ch_amrfinder_results = RESISTANCE_ANALYSIS.out.ch_amrfinder_results
-        ch_plasmidfinder_results = RESISTANCE_ANALYSIS.out.ch_plasmidfinder_results
+    TYPING_AND_RESISTANCE(ch_final_fasta, ch_trimmed)
+        ch_versions = ch_versions.mix(TYPING_AND_RESISTANCE.out.ch_versions)
+        ch_mlst_results = TYPING_AND_RESISTANCE.out.ch_mlst_results
+        ch_rmlst_results = TYPING_AND_RESISTANCE.out.ch_rmlst_results
+        ch_kleborate_results = TYPING_AND_RESISTANCE.out.ch_kleborate_results
+        ch_amrfinder_results = TYPING_AND_RESISTANCE.out.ch_amrfinder_results
+        ch_plasmidfinder_results = TYPING_AND_RESISTANCE.out.ch_plasmidfinder_results
+        ch_lrefinder_results = TYPING_AND_RESISTANCE.out.ch_lrefinder_results
 
 
-    // Create summary tables
     WRITE_SUMMARY(
         ch_quast_results,
         ch_bbmap_results,

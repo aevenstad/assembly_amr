@@ -1,6 +1,6 @@
 process HYBRACTER_HYBRID {
     publishDir "${params.outdir}", mode: 'copy'
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
@@ -25,20 +25,26 @@ process HYBRACTER_HYBRID {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args   ?: '--chromosome 2000000'
+    def args = task.ext.args ?: '--auto --subsample_depth 250'
     def prefix = task.ext.prefix ?: "${meta.id}"
     def cacheDir = task.workDir ? task.workDir.toAbsolutePath().toString() + "/.cache" : "/tmp/.cache"
 
     """
-    export XDG_CACHE_HOME=$cacheDir
+    # Get estimated chrom size
+    lrge=/opt/miniforge3/pkgs/lrge-0.1.3-h9f13da3_0/bin/lrge
+    \$lrge -t4 -s42 ${longreads} -o chrom_size.txt
+    chrom_size=\$(cat chrom_size.txt)
+
+    export XDG_CACHE_HOME=${cacheDir}
     hybracter hybrid-single \\
-        -l $longreads \\
-        -1 $shortreads_1 \\
-        -2 $shortreads_2 \\
-        --sample $prefix \\
-        --output $prefix/hybracter \\
-        --threads $task.cpus \\
-        $args
+        -l ${longreads} \\
+        -1 ${shortreads_1} \\
+        -2 ${shortreads_2} \\
+        --sample ${prefix} \\
+        --output ${prefix}/hybracter \\
+        --threads ${task.cpus} \\
+        --extra_params_flye "--genome-size \$chrom_size --asm-coverage 50" \\
+        ${args}
 
     # Copy *_final.fasta so that both complete and incomplete assemblies can be used for input channel
     if [ -f "${prefix}/hybracter/FINAL_OUTPUT/complete/${prefix}_final.fasta" ]; then
@@ -72,7 +78,7 @@ process HYBRACTER_HYBRID {
 
 process HYBRACTER_LONG {
     publishDir "${params.outdir}", mode: 'copy'
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
@@ -82,33 +88,40 @@ process HYBRACTER_LONG {
     tuple val(meta), path(longreads)
 
     output:
-    tuple val(meta), path("${meta.id}/hybracter/FINAL_OUTPUT")                                   , emit: final_output
-    tuple val(meta), path("${meta.id}/hybracter/benchmarks")                                     , emit: benchmarks
-    tuple val(meta), path("${meta.id}/hybracter/completeness")                                   , emit: completeness
-    tuple val(meta), path("${meta.id}/hybracter/flags")                                          , emit: flags
-    tuple val(meta), path("${meta.id}/hybracter/processing")                                     , emit: processing
-    tuple val(meta), path("${meta.id}/hybracter/stderr")                                         , emit: stderr
-    tuple val(meta), path("${meta.id}/hybracter/supplementary_results")                          , emit: supplementary_results
-    tuple val(meta), path("${meta.id}/hybracter/versions")                                       , emit: hybracter_versions
-    path "${meta.id}/hybracter/processing/qc/fastp/*.json"                                       , optional: true, emit: fastp_json
-    path "${meta.id}/hybracter/versions.yml"                                                     , emit: versions
+    tuple val(meta), path("${meta.id}/hybracter/FINAL_OUTPUT"), emit: final_output
+    tuple val(meta), path("${meta.id}/hybracter/benchmarks"), emit: benchmarks
+    tuple val(meta), path("${meta.id}/hybracter/completeness"), emit: completeness
+    tuple val(meta), path("${meta.id}/hybracter/flags"), emit: flags
+    tuple val(meta), path("${meta.id}/hybracter/processing"), emit: processing
+    tuple val(meta), path("${meta.id}/hybracter/stderr"), emit: stderr
+    tuple val(meta), path("${meta.id}/hybracter/supplementary_results"), emit: supplementary_results
+    tuple val(meta), path("${meta.id}/hybracter/versions"), emit: hybracter_versions
+    path "${meta.id}/hybracter/processing/qc/fastp/*.json", optional: true, emit: fastp_json
+    path "${meta.id}/hybracter/versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args   ?: '--auto'
+    def args = task.ext.args ?: '--auto --subsample_depth 250'
     def prefix = task.ext.prefix ?: "${meta.id}"
     def cacheDir = task.workDir ? task.workDir.toAbsolutePath().toString() + "/.cache" : "/tmp/.cache"
 
     """
-    export XDG_CACHE_HOME=$cacheDir
+    # Get estimated chrom size
+    lrge=/opt/miniforge3/pkgs/lrge-0.1.3-h9f13da3_0/bin/lrge
+    \$lrge -t4 -s42 ${longreads} -o chrom_size.txt
+    chrom_size=\$(cat chrom_size.txt)
+
+
+    export XDG_CACHE_HOME=${cacheDir}
     hybracter long-single \\
-        -l $longreads \\
-        --sample $prefix \\
-        --output $prefix/hybracter \\
-        --threads $task.cpus \\
-        $args
+        -l ${longreads} \\
+        --sample ${prefix} \\
+        --output ${prefix}/hybracter \\
+        --threads ${task.cpus} \\
+        --extra_params_flye "--genome-size \$chrom_size --asm-coverage 50" \\
+        ${args}
 
 
     # Copy *_final.fasta so that both complete and incomplete assemblies can be used for input channel
@@ -124,6 +137,7 @@ process HYBRACTER_LONG {
     if [ -f "${prefix}/hybracter/FINAL_OUTPUT/hybracter_summary.tsv" ]; then
         mv "${prefix}/hybracter/FINAL_OUTPUT/hybracter_summary.tsv" "${prefix}/hybracter/FINAL_OUTPUT/${prefix}_hybracter_summary.tsv"
     fi
+
 
     cat <<-END_VERSIONS > ${prefix}/hybracter/versions.yml
     "${task.process}":

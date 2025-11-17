@@ -53,18 +53,32 @@ def get_rmlst_results(rmlst_results):
         sys.exit(1)
 
     # Initialize variables with default values
-    RMLST_SPECIES = "NA"
-    RMLST_SUPPORT = "NA"
-    
+    matches = []
+    current_taxon = None
+    current_support = None
+
     rmlst_table = {}
     # Extract the species and support values from the rMLST output
     with open(rmlst_results, "r") as file:
         for line in file:
             line = line.strip()
             if line.startswith("Taxon:"):
-                RMLST_SPECIES = line.split(sep=":")[1].strip()
+                current_taxon = line.split(sep=":")[1].strip()
             if line.startswith("Support:"):
-                RMLST_SUPPORT = line.split(sep=":")[1].strip()
+                current_support = line.split(sep=":")[1].strip()
+                if current_taxon is not None and current_support is not None:
+                    try:
+                        support_val = float(current_support.replace('%', '').strip())
+                    except ValueError:
+                        support_val = -1
+                    matches.append((current_taxon, support_val))
+                    current_taxon = None
+                    current_support = None
+    if matches:
+        best_match = max(matches, key=lambda x: x[1])
+        RMLST_SPECIES, RMLST_SUPPORT = best_match[0], str(best_match[1])
+    else:
+        RMLST_SPECIES, RMLST_SUPPORT = "NA", "NA"
     
     rmlst_table = {'rMLST species': RMLST_SPECIES, 'rMLST support': RMLST_SUPPORT}
     rmlst_table = pd.DataFrame([rmlst_table])

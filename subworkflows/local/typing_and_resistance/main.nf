@@ -7,6 +7,7 @@ include { AMRFINDERPLUS_RUN      } from '../../../modules/nf-core/amrfinderplus/
 include { BAKTA_BAKTA            } from '../../../modules/nf-core/bakta/bakta/main'
 include { KLEBORATE              } from '../../../modules/nf-core/kleborate/main'
 include { LRE_FINDER             } from '../../../modules/local/lre-finder/main'
+include { LRE_FINDER_LONGREAD    } from '../../../modules/local/lre-finder/main.nf'
 include { MLST                   } from '../../../modules/nf-core/mlst/main'
 include { PLASMIDFINDER          } from '../../../modules/nf-core/plasmidfinder/main'
 include { RMLST                  } from '../../../modules/local/rmlst/main'
@@ -18,7 +19,7 @@ include { SPLIT_BAKTA            } from '../../../modules/local/split_bakta/main
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-workflow RESISTANCE_ANALYSIS {
+workflow TYPING_AND_RESISTANCE {
 
     take:
     ch_final_fasta
@@ -28,18 +29,23 @@ workflow RESISTANCE_ANALYSIS {
     ch_versions = Channel.empty()
 
     // MODULE: MLST
-    MLST (ch_final_fasta)
+    ch_mlst_rename = Channel.fromPath("bin/mlst_species_names.sh")
+    ch_mlst_input = ch_final_fasta
+        .combine(ch_mlst_rename)
+    MLST (ch_mlst_input)
     ch_mlst_results = MLST.out.tsv
+    ch_mlst_renamed = MLST.out.renamed_tsv
     ch_versions = ch_versions.mix(MLST.out.versions)
 
     // MODULE: RMLST
     RMLST (ch_final_fasta)
     ch_rmlst_results = RMLST.out.rmlst
     ch_rmlst = RMLST.out.species
+    ch_versions = ch_versions.mix(RMLST.out.versions)
 
     // MODULE KLEBORATE (Run Kleborate for Klebsiella)
     // Only run Kleborate fot Klebsiella assemblies identified through rMLST
-    ch_species_fasta = ch_rmlst.join(ch_final_fasta)
+    ch_species_fasta = ch_mlst_renamed.join(ch_final_fasta)
 
     KLEBORATE (ch_species_fasta)
     ch_kleborate_results = KLEBORATE.out.txt
@@ -68,8 +74,15 @@ workflow RESISTANCE_ANALYSIS {
     // Only run LRE-Finder for Enterococcus assemblies identified through rMLST
     if (!params.from_fasta) {
         ch_species_reads = ch_rmlst.join(ch_reads)
-        LRE_FINDER (ch_species_reads)
-        ch_versions = ch_versions.mix(LRE_FINDER.out.versions)
+        if (params.assembly_type == "long") {
+            LRE_FINDER_LONGREAD (ch_species_reads)
+            ch_lrefinder_results = LRE_FINDER_LONGREAD.out.txt
+            ch_versions = ch_versions.mix(LRE_FINDER_LONGREAD.out.versions)
+        } else {
+            LRE_FINDER (ch_species_reads)
+            ch_lrefinder_results = LRE_FINDER.out.txt
+            ch_versions = ch_versions.mix(LRE_FINDER.out.versions)
+        }
     }
 
 
@@ -79,10 +92,11 @@ workflow RESISTANCE_ANALYSIS {
     ch_versions = ch_versions.mix(PLASMIDFINDER.out.versions)
 
     emit:
-    ch_mlst_results 
-    ch_rmlst_results 
+    ch_mlst_results
+    ch_rmlst_results
     ch_kleborate_results
     ch_amrfinder_results
     ch_plasmidfinder_results
+    ch_lrefinder_results
     ch_versions
 }
