@@ -79,6 +79,12 @@
                     "description": "Use FASTA files as input instead of FASTQ files",
                     "default": false,
                     "fa_icon": "fas fa-file-alt"
+                },
+                "report": {
+                    "type": "boolean",
+                    "description": "Write Pdf report",
+                    "default": "false",
+                    "fa_icon": "fas fa-vial"
                 }
             }
         },
