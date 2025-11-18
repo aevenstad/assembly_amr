@@ -23,7 +23,6 @@ process BBMAP_ALIGN {
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
-
     input = meta.single_end ? "in=${fastq}" : "in=${fastq[0]} in2=${fastq[1]}"
 
     // Set the db variable to reflect the three possible types of reference input: 1) directory
