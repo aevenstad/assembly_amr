@@ -40,6 +40,7 @@ knitr::opts_knit$set(verbose = TRUE)
 library(kableExtra)
 library(tidyr)
 library(dplyr)
+library(tibble)
 
 # Sequencing platform
 run_mode <- params$run_mode
@@ -140,7 +141,7 @@ sw_df <- enframe(unlist(yml)) %>%
 
 \subsection*{\color{violet}Metodesammendrag:}
 
-Genomisk DNA sekvensert med `r sequencing_platform`. Assembly utført via Shovill (med SPAdes assembler), m>
+Genomisk DNA sekvensert med `r sequencing_platform`. Assembly utført via Shovill (med SPAdes assembler), maks dekning satt til 150x og kontiger < 200 bp og 2x dekning fjernet. Species, MLST-type, resistensgener og plasmidreplikoner identifisert ved bruk av intern bioinformatisk pipeline.
 
 Følgende kvalitetskontrollkriterier gjelder:
 
@@ -241,11 +242,11 @@ if (grepl("Klebsiella", mlst_species) && length(kleborate_files) > 0) {
 
 \subsubsection*{\color{blue}3. Resistens:}
 \vspace{1em}
-Resistensgener basert på kjernedatabasen av Bacterial Antimicrobial Resistance Reference Gene Database Bio>
+Resistensgener basert på kjernedatabasen av Bacterial Antimicrobial Resistance Reference Gene Database BioProject PRJNA313047. Inkluderer også gener som gir resistens mot ikke-antibiotika (f.eks. kvartære ammoniumforbindelser) og antibiotika som brukes i veterinærmedisin.
 
 ```{r, include=FALSE}
-AMR_out <- AMR_out[, c("Scope", "Type", "Subtype", "Element.symbol", "Class", "Subclass", "Method", "X..Co>
-colnames(AMR_out) <- c("Scope", "Type", "Subtype", "Element", "Class", "Subclass", "Method", "Coverage", ">
+AMR_out <- AMR_out[, c("Scope", "Type", "Subtype", "Element.symbol", "Class", "Subclass", "Method", "X..Coverage.of.reference", "X..Identity.to.reference")]
+colnames(AMR_out) <- c("Scope", "Type", "Subtype", "Element", "Class", "Subclass", "Method", "Coverage", "Identity")
 AMR_out$Class <- gsub('/',' ',AMR_out$Class)
 AMR_out$Subclass <- gsub("/", " ", AMR_out$Subclass)
 
@@ -341,8 +342,8 @@ knitr::kable(
 ```
 vspace{1em}
 \needspace{15\baselineskip}
-\textbf{d) Gener koblet til resistens, biocider, stress, effluks, virulens:} $\,\geq\,$ 60\% dekning og $\>
-Gener basert på Plus databasen av Bacterial Antimicrobial Resistance Reference Gene Database BioProject PR>
+\textbf{d) Gener koblet til resistens, biocider, stress, effluks, virulens:} $\,\geq\,$ 60\% dekning og og $\,\geq\,$ 60\% nukleotididentitet.
+Gener basert på Plus databasen av Bacterial Antimicrobial Resistance Reference Gene Database BioProject PRJNA313047.
 
 ```{r, echo=FALSE, results='asis'}
 AMR_4th_criteria <- AMR_out %>%
@@ -424,7 +425,7 @@ if (grepl("Klebsiella", mlst_species) && length(kleborate_files) > 0) {
             column_spec(1, width = "5cm") %>%
             column_spec(2, width = "4cm") %>%
         print()
-        cat("Kolistinresistens er bestemt av trunkering av/eller manglende mgrB- og pmrB-kjernegener. OmpK35- >
+        cat("Kolistinresistens er bestemt av trunkering av/eller manglende mgrB- og pmrB-kjernegener. OmpK35- og OmpK36-resistens er bestemt av trunkering eller punktmutasjoner. Trunkering representeres av % lengden av aminosyrer fra kodon start.\n\\par\n")
 
     # Render the virulence table
     cat("\\vspace{1em}\n")
@@ -447,7 +448,7 @@ if (grepl("Klebsiella", mlst_species) && length(kleborate_files) > 0) {
             column_spec(1, width = "5cm") %>%
             column_spec(2, width = "4cm") %>%
         print()
-        cat("0 = negative for all of yersiniabactin (ybt), colibactin (clb), aerobactin (iuc); 1 = yersiniabac>
+        cat("0 = negative for all of yersiniabactin (ybt), colibactin (clb), aerobactin (iuc); 1 = yersiniabactin only; 2 = yersiniabactin and colibactin (or colibactin only); 3 = aerobactin (without yersiniabactin or colibactin); 4 = aerobactin with yersiniabactin (without colibactin); 5 = yersiniabactin, colibactin and aerobactin \n\\par\n")
 
     # Render the O and K locus table
     cat("\\vspace{1em}\n")
