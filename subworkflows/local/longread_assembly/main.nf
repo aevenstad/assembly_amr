@@ -9,6 +9,7 @@
 */
 include { HYBRACTER_HYBRID       } from '../../../modules/local/hybracter/main'
 include { HYBRACTER_LONG         } from '../../../modules/local/hybracter/main'
+include { KRAKEN2_KRAKEN2        } from '../../../modules/nf-core/kraken2/kraken2/main'
 include { NANOSTAT_RAW           } from '../../../modules/local/nanostat/main'
 include { NANOSTAT_TRIMMED       } from '../../../modules/local/nanostat/main'
 include { PLASMID_FASTA          } from '../../../modules/local/plasmid_fasta/main'
@@ -39,6 +40,17 @@ workflow LONGREAD_ASSEMBLY {
     ch_versions = ch_versions.mix(NANOSTAT_RAW.out.versions)
 
     //
+    // MODULE: KRAKEN2
+    //
+    KRAKEN2_KRAKEN2 (
+        ch_longreads,
+        true,
+        true
+    )
+    ch_kraken_report = KRAKEN2_KRAKEN2.out.report
+    ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions)
+
+    //
     // MODULE: HYBRACTER
     //
 
@@ -56,33 +68,33 @@ workflow LONGREAD_ASSEMBLY {
         ch_trimmed = HYBRACTER_LONG.out.processing
         ch_versions = ch_versions.mix(HYBRACTER_LONG.out.versions)
     }
-    
-    ch_final_fasta = ch_hybracter_final_out.map { meta, dir -> 
+
+    ch_final_fasta = ch_hybracter_final_out.map { meta, dir ->
         tuple(meta, file("${dir}/*_final.fasta"))
     }
-    ch_trimmed_longreads = ch_trimmed.map { meta, dir -> 
+    ch_trimmed_longreads = ch_trimmed.map { meta, dir ->
         def files = file("${dir}/qc/*filt_trim.fastq.gz")
         tuple(meta, files)
     }
-    ch_trimmed_shortreads = ch_trimmed.map { meta, dir -> 
+    ch_trimmed_shortreads = ch_trimmed.map { meta, dir ->
         def files = file("${dir}/qc/fastp/*.fastq.gz")
         tuple(meta, files)
     }
-    ch_hybracter_summary = ch_hybracter_final_out.map { meta, dir -> 
+    ch_hybracter_summary = ch_hybracter_final_out.map { meta, dir ->
         def files = file("${dir}/*_hybracter_summary.tsv")
         tuple(meta, files)
     }
-    ch_plasmid_fasta = ch_hybracter_final_out.map { meta, dir -> 
+    ch_plasmid_fasta = ch_hybracter_final_out.map { meta, dir ->
         def files = file("${dir}/complete/*_plasmid.fasta")
         tuple(meta, files)
     }
-    ch_plasmid_stats = ch_hybracter_final_out.map { meta, dir -> 
+    ch_plasmid_stats = ch_hybracter_final_out.map { meta, dir ->
         def files = file("${dir}/complete/*_per_contig_stats.tsv")
         tuple(meta, files)
     }
     ch_split_plasmids = ch_plasmid_fasta.join(ch_plasmid_stats)
 
-    // 
+    //
     // MODULE: PLASMID_FASTA
     //
     PLASMID_FASTA (
