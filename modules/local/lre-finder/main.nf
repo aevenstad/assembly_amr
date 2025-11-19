@@ -34,12 +34,14 @@ process LRE_FINDER {
         -t_db /lre-finder/elmDB/elm \\
         ${args} |\\
         html2text > LRE-Finder_out.txt
-
-        cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-            LRE-Finder: \$(grep "VERSION =" /opt/bin/LRE-Finder.py | cut -d"\\"" -f2)
-        END_VERSIONS
+    else
+        echo "Skipping LRE-Finder for \$species_content" > lre-finder_skipped.txt
     fi
+
+    {
+    echo '\\"${task.process}\\":'
+    echo '    LRE-Finder: '\$(grep "VERSION =" /opt/bin/LRE-Finder.py | cut -d"\\"" -f2)
+    } > versions.yml
     """
 }
 
@@ -79,11 +81,13 @@ process LRE_FINDER_LONGREAD {
         -t_db /lre-finder/elmDB/elm \\
         ${args} |\\
         html2text > LRE-Finder_out.txt
-
-        cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-            LRE-Finder: \$(grep "VERSION =" /opt/bin/LRE-Finder.py | cut -d"\\"" -f2)
-        END_VERSIONS
+    else
+        echo "Skipping LRE-Finder for \$species_content" > lre-finder_skipped.txt
     fi
+
+    {
+    echo '\\"${task.process}\\":'
+    echo '    LRE-Finder: '\$(grep "VERSION =" /opt/bin/LRE-Finder.py | cut -d"\\"" -f2)
+    } > versions.yml
     """
 }
