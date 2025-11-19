@@ -35,6 +35,11 @@
                         "git_sha": "e745e167c1020928ef20ea1397b6b4d230681b4d",
                         "installed_by": ["modules"]
                     },
+                    "kraken2/kraken2": {
+                        "branch": "master",
+                        "git_sha": "1a9dc0fd9f8f61099b3c912df1ab97fac72a1f86",
+                        "installed_by": ["modules"]
+                    },
                     "mlst": {
                         "branch": "master",
                         "git_sha": "0a59baf2933982fe6cd6a7379813cc9767ec0e46",
