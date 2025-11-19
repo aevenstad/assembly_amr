@@ -14,7 +14,7 @@ process LRE_FINDER {
     tuple val(meta), path("*.fsa"), optional: true
     tuple val(meta), path("*.aln"), optional: true
     tuple val(meta), path("*.gz"), optional: true
-    path "versions.yml", optional: true, emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -23,22 +23,22 @@ process LRE_FINDER {
     def prefix = task.ext.prefix ?: "${meta.id}"
     def args = task.ext.args ?: '-ID 90 -1t1 -cge -matrix'
     """
+
     species_content=\$(cat ${species})
     echo "Species file content: \$species_content"
 
     if [[ "\$species_content" == *"Enterococcus"* ]]; then
         LRE-Finder.py \\
-        -i ${reads} \\
+        -ipe ${reads[0]} ${reads[1]} \\
         -o ./${prefix} \\
         -t_db /lre-finder/elmDB/elm \\
         ${args} |\\
         html2text > LRE-Finder_out.txt
-        {
-            echo '\\"${task.process}\\":'
-            echo '    LRE-Finder: '\$(grep "VERSION =" /opt/bin/LRE-Finder.py | cut -d"\\"" -f2)
-        } > versions.yml
-    else
-        echo "Skipping LRE-Finder for \$species_content"
+
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            LRE-Finder: \$(grep "VERSION =" /opt/bin/LRE-Finder.py | cut -d"\\"" -f2)
+        END_VERSIONS
     fi
     """
 }
@@ -59,7 +59,7 @@ process LRE_FINDER_LONGREAD {
     tuple val(meta), path("*.fsa"), optional: true
     tuple val(meta), path("*.aln"), optional: true
     tuple val(meta), path("*.gz"), optional: true
-    path "versions.yml", optional: true, emit: versions
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -68,6 +68,7 @@ process LRE_FINDER_LONGREAD {
     def prefix = task.ext.prefix ?: "${meta.id}"
     def args = task.ext.args ?: '-ID 90 -1t1 -cge -matrix'
     """
+
     species_content=\$(cat ${species})
     echo "Species file content: \$species_content"
 
@@ -78,12 +79,11 @@ process LRE_FINDER_LONGREAD {
         -t_db /lre-finder/elmDB/elm \\
         ${args} |\\
         html2text > LRE-Finder_out.txt
-        {
-            echo '\\"${task.process}\\":'
-            echo '    LRE-Finder: '\$(grep "VERSION =" /opt/bin/LRE-Finder.py | cut -d"\\"" -f2)
-        } > versions.yml
-    else
-        echo "Skipping LRE-Finder for \$species_content"
+
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            LRE-Finder: \$(grep "VERSION =" /opt/bin/LRE-Finder.py | cut -d"\\"" -f2)
+        END_VERSIONS
     fi
     """
 }
