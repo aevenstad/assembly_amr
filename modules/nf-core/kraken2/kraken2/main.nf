@@ -2,7 +2,7 @@ process KRAKEN2_KRAKEN2 {
     publishDir "${params.outdir}/${meta.id}/kraken2", mode: 'copy'
     tag "$meta.id"
     label 'process_medium'
-    maxForks 1
+    maxForks 2
     containerOptions "-B ${params.kraken2_db}"
 
     conda "${moduleDir}/environment.yml"
