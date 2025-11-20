@@ -31,6 +31,10 @@ workflow LONGREAD_ASSEMBLY {
             tuple([id: meta], nanopore)
     }
 
+    ch_samplesheet = samplesheet.map { meta, nanopore, illumina_R1, illumina_R2, _fasta ->
+            tuple([id: meta], nanopore, illumina_R1, illumina_R2, _fasta)
+    }
+
     //
     // MODULE: NANOSTAT_RAW
     //
@@ -48,22 +52,44 @@ workflow LONGREAD_ASSEMBLY {
         true
     )
     ch_kraken_report = KRAKEN2_KRAKEN2.out.report
+    ch_kraken2_classified_reads = KRAKEN2_KRAKEN2.out.classified_reads_fastq
     ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions)
+
+    // Prepare channel for assembly
+    //
+    ch_classified_np = ch_kraken2_classified_reads.map { meta, classified ->
+        tuple(meta, classified)
+    }
+    ch_samplesheet_hybrid =
+        ch_samplesheet
+            .map { meta, nanopore, illumina_R1, illumina_R2, fasta ->
+                tuple(meta, nanopore, illumina_R1, illumina_R2)
+            }
+            .join(ch_classified_np)   // join by meta.id
+            .map { meta, _original_np, illumina_R1, illumina_R2, classified_np ->
+                tuple(meta, classified_np, illumina_R1, illumina_R2)
+            }
+    ch_samplesheet_long =
+        ch_samplesheet
+            .map { meta, nanopore, illumina_R1, illumina_R2, fasta ->
+                tuple(meta, nanopore)
+            }
+            .join(ch_classified_np)   // join by meta.id
+            .map { meta, _original_np, classified_np ->
+                tuple(meta, classified_np)
+            }
 
     //
     // MODULE: HYBRACTER
     //
 
     if (params.assembly_type == 'hybrid'){
-        ch_samplesheet = samplesheet.map { meta, nanopore, illumina_R1, illumina_R2, _fasta ->
-            tuple([id: meta], nanopore, illumina_R1, illumina_R2)
-        }
-        HYBRACTER_HYBRID (ch_samplesheet)
+        HYBRACTER_HYBRID (ch_samplesheet_hybrid)
         ch_hybracter_final_out = HYBRACTER_HYBRID.out.final_output
         ch_trimmed = HYBRACTER_HYBRID.out.processing
         ch_versions = ch_versions.mix(HYBRACTER_HYBRID.out.versions)
     } else if (params.assembly_type == 'long') {
-        HYBRACTER_LONG (ch_longreads)
+        HYBRACTER_LONG (ch_samplesheet_long)
         ch_hybracter_final_out = HYBRACTER_LONG.out.final_output
         ch_trimmed = HYBRACTER_LONG.out.processing
         ch_versions = ch_versions.mix(HYBRACTER_LONG.out.versions)
