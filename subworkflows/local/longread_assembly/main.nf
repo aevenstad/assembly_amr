@@ -13,6 +13,7 @@ include { KRAKEN2_KRAKEN2        } from '../../../modules/nf-core/kraken2/kraken
 include { NANOSTAT_RAW           } from '../../../modules/local/nanostat/main'
 include { NANOSTAT_TRIMMED       } from '../../../modules/local/nanostat/main'
 include { PLASMID_FASTA          } from '../../../modules/local/plasmid_fasta/main'
+include { SETMINCHROMSIZE        } from '../../../modules/local/setminchromsize/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -27,19 +28,19 @@ workflow LONGREAD_ASSEMBLY {
 
     main:
     ch_versions = Channel.empty()
-    ch_longreads = samplesheet.map { meta, nanopore, _illumina_R1, _illumina_R2, _fasta ->
+    ch_long_input = samplesheet.map { meta, nanopore, _illumina_R1, _illumina_R2, _fasta ->
             tuple([id: meta], nanopore)
     }
 
-    ch_samplesheet = samplesheet.map { meta, nanopore, illumina_R1, illumina_R2, _fasta ->
-            tuple([id: meta], nanopore, illumina_R1, illumina_R2, _fasta)
+    ch_hybrid_input = samplesheet.map { meta, nanopore, illumina_R1, illumina_R2, _fasta ->
+            tuple([id: meta], nanopore, illumina_R1, illumina_R2)
     }
 
     //
     // MODULE: NANOSTAT_RAW
     //
     NANOSTAT_RAW (
-        ch_longreads
+        ch_long_input
     )
     ch_versions = ch_versions.mix(NANOSTAT_RAW.out.versions)
 
@@ -47,49 +48,64 @@ workflow LONGREAD_ASSEMBLY {
     // MODULE: KRAKEN2
     //
     KRAKEN2_KRAKEN2 (
-        ch_longreads,
-        true,
+        ch_long_input,
+        false,
         true
     )
     ch_kraken_report = KRAKEN2_KRAKEN2.out.report
-    ch_kraken2_classified_reads = KRAKEN2_KRAKEN2.out.classified_reads_fastq
+    //ch_kraken2_classified_reads = KRAKEN2_KRAKEN2.out.classified_reads_fastq
+    ch_kraken2_genus = KRAKEN2_KRAKEN2.out.genus
     ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions)
+
+
+
+    //
+    // MODULE: MINCHROMSIZE
+    //
+    SETMINCHROMSIZE (
+        ch_kraken2_genus,
+        file("${projectDir}/assets/genome_size.csv")
+    )
+    ch_minchromsize = SETMINCHROMSIZE.out.txt
 
     // Prepare channel for assembly
     //
-    ch_classified_np = ch_kraken2_classified_reads.map { meta, classified ->
-        tuple(meta, classified)
-    }
-    ch_samplesheet_hybrid =
-        ch_samplesheet
-            .map { meta, nanopore, illumina_R1, illumina_R2, fasta ->
-                tuple(meta, nanopore, illumina_R1, illumina_R2)
-            }
-            .join(ch_classified_np)   // join by meta.id
-            .map { meta, _original_np, illumina_R1, illumina_R2, classified_np ->
-                tuple(meta, classified_np, illumina_R1, illumina_R2)
-            }
-    ch_samplesheet_long =
-        ch_samplesheet
-            .map { meta, nanopore, illumina_R1, illumina_R2, fasta ->
-                tuple(meta, nanopore)
-            }
-            .join(ch_classified_np)   // join by meta.id
-            .map { meta, _original_np, classified_np ->
-                tuple(meta, classified_np)
-            }
+    //ch_classified_np = ch_kraken2_classified_reads.map { meta, classified ->
+    //    tuple(meta, classified)
+    //}
+    //ch_samplesheet_hybrid =
+    //    ch_samplesheet
+    //        .map { meta, nanopore, illumina_R1, illumina_R2, fasta ->
+    //            tuple(meta, nanopore, illumina_R1, illumina_R2)
+    //        }
+    //        .join(ch_classified_np)   // join by meta.id
+    //        .map { meta, _original_np, illumina_R1, illumina_R2, classified_np ->
+    //            tuple(meta, classified_np, illumina_R1, illumina_R2)
+    //        }
+    //ch_samplesheet_long =
+    //    ch_samplesheet
+    //        .map { meta, nanopore, illumina_R1, illumina_R2, fasta ->
+    //            tuple(meta, nanopore)
+    //        }
+    //        .join(ch_classified_np)   // join by meta.id
+    //        .map { meta, _original_np, classified_np ->
+    //            tuple(meta, classified_np)
+    //        }
 
     //
     // MODULE: HYBRACTER
     //
+    //  Create input channels
+    ch_hybrid_assembly = ch_hybrid_input.join(ch_minchromsize)
+    ch_long_assembly = ch_long_input.join(ch_minchromsize)
 
     if (params.assembly_type == 'hybrid'){
-        HYBRACTER_HYBRID (ch_samplesheet_hybrid)
+        HYBRACTER_HYBRID (ch_hybrid_assembly)
         ch_hybracter_final_out = HYBRACTER_HYBRID.out.final_output
         ch_trimmed = HYBRACTER_HYBRID.out.processing
         ch_versions = ch_versions.mix(HYBRACTER_HYBRID.out.versions)
     } else if (params.assembly_type == 'long') {
-        HYBRACTER_LONG (ch_samplesheet_long)
+        HYBRACTER_LONG (ch_long_assembly)
         ch_hybracter_final_out = HYBRACTER_LONG.out.final_output
         ch_trimmed = HYBRACTER_LONG.out.processing
         ch_versions = ch_versions.mix(HYBRACTER_LONG.out.versions)
