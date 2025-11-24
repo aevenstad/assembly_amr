@@ -35,7 +35,7 @@ process HYBRACTER_HYBRID {
     \$lrge -t4 -s42 ${longreads} -o chrom_size.txt
     chrom_size=\$(cat chrom_size.txt)
 
-    export XDG_CACHE_HOME=${cacheDir}
+    export XDG_CACHE_HOME=${cacheDir}_\${whoami}
     hybracter hybrid-single \\
         -l ${longreads} \\
         -1 ${shortreads_1} \\
@@ -114,7 +114,7 @@ process HYBRACTER_LONG {
     chrom_size=\$(cat chrom_size.txt)
 
 
-    export XDG_CACHE_HOME=${cacheDir}
+    export XDG_CACHE_HOME=${cacheDir}_\${whoami}
     hybracter long-single \\
         -l ${longreads} \\
         --sample ${prefix} \\
