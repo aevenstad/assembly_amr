@@ -19,6 +19,7 @@ process KRAKEN2_KRAKEN2 {
     tuple val(meta), path('*.classified{.,_}*')     , optional:true, emit: classified_reads_fastq
     tuple val(meta), path('*.unclassified{.,_}*')   , optional:true, emit: unclassified_reads_fastq
     tuple val(meta), path('*report.txt')                           , emit: report
+    tuple val(meta), path('*_genus.txt')                           , emit: genus
     path "versions.yml"                                            , emit: versions
 
     when:
@@ -46,6 +47,9 @@ process KRAKEN2_KRAKEN2 {
         $reads
 
     $compress_reads_command
+
+    # parse report for genus 
+    awk '\$4 == "G" { print; exit }' ${prefix}.kraken2.report.txt | cut -f6 | sed 's/ //g' > ${prefix}_genus.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
