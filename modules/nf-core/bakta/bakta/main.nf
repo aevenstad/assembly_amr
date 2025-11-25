@@ -1,4 +1,4 @@
-process BAKTA_BAKTA {
+process BAKTA {
     publishDir "${params.outdir}/${meta.id}/bakta", mode: 'copy'
     containerOptions "-B ${params.bakta_db}"
     tag "$meta.id"
