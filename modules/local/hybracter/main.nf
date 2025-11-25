@@ -7,7 +7,7 @@ process HYBRACTER_HYBRID {
     container '/bigdata/Jessin/Softwares/containers/hybracter_0.11.0.sif'
 
     input:
-    tuple val(meta), path(longreads), path(shortreads_1), path(shortreads_2)
+    tuple val(meta), path(longreads), path(shortreads_1), path(shortreads_2), path(minchromsize)
 
     output:
     tuple val(meta), path("${meta.id}/hybracter/FINAL_OUTPUT")                                   , emit: final_output
@@ -25,17 +25,22 @@ process HYBRACTER_HYBRID {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: '--auto --subsample_depth 250'
+    def args = task.ext.args ?: '--subsample_depth 250'
     def prefix = task.ext.prefix ?: "${meta.id}"
     def cacheDir = task.workDir ? task.workDir.toAbsolutePath().toString() + "/.cache" : "/tmp/.cache"
 
     """
-    # Get estimated chrom size
-    lrge=/opt/miniforge3/pkgs/lrge-0.1.3-h9f13da3_0/bin/lrge
-    \$lrge -t4 -s42 ${longreads} -o chrom_size.txt
-    chrom_size=\$(cat chrom_size.txt)
+    # Use minimum chromosome limit if genus is in table
+    min_chrom_size=\$(cat $minchromsize)
+    chromosome_size=""
+    if [ "\$min_chrom_size" = "Genus not found" ]; then
+        chromosome_size="--auto"
+    else:
+        chromosome_size="-c \$min_chrom_size"
+    fi
 
     export XDG_CACHE_HOME=${cacheDir}_\${whoami}
+
     hybracter hybrid-single \\
         -l ${longreads} \\
         -1 ${shortreads_1} \\
@@ -43,7 +48,8 @@ process HYBRACTER_HYBRID {
         --sample ${prefix} \\
         --output ${prefix}/hybracter \\
         --threads ${task.cpus} \\
-        --extra_params_flye "--genome-size \$chrom_size --asm-coverage 50" \\
+        \$chromosome_size \\
+        --extra_params_flye "--genome-size \$min_chrom_size --asm-coverage 50" \\
         ${args}
 
     # Copy *_final.fasta so that both complete and incomplete assemblies can be used for input channel
@@ -85,7 +91,7 @@ process HYBRACTER_LONG {
     container '/bigdata/Jessin/Softwares/containers/hybracter_0.11.0.sif'
 
     input:
-    tuple val(meta), path(longreads)
+    tuple val(meta), path(longreads), path(minchromsize)
 
     output:
     tuple val(meta), path("${meta.id}/hybracter/FINAL_OUTPUT"), emit: final_output
@@ -103,24 +109,29 @@ process HYBRACTER_LONG {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: '--auto --subsample_depth 250'
+    def args = task.ext.args ?: '--subsample_depth 250'
     def prefix = task.ext.prefix ?: "${meta.id}"
     def cacheDir = task.workDir ? task.workDir.toAbsolutePath().toString() + "/.cache" : "/tmp/.cache"
 
     """
-    # Get estimated chrom size
-    lrge=/opt/miniforge3/pkgs/lrge-0.1.3-h9f13da3_0/bin/lrge
-    \$lrge -t4 -s42 ${longreads} -o chrom_size.txt
-    chrom_size=\$(cat chrom_size.txt)
-
+    # Use minimum chromosome limit if genus is in table
+    min_chrom_size=\$(cat $minchromsize)
+    chromosome_size=""
+    if [ "\$min_chrom_size" = "Genus not found" ]; then
+        chromosome_size="--auto"
+    else:
+        chromosome_size="-c \$min_chrom_size"
+    fi
 
     export XDG_CACHE_HOME=${cacheDir}_\${whoami}
+
     hybracter long-single \\
         -l ${longreads} \\
         --sample ${prefix} \\
         --output ${prefix}/hybracter \\
         --threads ${task.cpus} \\
-        --extra_params_flye "--genome-size \$chrom_size --asm-coverage 50" \\
+        \$chromosome_size \\
+        --extra_params_flye "--genome-size \$min_chrom_size --asm-coverage 50" \\
         ${args}
 
 
