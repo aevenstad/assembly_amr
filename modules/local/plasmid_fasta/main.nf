@@ -11,9 +11,9 @@ process PLASMID_FASTA {
     tuple val(meta), path(plasmid_fasta), path(plasmid_stats)
 
     output:
-    tuple val(meta), path("circular/${meta.id}*.fasta"),     emit: circular, optional: true
-    tuple val(meta), path("linear/${meta.id}*.fasta"),       emit: linear, optional: true
-    tuple val(meta), path("unknown/${meta.id}*.fasta"),      optional: true
+    tuple val(meta), path("circular/${meta.id}*.fasta"), emit: circular, optional: true
+    tuple val(meta), path("linear/${meta.id}*.fasta"),   emit: linear, optional: true
+    tuple val(meta), path("unknown/${meta.id}*.fasta"),  optional: true
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
