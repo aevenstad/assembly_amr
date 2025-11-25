@@ -60,6 +60,7 @@ workflow ASSEMBLY_AMR {
         ch_trimmed_shortreads = LONGREAD_ASSEMBLY.out.ch_trimmed_shortreads
         ch_final_fasta = LONGREAD_ASSEMBLY.out.ch_final_fasta
         ch_hybracter_summary = LONGREAD_ASSEMBLY.out.ch_hybracter_summary
+        ch_plasmid_fasta = LONGREAD_ASSEMBLY.out.ch_all_plasmid_fasta
     } else {
         error "Invalid assembly type: ${params.assembly_type}"
     }
@@ -75,7 +76,7 @@ workflow ASSEMBLY_AMR {
 
 
     // Run the resistance analysis workflow
-    TYPING_AND_RESISTANCE(ch_final_fasta, ch_trimmed)
+    TYPING_AND_RESISTANCE(ch_final_fasta, ch_trimmed, ch_plasmid_fasta)
         ch_versions = ch_versions.mix(TYPING_AND_RESISTANCE.out.ch_versions)
         ch_mlst_results = TYPING_AND_RESISTANCE.out.ch_mlst_results
         ch_rmlst_results = TYPING_AND_RESISTANCE.out.ch_rmlst_results
