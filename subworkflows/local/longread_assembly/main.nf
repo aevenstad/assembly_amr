@@ -142,7 +142,16 @@ workflow LONGREAD_ASSEMBLY {
     PLASMID_FASTA (
         ch_split_plasmids
     )
+    ch_circular_plasmid_fasta = PLASMID_FASTA.out.circular.flatMap { meta, files ->
+        files.collect { file -> tuple(meta, file) }
+    }
 
+    ch_linear_plasmid_fasta = PLASMID_FASTA.out.linear.flatMap { meta, files ->
+        files.collect { file -> tuple(meta, file) }
+    }
+
+    ch_all_plasmid_fasta = ch_circular_plasmid_fasta.concat(ch_linear_plasmid_fasta)
+    ch_all_plasmid_fasta.view()
     //
     // MODULE: NANOSTAT_TRIMMED
     //
@@ -152,8 +161,9 @@ workflow LONGREAD_ASSEMBLY {
 
     emit:
     ch_final_fasta
-    ch_versions
     ch_trimmed_longreads
     ch_trimmed_shortreads
     ch_hybracter_summary
+    ch_all_plasmid_fasta
+    ch_versions
 }
