@@ -3,15 +3,16 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { AMRFINDERPLUS_RUN      } from '../../../modules/nf-core/amrfinderplus/run/main'
-include { BAKTA_BAKTA            } from '../../../modules/nf-core/bakta/bakta/main'
-include { KLEBORATE              } from '../../../modules/nf-core/kleborate/main'
-include { LRE_FINDER             } from '../../../modules/local/lre-finder/main'
-include { LRE_FINDER_LONGREAD    } from '../../../modules/local/lre-finder/main.nf'
-include { MLST                   } from '../../../modules/nf-core/mlst/main'
-include { PLASMIDFINDER          } from '../../../modules/nf-core/plasmidfinder/main'
-include { RMLST                  } from '../../../modules/local/rmlst/main'
-include { SPLIT_BAKTA            } from '../../../modules/local/split_bakta/main'
+include { AMRFINDERPLUS_RUN               } from '../../../modules/nf-core/amrfinderplus/run/main'
+include { BAKTA as BAKTA                 } from '../../../modules/nf-core/bakta/bakta/main'
+include { BAKTA as BAKTA_PLASMIDS         } from '../../../modules/nf-core/bakta/bakta/main'
+include { KLEBORATE                       } from '../../../modules/nf-core/kleborate/main'
+include { LRE_FINDER                      } from '../../../modules/local/lre-finder/main'
+include { LRE_FINDER_LONGREAD             } from '../../../modules/local/lre-finder/main.nf'
+include { MLST                            } from '../../../modules/nf-core/mlst/main'
+include { PLASMIDFINDER                   } from '../../../modules/nf-core/plasmidfinder/main'
+include { RMLST                           } from '../../../modules/local/rmlst/main'
+//include { SPLIT_BAKTA            } from '../../../modules/local/split_bakta/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -24,6 +25,7 @@ workflow TYPING_AND_RESISTANCE {
     take:
     ch_final_fasta
     ch_reads
+    ch_all_plasmids_fasta
 
     main:
     ch_versions = Channel.empty()
@@ -58,16 +60,16 @@ workflow TYPING_AND_RESISTANCE {
 
     // MODULE: BAKTA
     if (params.bakta) {
-        BAKTA_BAKTA (ch_final_fasta)
-        ch_bakta_gff = BAKTA_BAKTA.out.gff
-        ch_bakta_fasta = BAKTA_BAKTA.out.fna
+        BAKTA (ch_final_fasta)
+        ch_bakta_gff = BAKTA.out.gff
+        ch_bakta_fasta = BAKTA.out.fna
         ch_bakta_results = ch_bakta_gff.join(ch_bakta_fasta)
-        ch_versions = ch_versions.mix(BAKTA_BAKTA.out.versions)
+        ch_versions = ch_versions.mix(BAKTA.out.versions)
     }
-    // MODULE: SPLIT BAKTA
+    // MODULE: BAKTA_PLASMIDS
     if (params.assembly_type != 'short' && params.bakta) {
         // Only run SPLIT BAKTA for long-read assemblies
-        SPLIT_BAKTA (ch_bakta_results)
+        BAKTA_PLASMIDS (ch_all_plasmids_fasta)
     }
 
     // MODULE: LRE_FINDER
