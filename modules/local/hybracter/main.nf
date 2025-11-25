@@ -28,6 +28,8 @@ process HYBRACTER_HYBRID {
     def args = task.ext.args ?: '--subsample_depth 250'
     def prefix = task.ext.prefix ?: "${meta.id}"
     def cacheDir = task.workDir ? task.workDir.toAbsolutePath().toString() + "/.cache" : "/tmp/.cache"
+    //def min_chrom = file(minchromsize).text.trim()
+    //def chromosome_size = (min_chrom == "Genus not found") ? "--auto" : "-c ${min_chrom}"
 
     """
     # Use minimum chromosome limit if genus is in table
@@ -35,11 +37,12 @@ process HYBRACTER_HYBRID {
     chromosome_size=""
     if [ "\$min_chrom_size" = "Genus not found" ]; then
         chromosome_size="--auto"
-    else:
+    else
         chromosome_size="-c \$min_chrom_size"
     fi
 
-    export XDG_CACHE_HOME=${cacheDir}_\${whoami}
+    username=whoami
+    export XDG_CACHE_HOME=${cacheDir}_\${username}
 
     hybracter hybrid-single \\
         -l ${longreads} \\
@@ -48,8 +51,8 @@ process HYBRACTER_HYBRID {
         --sample ${prefix} \\
         --output ${prefix}/hybracter \\
         --threads ${task.cpus} \\
-        \$chromosome_size \\
-        --extra_params_flye "--genome-size \$min_chrom_size --asm-coverage 50" \\
+        \${chromosome_size} \\
+        --extra_params_flye "--genome-size \${min_chrom_size} --asm-coverage 50" \\
         ${args}
 
     # Copy *_final.fasta so that both complete and incomplete assemblies can be used for input channel
@@ -109,7 +112,7 @@ process HYBRACTER_LONG {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: '--subsample_depth 250'
+    def args = task.ext.args ?: '--subsample_depth 200'
     def prefix = task.ext.prefix ?: "${meta.id}"
     def cacheDir = task.workDir ? task.workDir.toAbsolutePath().toString() + "/.cache" : "/tmp/.cache"
 
@@ -130,7 +133,7 @@ process HYBRACTER_LONG {
         --sample ${prefix} \\
         --output ${prefix}/hybracter \\
         --threads ${task.cpus} \\
-        \$chromosome_size \\
+        "\$chromosome_size" \\
         --extra_params_flye "--genome-size \$min_chrom_size --asm-coverage 50" \\
         ${args}
 
