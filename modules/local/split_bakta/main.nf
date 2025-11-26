@@ -1,34 +1,35 @@
 process SPLIT_BAKTA {
     publishDir "${params.outdir}/${meta.id}/bakta", mode: 'copy'
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_low'
 
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/seqkit:2.9.0--h9ee0642_0' :
-        'biocontainers/seqkit:2.9.0--h9ee0642_0' }"
-    
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/seqkit:2.9.0--h9ee0642_0'
+        : 'biocontainers/seqkit:2.9.0--h9ee0642_0'}"
+
     input:
-    tuple val(meta), path(bakta_gff), path(bakta_fasta)
+    tuple val(meta), path(bakta_gff), path(bakta_fasta), path(bakta_gbff)
 
     output:
-    tuple val(meta), path("${meta.id}*.gff3"), emit : bakta_split
+    tuple val(meta), path("${meta.id}*.gff3"), emit: gff
+    tuple val(meta), path("${meta.id}*.gbff"), emit: gbff
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     # Get gff header
-    head -n7 $bakta_gff > gff_header.txt
+    head -n7 ${bakta_gff} > gff_header.txt
     # Create FASTA line between annotations and sequence in gff
     echo "##FASTA" > fasta.line
 
     # Get contig identifiers
-    contigs=\$(grep -E "^>" $bakta_gff | sed 's/>//g')
+    contigs=\$(grep -E "^>" ${bakta_gff} | sed 's/>//g')
 
     # Get fasta file from gff
-    seqkit split -s 1 $bakta_fasta
+    seqkit split -s 1 ${bakta_fasta}
 
     # Rename split fasta files based on header
-    for file in ${bakta_fasta}.split/*; do 
+    for file in ${bakta_fasta}.split/*; do
         new_name=\$(grep -o ">\\S*" \$file | sed 's/>//g')
         mv \$file ${prefix}_\${new_name}.fasta
     done
@@ -36,9 +37,14 @@ process SPLIT_BAKTA {
     # Split gff file into separate files for each contig
     for contig in \$contigs; do
         gff_file="\${contig}.gff3"
-        awk -v contig="\$contig" '\$1 == contig' $bakta_gff > \$gff_file
-	    grep "##sequence-region \${contig}" $bakta_gff > \${contig}_annot_header.txt
+        awk -v contig="\$contig" '\$1 == contig' ${bakta_gff} > \$gff_file
+	    grep "##sequence-region \${contig}" ${bakta_gff} > \${contig}_annot_header.txt
 	    cat gff_header.txt \${contig}_annot_header.txt \$gff_file fasta.line ${prefix}_\${contig}.fasta > ${prefix}_\${gff_file}
+    done
+
+    # Split gbff file into separate files per contig
+    for contig in \$contigs; do
+        sed -n "/\$contig/,/\\/\\//p" "$bakta_gbff" | sed "s/\\/\\///g" > "${prefix}_\${contig}.gbff"
     done
     """
 }
