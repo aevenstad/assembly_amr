@@ -23,7 +23,7 @@ include { CREATE_RUN_TABLE                      } from '../../../modules/local/c
 */
 
 workflow WRITE_SUMMARY {
-    
+
     take:
     ch_quast_results
     ch_bbmap_results
@@ -34,8 +34,8 @@ workflow WRITE_SUMMARY {
     ch_amrfinder_results
     ch_plasmidfinder_results
 
-    main:
 
+    main:
     if (params.from_fasta) {
         ch_assembly_stats = (ch_quast_results)
             .map { tuple -> [tuple[0].id] + tuple[1..-1] }
@@ -54,7 +54,7 @@ workflow WRITE_SUMMARY {
         MERGE_SHORTREAD_STATS(ch_assembly_sample_table)
         ch_assembly_run_summary = MERGE_SHORTREAD_STATS.out.summary
     }
-    
+
     // Create hybracter summary
     else if (!params.from_fasta && params.assembly_type != 'short') {
         ch_assembly_sample_table = ch_hybracter_summary.map { meta, file -> file }.collect()
@@ -69,11 +69,13 @@ workflow WRITE_SUMMARY {
         .join(ch_amrfinder_results)
         .join(ch_plasmidfinder_results)
         .map { tuple -> [tuple[0].id] + tuple[1..-1] }
+
     TYPING_AND_RESISTANCE_TABLE (
         ch_typing_and_resistance,
         file("${projectDir}/assets/mlst_species_translations.tsv"),
         file("${projectDir}/assets/amrfinderplus_classes.txt")
         )
+
     ch_typing_and_resistance_sample_summary = TYPING_AND_RESISTANCE_TABLE.out.summary.map { meta, file -> file }.collect()
     MERGE_TYPING_AND_RESISTANCE_TABLES(ch_typing_and_resistance_sample_summary)
     ch_typing_and_resistance_run_summary = MERGE_TYPING_AND_RESISTANCE_TABLES.out.summary
@@ -90,11 +92,11 @@ workflow WRITE_SUMMARY {
     }
 
     // Merge assembly and resistance tables
-    
+
     ch_run_summary = (ch_assembly_run_summary)
         .combine(ch_typing_and_resistance_run_summary)
     CREATE_RUN_TABLE(ch_run_summary)
-    
+
 }
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
