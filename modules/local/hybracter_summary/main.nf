@@ -1,13 +1,13 @@
 process HYBRACTER_TABLE {
     publishDir "${params.outdir}", mode: 'copy'
     label 'process_low'
-    
+
     input:
     path(hybracter_results)
 
     output:
     path("hybracter_summary.tsv"), emit: summary
-    
+
     script:
     """
     # Get header from the first file
