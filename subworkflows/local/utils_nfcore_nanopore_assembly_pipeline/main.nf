@@ -67,7 +67,7 @@ workflow PIPELINE_INITIALISATION {
 
     Channel
         .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
-        .map { meta, nanopore, illumina_R1, illumina_R2, fasta ->  
+        .map { meta, nanopore, illumina_R1, illumina_R2, fasta ->
             if (!illumina_R1 && !illumina_R2 && !fasta) {
                 return tuple(meta.id, file(nanopore), null, null, null)
             } else if (!nanopore && !fasta) {
@@ -77,7 +77,6 @@ workflow PIPELINE_INITIALISATION {
             } else {
                 return tuple(meta.id, file(nanopore), file(illumina_R1), file(illumina_R2), null)
             }
-
         }
         .set { ch_samplesheet }
 
