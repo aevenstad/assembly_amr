@@ -2,7 +2,7 @@
 mlst_out=$1
 
 # mlst species scheme map
-mlst_species_map="/usr/local/db/scheme_species_map.tab")
+mlst_species_map="/usr/local/db/scheme_species_map.tab"
 
 # Get species name from mlst
 mlst_species=$(awk '{print $2}' ${mlst_out})
