@@ -1,8 +1,12 @@
 process RMLST {
     publishDir "${params.outdir}/${meta.id}/rmlst", mode: 'copy'
-    tag "$meta.id"
+    tag "${meta.id}"
     label 'process_low'
     maxForks 4
+
+    // Retry on network-related failure
+    errorStrategy { task.exitStatus in (1 + 2 + 3 + 7 + 28) ? 'retry' : 'finish' }
+    maxRetries 3
 
     container 'docker://andreeve867/rmlst:latest'
 
@@ -10,20 +14,20 @@ process RMLST {
     tuple val(meta), path(fasta)
 
     output:
-    tuple val(meta), path("${meta.id}_rmlst.txt")           , emit: rmlst
-    tuple val(meta), path("${meta.id}_species.txt")         , emit: species
-    tuple val(meta), path("${meta.id}_species_list.txt")    , optional: true, emit: species_list
-    path "versions.yml"                                     , emit: versions
+    tuple val(meta), path("${meta.id}_rmlst.txt"), emit: rmlst
+    tuple val(meta), path("${meta.id}_species.txt"), emit: species
+    tuple val(meta), path("${meta.id}_species_list.txt"), optional: true, emit: species_list
+    path "versions.yml", emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def fastaOption = fasta ? "--file $fasta" : ''
+    def fastaOption = fasta ? "--file ${fasta}" : ''
 
     """
-    python3 /opt/rMLST/species_api_upload.py $fastaOption > ${prefix}_rmlst.txt
+    python3 /opt/rMLST/species_api_upload.py ${fastaOption} > ${prefix}_rmlst.txt
 
     grep "Taxon:" ${prefix}_rmlst.txt |\\
     sed 's/Taxon://;;s/ /_/' |\\
