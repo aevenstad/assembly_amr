@@ -14,7 +14,7 @@ process LRE_FINDER {
     tuple val(meta), path("*.fsa"), optional: true
     tuple val(meta), path("*.aln"), optional: true
     tuple val(meta), path("*.gz"), optional: true
-    path "versions.yml", emit: versions
+    path "versions.yml", optional: true, emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -61,7 +61,7 @@ process LRE_FINDER_LONGREAD {
     tuple val(meta), path("*.fsa"), optional: true
     tuple val(meta), path("*.aln"), optional: true
     tuple val(meta), path("*.gz"), optional: true
-    path "versions.yml", emit: versions
+    path "versions.yml", optional: true, emit: versions
 
     when:
     task.ext.when == null || task.ext.when
