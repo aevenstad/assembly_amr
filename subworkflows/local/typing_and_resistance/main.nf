@@ -85,6 +85,8 @@ workflow TYPING_AND_RESISTANCE {
             ch_lrefinder_results = LRE_FINDER.out.txt
             ch_versions = ch_versions.mix(LRE_FINDER.out.versions)
         }
+    } else {
+            ch_lrefinder_results = Channel.empty()
     }
 
 
