@@ -3,7 +3,6 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-<<<<<<< HEAD
 include { SHORTREAD_ASSEMBLY            } from '../subworkflows/local/shortread_assembly/main'
 include { LONGREAD_ASSEMBLY             } from '../subworkflows/local/longread_assembly/main'
 include { TYPING_AND_RESISTANCE         } from '../subworkflows/local/typing_and_resistance/main'
@@ -30,7 +29,7 @@ workflow ASSEMBLY_AMR {
     ch_versions = Channel.empty()
     ch_hybracter_summary = Channel.empty()
     ch_quast_results = Channel.empty()
-    ch_bbmap_results = Channel.empty()
+    ch_bbmap_results = Channel.of([null, null])
 
 
     // Run the appropriate assembly workflow based on input type
@@ -90,7 +89,8 @@ workflow ASSEMBLY_AMR {
     ch_kleborate_results = TYPING_AND_RESISTANCE.out.ch_kleborate_results
     ch_amrfinder_results = TYPING_AND_RESISTANCE.out.ch_amrfinder_results
     ch_plasmidfinder_results = TYPING_AND_RESISTANCE.out.ch_plasmidfinder_results
-    ch_lrefinder_results = TYPING_AND_RESISTANCE.out.ch_lrefinder_results
+    ch_lrefinder_results_report = TYPING_AND_RESISTANCE.out.ch_lrefinder_results
+
 
     WRITE_SUMMARY(
         ch_quast_results,
@@ -121,21 +121,24 @@ workflow ASSEMBLY_AMR {
         ch_test_rmd = Channel.fromPath("${projectDir}/bin/report.Rmd")
 
         ch_pdf_input = ch_quast_results
-            .join(ch_bbmap_results)
-            .join(ch_mlst_results)
-            .join(ch_rmlst_results)
-            .join(ch_kleborate_results)
-            .join(ch_amrfinder_results)
-            .join(ch_plasmidfinder_results)
-            .join(ch_lrefinder_results)
+            .combine(ch_bbmap_results)
+            .combine(ch_mlst_results)
+            .combine(ch_rmlst_results)
+            .combine(ch_kleborate_results)
+            .combine(ch_amrfinder_results)
+            .combine(ch_plasmidfinder_results)
+            .combine(ch_lrefinder_results_report)
             .combine(ch_genome_size)
             .combine(ch_kleborate_columns)
             .combine(ch_test_rmd)
             .combine(ch_collated_versions)
             .map { tuple -> [tuple[0].id] + tuple[1..-1] }
 
-
         WRITE_PDF_REPORT(ch_pdf_input)
+
+        }
+
+
     }
 
 
