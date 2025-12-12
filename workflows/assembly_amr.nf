@@ -56,7 +56,6 @@ workflow ASSEMBLY_AMR {
         ch_final_fasta = SHORTREAD_ASSEMBLY.out.ch_final_fasta
         ch_quast_results = SHORTREAD_ASSEMBLY.out.ch_quast_results
         ch_bbmap_results = SHORTREAD_ASSEMBLY.out.ch_bbmap_results
-<<<<<<< HEAD
     } else if (params.assembly_type == 'hybrid' || params.assembly_type == 'long') {
 
         // Run long-read or hybrid assembly workflow
