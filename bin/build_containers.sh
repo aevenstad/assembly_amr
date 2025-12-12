@@ -2,8 +2,8 @@
 
 # List of definition files
 definitions=(
-    "../singularity/lre-finder_v1.0.0.def"
-    "../singularity/rMLST.def"
+    "singularity/lre-finder_v1.0.0.def"
+    "singularity/rMLST.def"
 )
 
 # Set container directory argument

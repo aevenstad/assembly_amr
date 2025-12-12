@@ -22,7 +22,6 @@ process BBMAP_ALIGN {
     task.ext.when == null || task.ext.when
 
     script:
-    // def args = task.ext.args ?: 'covstats=${prefix}_bbmap_covstats.txt'
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     input = meta.single_end ? "in=${fastq}" : "in=${fastq[0]} in2=${fastq[1]}"
