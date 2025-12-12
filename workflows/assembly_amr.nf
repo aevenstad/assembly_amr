@@ -69,7 +69,6 @@ workflow ASSEMBLY_AMR {
     // Set channel for trimmed reads (used by LRE-Finder)
     if (params.from_fasta) {
         ch_trimmed = Channel.empty()
-        ch_lrefinder_results = Channel.empty()
     }
     else if (params.assembly_type == 'long') {
         ch_trimmed = ch_trimmed_longreads
@@ -88,7 +87,6 @@ workflow ASSEMBLY_AMR {
     ch_amrfinder_results = TYPING_AND_RESISTANCE.out.ch_amrfinder_results
     ch_plasmidfinder_results = TYPING_AND_RESISTANCE.out.ch_plasmidfinder_results
     ch_lrefinder_results = TYPING_AND_RESISTANCE.out.ch_lrefinder_results
-
 
     WRITE_SUMMARY(
         ch_quast_results,
