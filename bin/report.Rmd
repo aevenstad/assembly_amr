@@ -346,7 +346,7 @@ knitr::kable(
   column_spec(4, width = "1cm") %>%
   column_spec(5, width = "1cm")
 ```
-vspace{1em}
+\vspace{1em}
 \needspace{15\baselineskip}
 \textbf{d) Gener koblet til resistens, biocider, stress, effluks, virulens:} $\,\geq\,$ 60\% dekning og og $\,\geq\,$ 60\% nukleotididentitet.
 Gener basert på Plus databasen av Bacterial Antimicrobial Resistance Reference Gene Database BioProject PRJNA313047.
