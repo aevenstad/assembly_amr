@@ -311,7 +311,7 @@ if (nrow(AMR_2nd_criteria) > 0) {
     column_spec(5, width = "1cm")
 } else {
     cat("\\vspace{0.5em}")
-    print("Ingen mutasjoner identifisert")
+    cat("Ingen mutasjoner identifisert\n")
     cat("\\vspace{0.5em}")
 }
 ```
@@ -557,7 +557,7 @@ if (grepl("Enterococcus", mlst_species)) {
       column_spec(4, width = "1.5cm")
     print(lre_mut)
   } else {
-    print("Ingen treff")
+    cat("Ingen treff\n")
   }
 }
 ```
@@ -587,7 +587,13 @@ plasmid_tbl <- knitr::kable(
   ) %>%
   column_spec(1, width = "3cm") %>%
   column_spec(2, width = "3cm")
-print(plasmid_tbl)
+if (nrow(plasmidfinder) > 0) {
+    print(plasmid_tbl)
+} else {
+    cat("\\vspace{0.5em}")
+    cat("Ingen plasmidreplikon identifisert")
+    cat("\\vspace{0.5em}")
+}
 ```
 
 \needspace{15\baselineskip}
