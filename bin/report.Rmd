@@ -290,28 +290,34 @@ AMR_2nd_criteria <- AMR_out %>%
   arrange(Class, Subclass) %>%
   select(Element, Class, Subclass, Coverage, Identity)
 
-knitr::kable(
-  AMR_2nd_criteria,
-    format = "latex",
-    booktabs = TRUE,
-    linesep = "",
-    align = "l",
-    ) %>%
-  kableExtra::kable_styling(
-    latex_options = c("striped", "repeat_header"),
-    full_width = FALSE,
-    position = "left",
-    font_size = 9,
-    ) %>%
-  column_spec(1, width = "2cm") %>%
-  column_spec(2, width = "4cm") %>%
-  column_spec(3, width = "5cm") %>%
-  column_spec(4, width = "1cm") %>%
-  column_spec(5, width = "1cm")
+if (nrow(AMR_2nd_criteria) > 0) {
+    knitr::kable(
+    AMR_2nd_criteria,
+        format = "latex",
+        booktabs = TRUE,
+        linesep = "",
+        align = "l",
+        ) %>%
+    kableExtra::kable_styling(
+        latex_options = c("striped", "repeat_header"),
+        full_width = FALSE,
+        position = "left",
+        font_size = 9,
+        ) %>%
+    column_spec(1, width = "2cm") %>%
+    column_spec(2, width = "4cm") %>%
+    column_spec(3, width = "5cm") %>%
+    column_spec(4, width = "1cm") %>%
+    column_spec(5, width = "1cm")
+} else {
+    cat("\\vspace{0.5em}")
+    print("Ingen mutasjoner identifisert")
+    cat("\\vspace{0.5em}")
+}
 ```
 \vspace{1em}
 \needspace{15\baselineskip}
-\\textbf{c) Analysekriterier:} $\,\geq\,$ 60\% - $\,\leq\,$ 90\% dekning og $\,\geq\,$ 60\% - $\,\leq\,$ 90>
+\textbf{c) Analysekriterier:} $\,\geq\,$ 60\% - $\,\leq\,$ 90\% dekning og $\,\geq\,$ 60\% - $\,\leq\,$ 90>
 
 ```{r, echo=FALSE, results='asis'}
 AMR_3rd_criteria <- AMR_out %>%
