@@ -241,7 +241,7 @@ if (grepl("Klebsiella", mlst_species) && length(kleborate_files) > 0) {
 \newpage
 
 \subsubsection*{\color{blue}3. Resistens:}
-\vspace{1em}
+\vspace{0.5em}
 Resistensgener basert på kjernedatabasen av Bacterial Antimicrobial Resistance Reference Gene Database BioProject PRJNA313047. Inkluderer også gener som gir resistens mot ikke-antibiotika (f.eks. kvartære ammoniumforbindelser) og antibiotika som brukes i veterinærmedisin.
 
 ```{r, include=FALSE}
@@ -311,7 +311,7 @@ if (nrow(AMR_2nd_criteria) > 0) {
     column_spec(5, width = "1cm")
 } else {
     cat("\\vspace{0.5em}")
-    cat("Ingen mutasjoner identifisert\n")
+    cat("Ingen treff\n")
     cat("\\vspace{0.5em}")
 }
 ```
@@ -564,7 +564,7 @@ if (grepl("Enterococcus", mlst_species)) {
 
 \needspace{10\baselineskip}
 \subsubsection*{\color{blue}4. Plasmidreplikon:}
-\vspace{1em}
+\vspace{0.5em}
 (påvist med PlasmidFinder https://cge.cbs.dtu.dk/services/PlasmidFinder/). Analysen gjelder bare Enterobacterales og Gram-positive.
 
 ```{r results='asis', echo=FALSE}
@@ -591,7 +591,7 @@ if (nrow(plasmidfinder) > 0) {
     print(plasmid_tbl)
 } else {
     cat("\\vspace{0.5em}")
-    cat("Ingen plasmidreplikon identifisert")
+    cat("Ingen treff\n")
     cat("\\vspace{0.5em}")
 }
 ```
