@@ -136,9 +136,6 @@ workflow ASSEMBLY_AMR {
 
         WRITE_PDF_REPORT(ch_pdf_input)
 
-        }
-
-
     }
 
 
