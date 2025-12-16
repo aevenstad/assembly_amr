@@ -301,7 +301,7 @@ if (nrow(AMR_2nd_criteria) > 0) {
     column_spec(5, width = "1cm")
 } else {
     cat("\\vspace{0.5em}")
-    cat("Ingen treff\n")
+    cat("\\textbf{Ingen treff}\n")
     cat("\\vspace{0.5em}")
 }
 ```
@@ -517,7 +517,7 @@ if (grepl("Enterococcus", mlst_species)) {
     print(lre_gene)
 
   } else {
-    cat("Ingen treff\n")
+    cat("\\textbf{Ingen treff}\n")
   }
 
   # Extract mutations
@@ -547,7 +547,7 @@ if (grepl("Enterococcus", mlst_species)) {
       column_spec(4, width = "1.5cm")
     print(lre_mut)
   } else {
-    cat("Ingen treff\n")
+    cat("\\textbf{Ingen treff}\n")
   }
 }
 ```
@@ -581,7 +581,7 @@ if (nrow(plasmidfinder) > 0) {
     print(plasmid_tbl)
 } else {
     cat("\\vspace{0.5em}")
-    cat("Ingen treff\n")
+    cat("\\textbf{Ingen treff}\n")
     cat("\\vspace{0.5em}")
 }
 ```
@@ -607,7 +607,7 @@ sw_tbl <- knitr::kable(
   ) %>%
   column_spec(1, width = "4cm") %>%
   column_spec(2, width = "4cm")
-cat("Software:")
+cat("\\textbf{Software:}")
 print(sw_tbl)
 cat("\\vspace{1em}")
 
@@ -627,7 +627,7 @@ db_tbl <- knitr::kable(
   ) %>%
   column_spec(1, width = "4cm") %>%
   column_spec(2, width = "4cm")
-cat("Database:")
+cat("\\textbf{Database:}")
 print(db_tbl)
 ```
 
