@@ -84,7 +84,7 @@ workflow ASSEMBLY_AMR {
     // Run the resistance analysis workflow
     TYPING_AND_RESISTANCE(ch_final_fasta, ch_trimmed)
     ch_versions = ch_versions.mix(TYPING_AND_RESISTANCE.out.ch_versions)
-    ch_mlst_results = TYPING_AND_RESISTANCE.out.ch_mlst_results
+    ch_mlst_results = TYPING_AND_RESISTANCE.out.ch_mlst_renamed
     ch_rmlst_results = TYPING_AND_RESISTANCE.out.ch_rmlst_results
     ch_kleborate_results = TYPING_AND_RESISTANCE.out.ch_kleborate_results
     ch_amrfinder_results = TYPING_AND_RESISTANCE.out.ch_amrfinder_results
