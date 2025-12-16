@@ -18,7 +18,8 @@ process WRITE_PDF_REPORT {
         path(genome_size),
         path(kleborate_columns),
         path(rscript),
-        path(versions)
+        path(versions),
+        path(kres_logo)
     output:
     tuple val(meta_id), path("${meta_id}_report.pdf")  , emit: pdf
     // tuple val(meta), path("${meta.id}.tex") , emit: tex
@@ -43,7 +44,8 @@ process WRITE_PDF_REPORT {
         lrefinder_out='${lrefinder}',
         genome_size='${genome_size}',
         kleborate_columns='${kleborate_columns}',
-        versions='${versions}'
+        versions='${versions}',
+        kres_logo='${kres_logo}'
         ))"
     """
 }

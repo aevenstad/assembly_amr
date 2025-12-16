@@ -18,6 +18,7 @@ params:
   plasmidfinder_out: ""
   lrefinder_out: ""
   versions: ""
+  kres_logo: ""
 header-includes:
   - \usepackage{booktabs}
   - \usepackage{float}
@@ -29,6 +30,11 @@ header-includes:
   - \setlist[enumerate]{nosep, leftmargin=*, itemsep=0pt, topsep=0pt, partopsep=0pt, parsep=0pt}
 geometry: top=1cm, bottom=2cm, left=2cm, right=2cm
 ---
+\begin{figure}[H]
+\includegraphics[width=0.6\textwidth]{`r params$kres_logo`}
+\centering
+\end{figure}
+
 \noindent\textcolor{violet}{\rule{\textwidth}{0.7pt}}
 \subsection*{\centering \color{violet}Bioinformatisk rapport for helgenomssekvensering}
 \noindent\textcolor{violet}{\rule{\textwidth}{0.7pt}}

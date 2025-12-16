@@ -116,6 +116,7 @@ workflow ASSEMBLY_AMR {
 
     // Write PDF report
     if (params.report) {
+        ch_kres_logo = Channel.fromPath("${projectDir}/assets/NS_paavisning_anitibiotikaresistens_RGB_cropped.png")
         ch_genome_size = Channel.fromPath("${projectDir}/assets/genome_size.csv")
         ch_kleborate_columns = Channel.fromPath("${projectDir}/assets/kleborate_columns.txt")
         ch_test_rmd = Channel.fromPath("${projectDir}/bin/report.Rmd")
@@ -132,6 +133,7 @@ workflow ASSEMBLY_AMR {
             .combine(ch_kleborate_columns)
             .combine(ch_test_rmd)
             .combine(ch_collated_versions)
+            .combine(ch_kres_logo)
             .map { tuple -> [tuple[0].id] + tuple[1..-1] }
 
         WRITE_PDF_REPORT(ch_pdf_input)
