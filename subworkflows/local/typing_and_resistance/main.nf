@@ -98,6 +98,7 @@ workflow TYPING_AND_RESISTANCE {
     emit:
     ch_mlst_results
     ch_rmlst_results
+    ch_mlst_renamed
     ch_kleborate_results
     ch_amrfinder_results
     ch_plasmidfinder_results
