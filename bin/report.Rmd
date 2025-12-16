@@ -78,25 +78,16 @@ bbmap <- readLines(file.path(params$bbmap_out))
 # MLST results (original mlst species name)
 mlst <- read.table(params$mlst_out, sep = "\t")
 
-# MLST (species name for report)
-#mlst_newname_path=file.path("MLST", "mlst_renamed.out")
-#if (file.exists(mlst_newname_path)) {
-#    mlst_newname <- read.table(mlst_newname_path, sep = "\t")
-#    mlst_newname_species <- mlst_newname[,2]
-#}
 
 # Ribosomal MLST
 rmlst <- read.table(params$rmlst_out, sep = ":", fill = TRUE)
 
-# Kleborate output (if present)
-#kleborate_files <- list.files(params$kleborate_out, full.names = TRUE)
-
+# Kleborate
 if (file.exists(file.path(params$kleborate_out))) {
   kleborate <- read.table(file.path(params$kleborate_out), sep = "\t", header = TRUE, stringsAsFactors = FALSE, quote = "", comment.char = "")
 }
 
 # AMRFinder results
-#AMR_filepath <- list.files(path = "AMRFinder", pattern = ".tsv", full.names = TRUE)
 AMR_out <- read.table(params$amrfinder_out, quote = "", comment.char = "", stringsAsFactors = FALSE, header = TRUE, sep = "\t", fill = TRUE)
 
 # Kleborate patterns (if used)
@@ -119,28 +110,21 @@ yml <- yaml::read_yaml(params$versions)  # replace with your filename
 # Optionally skip the Workflow section
 yml <- yml[names(yml) != "Workflow"]
 
-# Initialize tibbles
-#sw_versions <- tibble(software = character(), version = character())
-#db_versions <- tibble(database = character(), version = character())
-
-#for (section in names(yml)) {
-#  for (sw in names(yml[[section]])) {
-#    if (grepl("database", sw, ignore.case = TRUE)) {
-#      db_version <- add_row(db_versions, database = sw, version = as.character(yml[[section]][[sw]]))
-#    } else {
-#      sw_version <- add_row(sw_versions, software = sw, version = as.character(yml[[section]][[sw]]))
-#    }
-#  }
-#}
 
 sw_df <- enframe(unlist(yml)) %>%
   separate(name, into = c("module", "Name"), fill = "right", sep = "\\.") %>%
   rename(Version = value) %>%
   select(-module) %>%
   filter(!Name == "samtools") %>%
-  filter(!Name == "pigz")
+  filter(!Name == "pigz") %>%
+  filter(!Name == "amrfinderplus-database") %>%
+  filter(!Name == "PlasmidFinder database")
 
-
+db_df <- enframe(unlist(yml)) %>%
+  separate(name, into = c("module", "Name"), fill = "right", sep = "\\.") %>%
+  rename(Version = value) %>%
+  select(-module) %>%
+  filter(Name == "amrfinderplus-database" | Name == "PlasmidFinder database")
 ```
 \vspace{1em}
 \textbf{\textcolor{violet}{RID : `r sample_id`}}
@@ -623,25 +607,28 @@ sw_tbl <- knitr::kable(
   ) %>%
   column_spec(1, width = "4cm") %>%
   column_spec(2, width = "4cm")
+cat("Software:")
 print(sw_tbl)
+cat("\\vspace{1em}")
 
-#db_tbl <- knitr::kable(
-#  db_version,
-#  format = "latex",
-#  booktabs = TRUE,
-#  longtable = FALSE,
-#  linesep = "",
-#  align = "c"
-#) %>%
-#  kableExtra::kable_styling(
-#    latex_options = c("striped", "repeat_header"),
-#    full_width = FALSE,
-#    position = "left",
-#    font_size = 9
-#  ) %>%
-#  column_spec(1, width = "3cm") %>%
-#  column_spec(2, width = "3cm")
-#print(db_tbl)
+db_tbl <- knitr::kable(
+  db_df,
+  format = "latex",
+  booktabs = TRUE,
+  longtable = FALSE,
+  linesep = "",
+  align = "l"
+) %>%
+  kableExtra::kable_styling(
+    latex_options = c("striped", "repeat_header"),
+    full_width = FALSE,
+    position = "left",
+    font_size = 9
+  ) %>%
+  column_spec(1, width = "4cm") %>%
+  column_spec(2, width = "4cm")
+cat("Database:")
+print(db_tbl)
 ```
 
 
