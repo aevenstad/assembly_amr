@@ -83,10 +83,10 @@ mlst <- read.table(params$mlst_out, sep = "\t")
 rmlst <- read.table(params$rmlst_out, sep = ":", fill = TRUE)
 
 # Kleborate output (if present)
-kleborate_files <- list.files(params$kleborate_out, full.names = TRUE)
+#kleborate_files <- list.files(params$kleborate_out, full.names = TRUE)
 
-if (length(kleborate_files) > 0) {
-  kleborate <- read.table(kleborate_files, sep = "\t", header = TRUE, stringsAsFactors = FALSE, quote = "", comment.char = "")
+if (file.exists(file.path(params$kleborate_out))) {
+  kleborate <- read.table(file.path(params$kleborate_out), sep = "\t", header = TRUE, stringsAsFactors = FALSE, quote = "", comment.char = "")
 }
 
 # AMRFinder results
@@ -224,7 +224,7 @@ rmlst <- rmlst %>%
 \vspace{1em}
 
 ```{r results='asis', echo=FALSE}
-if (grepl("Klebsiella", mlst_species) && length(kleborate_files) > 0) {
+if (grepl("Klebsiella", mlst_species) && nrow(kleborate) == 1 ) {
   cat("c) Kleborate (basert på https://github.com/katholt/Kleborate):")
   cat("\\vspace{0.5em}\n")
   kleborate_species <- kleborate[1, "enterobacterales__species__species"]
@@ -382,7 +382,7 @@ knitr::kable(
 
 \vspace{1em}
 ```{r results='asis', echo=FALSE}
-if (grepl("Klebsiella", mlst_species) && length(kleborate_files) > 0) {
+if (grepl("Klebsiella", mlst_species) && nrow(kleborate) == 1) {
     cat("\\needspace{15\\baselineskip}\n")
     cat("\\textbf{e) Klebsiella-spesifikk resistensanalyse:}\n")
     # Prepare the Kleborate data
@@ -412,7 +412,7 @@ if (grepl("Klebsiella", mlst_species) && length(kleborate_files) > 0) {
 
     # Render the mutations table
     cat("\\vspace{1em}\n\\par\n")
-    cat("\\needspace{15\\baselineskip}\n")
+    cat("\\needspace{10\\baselineskip}\n")
     cat("\\textbf{Mutasjoner:}\n")
     knitr::kable(
         mutations_table,
