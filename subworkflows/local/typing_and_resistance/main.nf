@@ -73,6 +73,9 @@ workflow TYPING_AND_RESISTANCE {
 
     // MODULE: LRE_FINDER
     // Only run LRE-Finder for Enterococcus assemblies identified through rMLST
+
+    ch_lrefinder_results = Channel.of([null, null])
+
     if (!params.from_fasta) {
         ch_species_reads = ch_rmlst.join(ch_reads)
         if (params.assembly_type == "long") {
@@ -85,10 +88,7 @@ workflow TYPING_AND_RESISTANCE {
             ch_lrefinder_results = LRE_FINDER.out.txt
             ch_versions = ch_versions.mix(LRE_FINDER.out.versions)
         }
-    } else {
-            ch_lrefinder_results = Channel.empty()
     }
-
 
     // MODULE: PLASMIDFINDER
     PLASMIDFINDER(ch_final_fasta)
@@ -98,6 +98,7 @@ workflow TYPING_AND_RESISTANCE {
     emit:
     ch_mlst_results
     ch_rmlst_results
+    ch_mlst_renamed
     ch_kleborate_results
     ch_amrfinder_results
     ch_plasmidfinder_results

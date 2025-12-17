@@ -17,7 +17,7 @@ if [[ $mlst_species =~ ^ecoli ]]; then
 
 # Klebsiella pneumoniae
 elif [[ $mlst_species == "klebsiella" ]]; then
-    new_name="Klebsiella_pneumoniae_SC"
+    new_name="Klebsiella pneumoniae"
     sed "s/$mlst_species/$new_name/g" $mlst_out >${mlst_out%.tsv}_renamed.tsv
 
 # Klebsiella aerogenes is missing from the mlst species list, added manually
