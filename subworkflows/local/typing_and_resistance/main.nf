@@ -3,15 +3,16 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { AMRFINDERPLUS_RUN } from '../../../modules/nf-core/amrfinderplus/run/main'
-include { BAKTA_BAKTA } from '../../../modules/nf-core/bakta/bakta/main'
-include { KLEBORATE } from '../../../modules/nf-core/kleborate/main'
-include { LRE_FINDER } from '../../../modules/local/lre-finder/main'
-include { LRE_FINDER_LONGREAD } from '../../../modules/local/lre-finder/main.nf'
-include { MLST } from '../../../modules/nf-core/mlst/main'
-include { PLASMIDFINDER } from '../../../modules/nf-core/plasmidfinder/main'
-include { RMLST } from '../../../modules/local/rmlst/main'
-include { SPLIT_BAKTA } from '../../../modules/local/split_bakta/main'
+include { AMRFINDERPLUS_RUN                     } from '../../../modules/nf-core/amrfinderplus/run/main'
+include { BAKTA_BAKTA                           } from '../../../modules/nf-core/bakta/bakta/main'
+include { KLEBORATE                             } from '../../../modules/nf-core/kleborate/main'
+include { LRE_FINDER                            } from '../../../modules/local/lre-finder/main'
+include { LRE_FINDER_LONGREAD                   } from '../../../modules/local/lre-finder/main.nf'
+include { MLST                                  } from '../../../modules/nf-core/mlst/main'
+include { PLASMIDFINDER                         } from '../../../modules/nf-core/plasmidfinder/main'
+include { RMLST                                 } from '../../../modules/local/rmlst/main'
+include { RENAME_MLST                           } from '../../../modules/local/renamemlst/main'
+include { SPLIT_BAKTA                           } from '../../../modules/local/split_bakta/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -28,13 +29,17 @@ workflow TYPING_AND_RESISTANCE {
     ch_versions = Channel.empty()
 
     // MODULE: MLST
-    //ch_mlst_rename = Channel.fromPath("bin/mlst_species_names.sh")
-    //ch_mlst_input = ch_final_fasta.combine(ch_mlst_rename)
-    MLST(ch_final_fasta, file("${projectDir}/bin/mlst_species_names.sh"))
-    ch_mlst_results = MLST.out.tsv
-    ch_mlst_renamed = MLST.out.renamed_tsv
+    MLST(ch_final_fasta)
+    ch_mlst_out = MLST.out.tsv
     ch_versions = ch_versions.mix(MLST.out.versions)
 
+    // MODULE: rename MLST (use full species name)
+    RENAME_MLST(ch_mlst_out, file("${projectDir}/bin/mlst_species_names.sh"))
+    ch_mlst_renamed = RENAME_MLST.out.tsv
+    ch_mlst_species = RENAME_MLST.out.species
+    ch_mlst_species.subscribe { item ->
+        println item
+    }
     // MODULE: RMLST
     RMLST(ch_final_fasta)
     ch_rmlst_results = RMLST.out.rmlst
@@ -96,7 +101,6 @@ workflow TYPING_AND_RESISTANCE {
     ch_versions = ch_versions.mix(PLASMIDFINDER.out.versions)
 
     emit:
-    ch_mlst_results
     ch_rmlst_results
     ch_mlst_renamed
     ch_kleborate_results
