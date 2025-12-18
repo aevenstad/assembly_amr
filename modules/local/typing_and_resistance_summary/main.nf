@@ -10,7 +10,6 @@ process TYPING_AND_RESISTANCE_TABLE {
                         path(kleborate_results), \
                         path(amrfinder_results), \
                         path(plasmidfinder_results)
-    path(mlst_species_translation)
     path(amrfinderplus_classes)
 
     output:
@@ -21,7 +20,6 @@ process TYPING_AND_RESISTANCE_TABLE {
     """
     resistance_summary.py \\
         $mlst_results \\
-        $mlst_species_translation \\
         $rmlst_results \\
         $kleborate_results \\
         $amrfinder_results \\
