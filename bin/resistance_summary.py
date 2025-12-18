@@ -5,22 +5,14 @@ import os
 import sys
 
 
-def get_mlst_results(mlst_results, translation_table):
+def get_mlst_results(mlst_results):
     if not os.path.isfile(mlst_results):
         print(f"Error: MLST results file '{mlst_results}' does not exist.")
-        sys.exit(1)
-    if not os.path.isfile(translation_table):
-        print(f"Error: Translation table file '{translation_table}' does not exist.")
         sys.exit(1)
     # Check if the MLST results file is empty
     if os.path.getsize(mlst_results) == 0:
         print(f"Error: MLST results file '{mlst_results}' is empty.")
         sys.exit(1)
-    # Check if the translation table file is empty
-    if os.path.getsize(translation_table) == 0:
-        print(f"Error: Translation table file '{translation_table}' is empty.")
-        sys.exit(1)    
-
 
     colnames = ["Sample",
                 "Species",
@@ -32,13 +24,10 @@ def get_mlst_results(mlst_results, translation_table):
                 "locus_5",
                 "locus_6",
                 "locus_7"]
-    
-    mlst_df = pd.read_csv(mlst_results, sep="\t", names=colnames, header=None)
-    species_df = pd.read_csv(translation_table, sep="\t", header=0)
-    mlst_df = mlst_df.merge(species_df, left_on="Species", right_on="short_name", how="inner")
 
-    mlst_table = mlst_df[["full_name", "ST"]]
-    mlst_table = mlst_table.rename(columns={"full_name": "MLST species"})
+    mlst_df = pd.read_csv(mlst_results, sep="\t", names=colnames, header=None)
+    mlst_table = mlst_df[["Species", "ST"]]
+    mlst_table = mlst_table.rename(columns={"Species": "MLST species"})
     return mlst_table
 
 
@@ -79,7 +68,7 @@ def get_rmlst_results(rmlst_results):
         RMLST_SPECIES, RMLST_SUPPORT = best_match[0], str(best_match[1])
     else:
         RMLST_SPECIES, RMLST_SUPPORT = "NA", "NA"
-    
+
     rmlst_table = {'rMLST species': RMLST_SPECIES, 'rMLST support': RMLST_SUPPORT}
     rmlst_table = pd.DataFrame([rmlst_table])
     return rmlst_table
@@ -104,9 +93,9 @@ def get_kleborate_results(kleborate_results):
         # Read in Kleborate results
         kleborate_df = pd.read_csv(kleborate_results, sep="\t", header=0)
         kleborate_df = kleborate_df[
-            ["enterobacterales__species__species", 
-            "enterobacterales__species__species_match", 
-            "general__contig_stats__QC_warnings", 
+            ["enterobacterales__species__species",
+            "enterobacterales__species__species_match",
+            "general__contig_stats__QC_warnings",
             "klebsiella_pneumo_complex__amr__Omp_mutations",
             "klebsiella_pneumo_complex__amr__Col_mutations"]
             ]
@@ -142,7 +131,7 @@ def get_amrfinder_results(amrfinder_output, amrfinder_classes):
     for line in class_results.keys():
         if line in amrfinder_df_filtered["Class"].values:
             class_rows = amrfinder_df_filtered[amrfinder_df_filtered["Class"] == line]
-            
+
             results = []
             for _, row in class_rows.iterrows():
                 element = row["Element symbol"]
@@ -183,17 +172,16 @@ def get_plasmidfinder_results(plasmidfinder_output):
 
 
 if __name__ == "__main__":
-    
+
     mlst_results = sys.argv[1]
-    translation_table = sys.argv[2]
-    rmlst_results = sys.argv[3]
-    kleborate_results = sys.argv[4]
-    amrfinder_output = sys.argv[5]
-    amrfinder_classes = sys.argv[6]
-    plasmidfinder_output = sys.argv[7]
-    sample_id = sys.argv[8]
-    outfile = sys.argv[9]
-    
+    rmlst_results = sys.argv[2]
+    kleborate_results = sys.argv[3]
+    amrfinder_output = sys.argv[4]
+    amrfinder_classes = sys.argv[5]
+    plasmidfinder_output = sys.argv[6]
+    sample_id = sys.argv[7]
+    outfile = sys.argv[8]
+
     # TESTING
     #mlst_results = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/xxx/mlst/_mlst.tsv"
     #translation_table = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/assets/mlst_species_translations.tsv"
@@ -212,7 +200,7 @@ if __name__ == "__main__":
     sample_df = pd.DataFrame([sample_name])
 
 
-    mlst = get_mlst_results(mlst_results, translation_table)
+    mlst = get_mlst_results(mlst_results)
     rmlst = get_rmlst_results(rmlst_results)
     kleborate = get_kleborate_results(kleborate_results)
     amrfinder = get_amrfinder_results(amrfinder_output, amrfinder_classes)
