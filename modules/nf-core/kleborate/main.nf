@@ -1,5 +1,5 @@
 process KLEBORATE {
-    publishDir "${params.outdir}", mode: 'copy'
+    publishDir "${params.outdir}/${meta.id}/kleborate", mode: 'copy'
     tag "$meta.id"
     label 'process_medium'
 
@@ -10,12 +10,11 @@ process KLEBORATE {
         'biocontainers/kleborate:3.1.2--pyhdfd78af_0' }"
 
     input:
-    tuple val(meta), path(species), path(fastas)
+    tuple val(meta), path(fastas)
 
     output:
-    tuple val(meta), path("${meta.id}/kleborate")        , emit: results
-    tuple val(meta), path("${meta.id}/kleborate/*.txt")  , emit: txt
-    path "${meta.id}/kleborate/versions.yml"             , emit: versions
+    tuple val(meta), path("*.txt")  , emit: txt
+    path "versions.yml"             , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -25,25 +24,15 @@ process KLEBORATE {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    species_content=\$(awk '{print \$2}' $species)
-
-    if [[ "\$species_content" == *"Klebsiella"* ]]; then
-        kleborate \\
-        $args \\
-        --outdir $prefix/kleborate \\
-        --assemblies $fastas      
-
-
-    else
-        echo "Skipping Kleborate..."
-        mkdir -p $prefix/kleborate
-        echo "Kleborate skipped for \$species_content" > ${prefix}/kleborate/kleborate_skipped.txt
-    fi
+    kleborate \\
+    $args \\
+    --outdir ./ \\
+    --assemblies $fastas
 
     kleborate_version=\$(kleborate --version 2>&1 | grep "Kleborate v" | sed 's/Kleborate v//;')
     echo "Kleborate version: \$kleborate_version"
-    echo '"'"${task.process}"'":' > ${prefix}/kleborate/versions.yml
-    echo "    kleborate: \$kleborate_version" >> ${prefix}/kleborate/versions.yml
+    echo '"'"${task.process}"'":' > versions.yml
+    echo "    kleborate: \$kleborate_version" >> versions.yml
     """
 
     stub:
@@ -51,7 +40,7 @@ process KLEBORATE {
     """
     touch ${prefix}.results.txt
 
-    cat <<-END_VERSIONS > ${prefix}/kleborate/versions_test.yml
+    cat <<-END_VERSIONS > versions_test.yml
     "${task.process}":
         kleborate: \$(kleborate --version 2>&1 | sed 's/Kleborate v//;')
     END_VERSIONS
