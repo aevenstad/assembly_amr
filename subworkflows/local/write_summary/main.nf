@@ -8,7 +8,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { SHORTREAD_STATS                       } from '../../../modules/local/shortread_summary/main'
-include { STATS_FROM_FASTA            } from '../../../modules/local/shortread_summary/main'
+include { STATS_FROM_FASTA                      } from '../../../modules/local/shortread_summary/main'
 include { MERGE_SHORTREAD_STATS                 } from '../../../modules/local/shortread_summary/main'
 include { HYBRACTER_TABLE                       } from '../../../modules/local/hybracter_summary/main'
 include { TYPING_AND_RESISTANCE_TABLE           } from '../../../modules/local/typing_and_resistance_summary/main'
@@ -72,7 +72,6 @@ workflow WRITE_SUMMARY {
 
     TYPING_AND_RESISTANCE_TABLE (
         ch_typing_and_resistance,
-        file("${projectDir}/assets/mlst_species_translations.tsv"),
         file("${projectDir}/assets/amrfinderplus_classes.txt")
         )
 
