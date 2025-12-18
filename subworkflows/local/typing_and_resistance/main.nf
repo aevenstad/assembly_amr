@@ -37,9 +37,12 @@ workflow TYPING_AND_RESISTANCE {
     RENAME_MLST(ch_mlst_out, file("${projectDir}/bin/mlst_species_names.sh"))
     ch_mlst_renamed = RENAME_MLST.out.tsv
     ch_mlst_species = RENAME_MLST.out.species
-    ch_mlst_species.subscribe { item ->
-        println item
+    ch_mlst_speciel_value = ch_mlst_species
+    .map { meta, file ->
+        def content = file.text.trim()
+        tuple(meta, content)
     }
+
     // MODULE: RMLST
     RMLST(ch_final_fasta)
     ch_rmlst_results = RMLST.out.rmlst
