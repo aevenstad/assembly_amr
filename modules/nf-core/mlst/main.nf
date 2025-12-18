@@ -10,12 +10,9 @@ process MLST {
 
     input:
     tuple val(meta), path(fasta)
-    path mlst_species_names
 
     output:
-    tuple val(meta), path("*_mlst.tsv"), emit: tsv
-    tuple val(meta), path("*renamed.tsv"), emit: renamed_tsv
-    path "log.txt", emit: log
+    tuple val(meta), path("*.tsv"), emit: tsv
     path "versions.yml", emit: versions
 
     when:
@@ -29,10 +26,7 @@ process MLST {
         ${args} \\
         --threads ${task.cpus} \\
         ${fasta} \\
-        > ${prefix}_mlst.tsv
-
-    # Rename species in MLST output
-    bash ${mlst_species_names} ${prefix}_mlst.tsv 2> log.txt
+        > ${prefix}.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
