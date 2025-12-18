@@ -53,7 +53,16 @@ workflow TYPING_AND_RESISTANCE {
     // Only run Kleborate fot Klebsiella assemblies identified through rMLST
     ch_species_fasta = ch_mlst_renamed.join(ch_final_fasta)
 
-    KLEBORATE(ch_species_fasta)
+    ch_klebsiella = ch_mlst_speciel_value
+        .filter { meta, species ->
+            species == "Klebsiella pneumoniae"
+        }
+    ch_kleborate_input = ch_final_fasta.join(ch_klebsiella)
+        .map { meta, file, species ->
+        tuple(meta, file)
+        }
+
+    KLEBORATE(ch_kleborate_input)
     ch_kleborate_results = KLEBORATE.out.txt
     ch_versions = ch_versions.mix(KLEBORATE.out.versions.first())
 
