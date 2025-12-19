@@ -26,11 +26,11 @@ workflow ASSEMBLY_AMR {
     samplesheet // channel: samplesheet read in from --input
 
     main:
-    ch_versions = Channel.empty()
-    ch_hybracter_summary = Channel.empty()
-    ch_quast_results = Channel.empty()
-    ch_bbmap_results = Channel.of([null, null])
-
+    ch_versions = channel.empty()
+    ch_hybracter_summary = channel.empty()
+    ch_quast_results = channel.empty()
+    ch_bbmap_results = channel.of([null, null])
+    ch_kleborate_fasta = channel.empty()
 
     // Run the appropriate assembly workflow based on input type
     // TODO: Use function to handle different input types
@@ -55,6 +55,7 @@ workflow ASSEMBLY_AMR {
         ch_final_fasta = SHORTREAD_ASSEMBLY.out.ch_final_fasta
         ch_quast_results = SHORTREAD_ASSEMBLY.out.ch_quast_results
         ch_bbmap_results = SHORTREAD_ASSEMBLY.out.ch_bbmap_results
+        ch_kleborate_fasta = ch_final_fasta
     } else if (params.assembly_type == 'hybrid' || params.assembly_type == 'long') {
 
         // Run long-read or hybrid assembly workflow
@@ -64,6 +65,7 @@ workflow ASSEMBLY_AMR {
         ch_trimmed_shortreads = LONGREAD_ASSEMBLY.out.ch_trimmed_shortreads
         ch_final_fasta = LONGREAD_ASSEMBLY.out.ch_final_fasta
         ch_hybracter_summary = LONGREAD_ASSEMBLY.out.ch_hybracter_summary
+        ch_kleborate_fasta = LONGREAD_ASSEMBLY.out.ch_kleborate_longread
 
     } else {
         error "Invalid assembly type: ${params.assembly_type}"
@@ -82,7 +84,7 @@ workflow ASSEMBLY_AMR {
 
 
     // Run the resistance analysis workflow
-    TYPING_AND_RESISTANCE(ch_final_fasta, ch_trimmed)
+    TYPING_AND_RESISTANCE(ch_final_fasta, ch_trimmed, ch_kleborate_fasta)
     ch_versions = ch_versions.mix(TYPING_AND_RESISTANCE.out.ch_versions)
     ch_mlst_results = TYPING_AND_RESISTANCE.out.ch_mlst_renamed
     ch_rmlst_results = TYPING_AND_RESISTANCE.out.ch_rmlst_results
