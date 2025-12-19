@@ -1,7 +1,4 @@
-//
 // Subworkflow for assembling Nanopore reads with hybracter in hybrid or long mode (if short reads are provided)
-//
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT FUNCTIONS / MODULES / SUBWORKFLOWS
@@ -26,7 +23,7 @@ workflow LONGREAD_ASSEMBLY {
     samplesheet // channel: samplesheet read in from --input
 
     main:
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
     ch_longreads = samplesheet.map { meta, nanopore, _illumina_R1, _illumina_R2, _fasta ->
             tuple([id: meta], nanopore)
     }
@@ -39,32 +36,24 @@ workflow LONGREAD_ASSEMBLY {
             tuple([id: meta], nanopore, illumina_R1, illumina_R2)
     }
 
-    //
     // MODULE: NANOSTAT_RAW
-    //
     NANOSTAT_RAW (
         ch_longreads
     )
     ch_versions = ch_versions.mix(NANOSTAT_RAW.out.versions)
 
-    //
     // MODULE: KRAKEN2
-    //
     KRAKEN2_KRAKEN2 (
         ch_longreads,
         false,
         true
     )
-    ch_kraken_report = KRAKEN2_KRAKEN2.out.report
-    //ch_kraken2_classified_reads = KRAKEN2_KRAKEN2.out.classified_reads_fastq
     ch_kraken2_genus = KRAKEN2_KRAKEN2.out.genus
     ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions)
 
 
 
-    //
     // MODULE: MINCHROMSIZE
-    //
     SETMINCHROMSIZE (
         ch_kraken2_genus,
         file("${projectDir}/assets/genome_size.csv")
@@ -72,18 +61,21 @@ workflow LONGREAD_ASSEMBLY {
     ch_minchromsize = SETMINCHROMSIZE.out.txt
 
     // MODULE: HYBRACTER
-    //
-    //  Create input channels
     ch_hybrid_assembly = ch_hybrid_hybracter.join(ch_minchromsize)
     ch_long_assembly = ch_long_hybracter.join(ch_minchromsize)
 
     if (params.assembly_type == 'hybrid'){
-        HYBRACTER (ch_hybrid_assembly)
+        HYBRACTER (
+            ch_hybrid_assembly
+        )
         ch_hybracter_final_out = HYBRACTER.out.final_output
         ch_trimmed = HYBRACTER.out.processing
         ch_versions = ch_versions.mix(HYBRACTER.out.versions)
+
     } else if (params.assembly_type == 'long') {
-        HYBRACTER (ch_long_assembly)
+        HYBRACTER (
+            ch_long_assembly
+        )
         ch_hybracter_final_out = HYBRACTER.out.final_output
         ch_trimmed = HYBRACTER.out.processing
         ch_versions = ch_versions.mix(HYBRACTER.out.versions)
@@ -91,6 +83,9 @@ workflow LONGREAD_ASSEMBLY {
 
     ch_final_fasta = ch_hybracter_final_out.map { meta, dir ->
         tuple(meta, file("${dir}/*_final.fasta"))
+    }
+    ch_chromosome = ch_hybracter_final_out.map { meta, dir ->
+        tuple(meta, file("${dir}/complete/*_chromosome.fasta"))
     }
     ch_trimmed_longreads = ch_trimmed.map { meta, dir ->
         def files = file("${dir}/qc/*filt_trim.fastq.gz")
@@ -114,16 +109,26 @@ workflow LONGREAD_ASSEMBLY {
     }
     ch_split_plasmids = ch_plasmid_fasta.join(ch_plasmid_stats)
 
-    //
     // MODULE: PLASMID_FASTA
-    //
     PLASMID_FASTA (
         ch_split_plasmids
     )
+    ch_circular_plasmids = PLASMID_FASTA.out.circular
+    ch_linear_plasmids = PLASMID_FASTA.out.linear
 
-    //
+    ch_kleborate_longread = ch_chromosome
+        .join(ch_circular_plasmids)
+        .join(ch_linear_plasmids)
+        .map { meta, chromosome, circular, linear ->
+            tuple(
+                meta,
+                [chromosome, circular, linear]
+                    .collect { it ?: [] }
+                    .flatten()
+            )
+        }
+
     // MODULE: NANOSTAT_TRIMMED
-    //
     NANOSTAT_TRIMMED (
         ch_trimmed_longreads
     )
@@ -134,4 +139,5 @@ workflow LONGREAD_ASSEMBLY {
     ch_trimmed_longreads
     ch_trimmed_shortreads
     ch_hybracter_summary
+    ch_kleborate_longread
 }
