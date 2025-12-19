@@ -24,6 +24,7 @@ workflow TYPING_AND_RESISTANCE {
     take:
     ch_final_fasta
     ch_reads
+    ch_kleborate_fasta
 
     main:
     ch_versions = Channel.empty()
@@ -57,7 +58,7 @@ workflow TYPING_AND_RESISTANCE {
         .filter { meta, species ->
             species == "Klebsiella pneumoniae"
         }
-    ch_kleborate_input = ch_final_fasta.join(ch_klebsiella)
+    ch_kleborate_input = ch_kleborate_fasta.join(ch_klebsiella)
         .map { meta, file, species ->
         tuple(meta, file)
         }
