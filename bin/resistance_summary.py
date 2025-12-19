@@ -80,7 +80,6 @@ def get_kleborate_results(kleborate_results):
     # Create empty DataFrame if kleborate is not run
     kleborate_df = pd.DataFrame([{"Kleborate species": "NA",
                                   "Kleborate species match": "NA",
-                                  "Kleborate QC": "NA",
                                   "OMP mutations": "NA",
                                   "Col mutations": "NA"}])
 
@@ -95,7 +94,6 @@ def get_kleborate_results(kleborate_results):
         kleborate_df = kleborate_df[
             ["enterobacterales__species__species",
             "enterobacterales__species__species_match",
-            "general__contig_stats__QC_warnings",
             "klebsiella_pneumo_complex__amr__Omp_mutations",
             "klebsiella_pneumo_complex__amr__Col_mutations"]
             ]
@@ -103,7 +101,6 @@ def get_kleborate_results(kleborate_results):
         kleborate_df = kleborate_df.rename(columns={
             "enterobacterales__species__species": "Kleborate species",
             "enterobacterales__species__species_match": "Kleborate species match",
-            "general__contig_stats__QC_warnings": "Kleborate QC",
             "klebsiella_pneumo_complex__amr__Omp_mutations": "OMP mutations",
             "klebsiella_pneumo_complex__amr__Col_mutations": "Col mutations"})
     return kleborate_df
