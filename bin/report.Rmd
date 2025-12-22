@@ -83,8 +83,11 @@ mlst <- read.table(params$mlst_out, sep = "\t")
 rmlst <- read.table(params$rmlst_out, sep = ":", fill = TRUE)
 
 # Kleborate
-if (file.exists(file.path(params$kleborate_out))) {
-  kleborate <- read.table(file.path(params$kleborate_out), sep = "\t", header = TRUE, stringsAsFactors = FALSE, quote = "", comment.char = "")
+kleborate <- NULL
+if (file.exists(params$kleborate_out) &&
+    file.size(params$kleborate_out) > 0) {
+
+    kleborate <- read.table(file.path(params$kleborate_out), sep = "\t", header = TRUE, stringsAsFactors = FALSE, quote = "", comment.char = "")
 }
 
 # AMRFinder results
@@ -96,8 +99,11 @@ if (file.exists(params$kleborate_columns)) {
 }
 
 # LRE-Finder output (for Enterococcus)
-if (file.exists(file.path(params$lrefinder_out))) {
-  lrefinder <- readLines(file.path(params$lrefinder_out))
+lrefinder <- NULL
+if (file.exists(params$lrefinder_out) &&
+    file.size(params$lrefinder_out) > 0) {
+
+    lrefinder <- readLines(file.path(params$lrefinder_out))
 }
 
 
@@ -214,7 +220,7 @@ rmlst <- rmlst %>%
 \vspace{1em}
 
 ```{r results='asis', echo=FALSE}
-if (grepl("Klebsiella", mlst_species) && nrow(kleborate) == 1 ) {
+if (!is.null(kleborate) && nrow(kleborate) == 1 ) {
   cat("c) Kleborate (basert på https://github.com/katholt/Kleborate):")
   cat("\\vspace{0.5em}\n")
   kleborate_species <- kleborate[1, "enterobacterales__species__species"]
@@ -372,7 +378,7 @@ knitr::kable(
 
 \vspace{1em}
 ```{r results='asis', echo=FALSE}
-if (grepl("Klebsiella", mlst_species) && nrow(kleborate) == 1) {
+if (!is.null(kleborate) && nrow(kleborate) == 1) {
     cat("\\needspace{15\\baselineskip}\n")
     cat("\\textbf{e) Klebsiella-spesifikk resistensanalyse:}\n")
     # Prepare the Kleborate data
@@ -472,7 +478,7 @@ if (grepl("Klebsiella", mlst_species) && nrow(kleborate) == 1) {
 
 \vspace{1em}
 ```{r results='asis', echo=FALSE}
-if (grepl("Enterococcus", mlst_species)) {
+if (!is.null(lrefinder)) {
   cat("\\needspace{20\\baselineskip}\n")
   cat("\\textbf{e) Linezolid Resistance: (påvist med LRE-finder, https://cge.cbs.dtu.dk/services/LRE-finder/)}")
   cat("\\vspace{1em}\n")
