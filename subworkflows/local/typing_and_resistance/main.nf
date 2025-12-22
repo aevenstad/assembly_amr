@@ -7,7 +7,6 @@ include { AMRFINDERPLUS_RUN                     } from '../../../modules/nf-core
 include { BAKTA_BAKTA                           } from '../../../modules/nf-core/bakta/bakta/main'
 include { KLEBORATE                             } from '../../../modules/nf-core/kleborate/main'
 include { LRE_FINDER                            } from '../../../modules/local/lre-finder/main'
-include { LRE_FINDER_LONGREAD                   } from '../../../modules/local/lre-finder/main.nf'
 include { MLST                                  } from '../../../modules/nf-core/mlst/main'
 include { PLASMIDFINDER                         } from '../../../modules/nf-core/plasmidfinder/main'
 include { RMLST                                 } from '../../../modules/local/rmlst/main'
@@ -27,7 +26,9 @@ workflow TYPING_AND_RESISTANCE {
     ch_kleborate_fasta
 
     main:
-    ch_versions = Channel.empty()
+    ch_versions = channel.empty()
+    ch_kleborate_results = channel.empty()
+    ch_lrefinder_results = channel.empty()
 
     // MODULE: MLST
     MLST(ch_final_fasta)
@@ -67,6 +68,14 @@ workflow TYPING_AND_RESISTANCE {
     ch_kleborate_results = KLEBORATE.out.txt
     ch_versions = ch_versions.mix(KLEBORATE.out.versions.first())
 
+    ch_non_klebsiella = ch_mlst_speciel_value
+        .filter { meta, species -> species != "Klebsiella pneumoniae" }
+    ch_kleborate_placeholder = ch_non_klebsiella.map { meta, species ->
+        tuple(meta, file("${projectDir}/assets/kleborate_placeholder.tsv"))
+    }
+    ch_kleborate_all_results = ch_kleborate_results
+        .mix(ch_kleborate_placeholder)
+
     // MODULE AMRFINDERPLUS (Run AMRFinderPlus)
     AMRFINDERPLUS_RUN(ch_species_fasta, file("${projectDir}/assets/amrfinder_organism_list.txt"))
     ch_amrfinder_results = AMRFINDERPLUS_RUN.out.report
@@ -91,22 +100,27 @@ workflow TYPING_AND_RESISTANCE {
 
     // MODULE: LRE_FINDER
     // Only run LRE-Finder for Enterococcus assemblies identified through rMLST
-
-    ch_lrefinder_results = Channel.of([null, null])
-
-    if (!params.from_fasta) {
-        ch_species_reads = ch_rmlst.join(ch_reads)
-        if (params.assembly_type == "long") {
-            LRE_FINDER_LONGREAD(ch_species_reads)
-            ch_lrefinder_results = LRE_FINDER_LONGREAD.out.txt
-            ch_versions = ch_versions.mix(LRE_FINDER_LONGREAD.out.versions)
+    ch_enterococcus = ch_mlst_speciel_value
+        .filter { meta, species ->
+            species ==~ /Enterococcus.*/
         }
-        else {
-            LRE_FINDER(ch_species_reads)
-            ch_lrefinder_results = LRE_FINDER.out.txt
-            ch_versions = ch_versions.mix(LRE_FINDER.out.versions)
+    ch_lrefinder_input = ch_reads
+        .join(ch_enterococcus)
+        .map { meta, file, species ->
+        tuple(meta, file)
         }
+    LRE_FINDER(ch_lrefinder_input)
+    ch_lrefinder_results = LRE_FINDER.out.txt
+    ch_versions = ch_versions.mix(LRE_FINDER.out.versions)
+
+    // Set output channel for non-Enterococci (use placeholder file)
+    ch_non_enterococcus = ch_mlst_speciel_value
+        .filter { meta, species -> !(species ==~ /Enterococcus.*/) }
+    ch_lrefinder_placeholder = ch_non_enterococcus.map { meta, species ->
+        tuple(meta, file("${projectDir}/assets/lre-finder_placeholder.tsv"))
     }
+    ch_lrefinder_all_results = ch_lrefinder_results
+        .mix(ch_lrefinder_placeholder)
 
     // MODULE: PLASMIDFINDER
     PLASMIDFINDER(ch_final_fasta)
@@ -116,9 +130,9 @@ workflow TYPING_AND_RESISTANCE {
     emit:
     ch_rmlst_results
     ch_mlst_renamed
-    ch_kleborate_results
+    ch_kleborate_all_results
     ch_amrfinder_results
     ch_plasmidfinder_results
-    ch_lrefinder_results
+    ch_lrefinder_all_results
     ch_versions
 }
