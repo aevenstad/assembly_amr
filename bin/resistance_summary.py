@@ -88,7 +88,7 @@ def get_kleborate_results(kleborate_results):
         sys.exit(1)
 
     file_name = os.path.basename(kleborate_results)
-    if not file_name.startswith("kleborate_skipped"):
+    if not file_name.startswith("kleborate_placeholder"):
         # Read in Kleborate results
         kleborate_df = pd.read_csv(kleborate_results, sep="\t", header=0)
         kleborate_df = kleborate_df[
