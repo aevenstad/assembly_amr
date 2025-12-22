@@ -37,7 +37,7 @@ workflow ASSEMBLY_AMR {
     if (params.from_fasta) {
 
         // Skip assembly workflows and use the provided FASTA files
-        ch_trimmed = Channel.empty()
+        ch_trimmed = channel.empty()
         ch_final_fasta = samplesheet.map { meta, _nanopore, _illumina_R1, _illumina_R2, fasta ->
             tuple([id: meta], [file(fasta)])
         }
@@ -88,10 +88,10 @@ workflow ASSEMBLY_AMR {
     ch_versions = ch_versions.mix(TYPING_AND_RESISTANCE.out.ch_versions)
     ch_mlst_results = TYPING_AND_RESISTANCE.out.ch_mlst_renamed
     ch_rmlst_results = TYPING_AND_RESISTANCE.out.ch_rmlst_results
-    ch_kleborate_results = TYPING_AND_RESISTANCE.out.ch_kleborate_results
+    ch_kleborate_results = TYPING_AND_RESISTANCE.out.ch_kleborate_all_results
     ch_amrfinder_results = TYPING_AND_RESISTANCE.out.ch_amrfinder_results
     ch_plasmidfinder_results = TYPING_AND_RESISTANCE.out.ch_plasmidfinder_results
-    ch_lrefinder_results_report = TYPING_AND_RESISTANCE.out.ch_lrefinder_results
+    ch_lrefinder_results_report = TYPING_AND_RESISTANCE.out.ch_lrefinder_all_results
 
 
     WRITE_SUMMARY(
@@ -139,7 +139,6 @@ workflow ASSEMBLY_AMR {
             .map { tuple -> [tuple[0].id] + tuple[1..-1] }
 
         WRITE_PDF_REPORT(ch_pdf_input)
-
     }
 
 
