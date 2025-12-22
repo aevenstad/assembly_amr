@@ -3,6 +3,10 @@ process RENAME_MLST {
     tag "$meta.id"
     label 'process_single'
 
+    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
+        ? 'https://depot.galaxyproject.org/singularity/mlst:2.23.0--hdfd78af_0'
+        : 'biocontainers/mlst:2.23.0--hdfd78af_0'}"
+
     input:
     tuple val(meta), path(mlst_out)
     path mlst_species_names
@@ -18,7 +22,7 @@ process RENAME_MLST {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    bash $mlst_species_names $mlst_out
+    bash ${mlst_species_names} ${mlst_out}
     cut -f2 ${prefix}_renamed.tsv > ${prefix}_species_name.txt
     """
 
