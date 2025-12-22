@@ -1,8 +1,14 @@
-#!/bing/bash
+#!/bin/bash
 mlst_out=$1
 
 # mlst species scheme map
 mlst_species_map="/usr/local/db/scheme_species_map.tab"
+if [ -f $mlst_species_map ]; then
+    echo "MLST species map file: $mlst_species_map"
+else
+    echo "MLST species map not found!"
+    exit 1
+fi
 
 # Get species name from mlst
 mlst_species=$(awk '{print $2}' ${mlst_out})
