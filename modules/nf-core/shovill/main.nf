@@ -30,7 +30,7 @@ process SHOVILL {
         --R1 ${reads[0]} \\
         --R2 ${reads[1]} \\
         --depth 150 \\
-        --minlen 150 \\
+        --minlen 200 \\
         --mincov 2 \\
         --cpus $task.cpus \\
         --ram $memory \\
