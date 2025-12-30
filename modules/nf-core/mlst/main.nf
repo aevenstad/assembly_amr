@@ -1,5 +1,6 @@
 process MLST {
     publishDir "${params.outdir}/${meta.id}/mlst", mode: 'copy'
+    containerOptions "-B ${params.mlst_db}"
     tag "${meta.id}"
     label 'process_low'
 
@@ -25,6 +26,8 @@ process MLST {
     mlst \\
         ${args} \\
         --threads ${task.cpus} \\
+        --datadir "${params.mlst_db}/pubmlst" \\
+        --blastdb "${params.mlst_db}/blast/mlst.fa" \\
         ${fasta} \\
         > ${prefix}.tsv
 
