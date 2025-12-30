@@ -21,12 +21,12 @@ process LRE_FINDER {
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def args = task.ext.args ?: '-ID 90 -1t1 -cge -matrix'
+    def args = task.ext.args ?: '-ID 80 -1t1 -cge -matrix'
     """
 
-    if [[ -f "${reads}[0]" && -f "${reads}[1]" ]]; then
+    if [[ -f "${reads[0]}" && -f "${reads[1]}" ]]; then
         LRE-Finder.py \\
-        -ipe ${reads}[0] ${reads}[1] \\
+        -ipe ${reads[0]} ${reads[1]} \\
         -o ./${prefix} \\
         -t_db /lre-finder/elmDB/elm \\
         ${args} |\\
