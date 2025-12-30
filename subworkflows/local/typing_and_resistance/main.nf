@@ -53,7 +53,7 @@ workflow TYPING_AND_RESISTANCE {
 
     // MODULE KLEBORATE (Run Kleborate for Klebsiella)
     // Only run Kleborate fot Klebsiella assemblies identified through rMLST
-    ch_species_fasta = ch_mlst_renamed.join(ch_final_fasta)
+    ch_species_fasta = ch_mlst_species.join(ch_final_fasta)
 
     ch_klebsiella = ch_mlst_speciel_value
         .filter { meta, species ->
