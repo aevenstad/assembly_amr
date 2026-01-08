@@ -33,6 +33,7 @@ workflow WRITE_SUMMARY {
     ch_kleborate_results
     ch_amrfinder_results
     ch_plasmidfinder_results
+    ch_lrefinder_results
 
 
     main:
@@ -68,6 +69,7 @@ workflow WRITE_SUMMARY {
         .join(ch_kleborate_results)
         .join(ch_amrfinder_results)
         .join(ch_plasmidfinder_results)
+        .join(ch_lrefinder_results)
         .map { tuple -> [tuple[0].id] + tuple[1..-1] }
 
     TYPING_AND_RESISTANCE_TABLE (
