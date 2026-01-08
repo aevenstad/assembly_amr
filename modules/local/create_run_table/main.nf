@@ -14,6 +14,6 @@ process CREATE_RUN_TABLE {
     merge_tables.py \\
         --assembly_summary $assembly_table \\
         --resistance_summary $resistance_table \\
-        --output_table table_kres_${params.outdir}.tsv
+        --output_table table_${params.run_name}.tsv
     """
 }
