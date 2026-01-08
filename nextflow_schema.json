@@ -104,6 +104,10 @@
                     "type": "array",
                     "exists": false,
                     "description": "List of Kleborate modules to run"
+                },
+                "run_name": {
+                    "type": ["string", "integer"],
+                    "description": "Name to use for summary table e.g. 'table_$run_name.tsv'"
                 }
             }
         },
