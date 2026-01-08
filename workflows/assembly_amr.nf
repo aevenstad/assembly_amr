@@ -103,6 +103,7 @@ workflow ASSEMBLY_AMR {
         ch_kleborate_results,
         ch_amrfinder_results,
         ch_plasmidfinder_results,
+        ch_lrefinder_results_report
     )
 
 
