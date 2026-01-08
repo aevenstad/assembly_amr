@@ -9,7 +9,8 @@ process TYPING_AND_RESISTANCE_TABLE {
                         path(rmlst_results), \
                         path(kleborate_results), \
                         path(amrfinder_results), \
-                        path(plasmidfinder_results)
+                        path(plasmidfinder_results), \
+                        path(lrefinder_results)
     path(amrfinderplus_classes)
 
     output:
@@ -25,6 +26,7 @@ process TYPING_AND_RESISTANCE_TABLE {
         $amrfinder_results \\
         $amrfinderplus_classes \\
         $plasmidfinder_results \\
+        $lrefinder_results \\
         $prefix \\
         ${prefix}_resistance_table.tsv
     """
