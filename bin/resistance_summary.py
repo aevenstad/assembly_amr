@@ -28,6 +28,11 @@ def get_mlst_results(mlst_results):
     mlst_df = pd.read_csv(mlst_results, sep="\t", names=colnames, header=None)
     mlst_table = mlst_df[["Species", "ST"]]
     mlst_table = mlst_table.rename(columns={"Species": "MLST species"})
+    mlst_table["MLST species"] = mlst_table["MLST species"].fillna("Unknown").astype(str).replace("-", "Unknown")
+    mlst_table["ST"] = mlst_table["ST"].fillna("Unknown").astype(str).replace("-", "Unknown")
+    mlst_table["MLST"] = mlst_table["ST"].apply(lambda x: "Unknown" if x == "ST-Unknown" else f"ST-{x}")
+    mlst_table.drop(columns=["ST"], inplace=True)
+
     return mlst_table
 
 
@@ -167,6 +172,62 @@ def get_plasmidfinder_results(plasmidfinder_output):
     return plasmids
 
 
+def get_lrefinder_results(lrefinder_output):
+    if lrefinder_output == "lre-finder_placeholder.tsv":
+        lrefinder_df = pd.DataFrame([{"LRE Genes": "-",
+                                      "LRE Mutations" : "-"}])
+        lrefinder_genes = lrefinder_df[["LRE Genes"]]
+        lrefinder_mutations = lrefinder_df[["LRE Mutations"]]
+        return(lrefinder_genes, lrefinder_mutations)
+
+
+    with open(lrefinder_output) as f:
+        lines = [line.strip() for line in f if line.strip()]
+
+    # Add LRE-Finder genes to single row
+    genes_header = next(i for i, l in enumerate(lines) if l.startswith("Genes Identified:")) + 1
+    genes_data = []
+    i = genes_header + 1
+    while i < len(lines) and not lines[i].startswith("Identified mutations"):
+        genes_data.append(lines[i].split())
+        i += 1
+
+    genes_df = pd.DataFrame(genes_data, columns=["Gene", "Template_identity", "Depth"])
+    gene_lines = []
+    for _, row in genes_df.iterrows():
+        gene = row["Gene"]
+        ident = row["Template_identity"]
+        depth = row["Depth"]
+        gene_lines.append(f"{gene} (ID: {ident}%, Depth: {depth})")
+    gene_results = " | ".join(gene_lines)
+    lrefinder_genes = pd.DataFrame([{"LRE Genes" : gene_results}])
+
+    # Add LRE-Finder mutations to single row
+    mutations_header = i + 1
+    mutation_data = []
+    i = mutations_header + 1
+    while i < len(lines):
+        mutation_data.append(lines[i].split())
+        i += 1
+
+    mutation_df = pd.DataFrame(mutation_data, columns=[
+    "Position", "Wild_type_ratio", "Mutant_type_ratio", "Predicted_phenotype"
+    ])
+    mutation_df = mutation_df.drop([0])
+
+    mutation_lines = []
+    for _, row in mutation_df.iterrows():
+        pos = row["Position"]
+        wt = row["Wild_type_ratio"]
+        mt = row["Mutant_type_ratio"]
+        pheno = row["Predicted_phenotype"]
+        mutation_lines.append(f"{pos} (WT: {wt}%, MT: {mt}%, Phenotype: {pheno})")
+    mutations_results = " | ".join(mutation_lines)
+    lrefinder_mutations = pd.DataFrame([{"LRE Mutations" : mutations_results}])
+
+
+    return(lrefinder_genes, lrefinder_mutations)
+
 
 if __name__ == "__main__":
 
@@ -176,8 +237,9 @@ if __name__ == "__main__":
     amrfinder_output = sys.argv[4]
     amrfinder_classes = sys.argv[5]
     plasmidfinder_output = sys.argv[6]
-    sample_id = sys.argv[7]
-    outfile = sys.argv[8]
+    lrefinder_output = sys.argv[7]
+    sample_id = sys.argv[8]
+    outfile = sys.argv[9]
 
     # TESTING
     #mlst_results = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/xxx/mlst/_mlst.tsv"
@@ -202,7 +264,8 @@ if __name__ == "__main__":
     kleborate = get_kleborate_results(kleborate_results)
     amrfinder = get_amrfinder_results(amrfinder_output, amrfinder_classes)
     plasmidfinder = get_plasmidfinder_results(plasmidfinder_output)
-    resistance_summary = pd.concat([sample_df, mlst, rmlst, kleborate, amrfinder, plasmidfinder], axis=1)
+    lrefinder_genes, lrefinder_mutations = get_lrefinder_results(lrefinder_output)
+    resistance_summary = pd.concat([sample_df, mlst, rmlst, kleborate, lrefinder_genes, lrefinder_mutations, amrfinder, plasmidfinder], axis=1)
 
     # Save the final DataFrame to a TSV file
     resistance_summary.to_csv(outfile, sep="\t", index=False)
