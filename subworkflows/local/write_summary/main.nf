@@ -28,6 +28,8 @@ workflow WRITE_SUMMARY {
     ch_quast_results
     ch_bbmap_results
     ch_hybracter_summary
+    ch_hybracter_per_contig_summary
+    ch_plassembler_summary
     ch_mlst_results
     ch_rmlst_results
     ch_kleborate_results
@@ -83,8 +85,13 @@ workflow WRITE_SUMMARY {
 
     // Create per contig resistance summary for hybracter assemblies
     if (!params.from_fasta && params.assembly_type != 'short') {
-        ch_per_contig_resistance = (ch_amrfinder_results)
+        ch_per_contig_resistance = (ch_hybracter_per_contig_summary)
+            .join(ch_plassembler_summary)
+            .join(ch_mlst_results)
+            .join(ch_rmlst_results)
+            .join(ch_amrfinder_results)
             .join(ch_plasmidfinder_results)
+            .join(ch_kleborate_results)
             .map { tuple -> [tuple[0].id] + tuple[1..-1] }
         PER_CONTIG_RESISTANCE_SUMMARY (
             ch_per_contig_resistance,
