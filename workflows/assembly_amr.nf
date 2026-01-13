@@ -28,9 +28,11 @@ workflow ASSEMBLY_AMR {
     main:
     ch_versions = channel.empty()
     ch_hybracter_summary = channel.empty()
+    ch_hybracter_per_contig_summary = channel.empty()
     ch_quast_results = channel.empty()
     ch_bbmap_results = channel.of([null, null])
     ch_kleborate_fasta = channel.empty()
+    ch_plassembler_summary = channel.empty()
 
     // Run the appropriate assembly workflow based on input type
     // TODO: Use function to handle different input types
@@ -65,6 +67,8 @@ workflow ASSEMBLY_AMR {
         ch_trimmed_shortreads = LONGREAD_ASSEMBLY.out.ch_trimmed_shortreads
         ch_final_fasta = LONGREAD_ASSEMBLY.out.ch_final_fasta
         ch_hybracter_summary = LONGREAD_ASSEMBLY.out.ch_hybracter_summary
+        ch_hybracter_per_contig_summary = LONGREAD_ASSEMBLY.out.ch_hybracter_per_contig_summary
+        ch_plassembler_summary = LONGREAD_ASSEMBLY.out.ch_plassembler_summary
         ch_kleborate_fasta = LONGREAD_ASSEMBLY.out.ch_kleborate_longread
 
     } else {
@@ -98,6 +102,8 @@ workflow ASSEMBLY_AMR {
         ch_quast_results,
         ch_bbmap_results,
         ch_hybracter_summary,
+        ch_hybracter_per_contig_summary,
+        ch_plassembler_summary,
         ch_mlst_results,
         ch_rmlst_results,
         ch_kleborate_results,
