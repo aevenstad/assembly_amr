@@ -99,6 +99,14 @@ workflow LONGREAD_ASSEMBLY {
         def files = file("${dir}/*_hybracter_summary.tsv")
         tuple(meta, files)
     }
+    ch_hybracter_per_contig_summary = ch_hybracter_final_out.map { meta, dir ->
+        def files = file("${dir}/complete/*_per_contig_stats.tsv")
+        tuple(meta, files)
+    }
+    ch_plassembler_summary = ch_trimmed.map { ,eta. dir ->
+        def files = file("${dir}/plassembler/*/*plassembler_summary.tsv")
+        tuple(meta, files)
+    }
     ch_plasmid_fasta = ch_hybracter_final_out.map { meta, dir ->
         def files = file("${dir}/complete/*_plasmid.fasta")
         tuple(meta, files)
@@ -139,5 +147,7 @@ workflow LONGREAD_ASSEMBLY {
     ch_trimmed_longreads
     ch_trimmed_shortreads
     ch_hybracter_summary
+    ch_hybracter_per_contig_summary
+    ch_plassembler_summary
     ch_kleborate_longread
 }
