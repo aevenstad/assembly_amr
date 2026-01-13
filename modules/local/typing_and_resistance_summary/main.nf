@@ -36,24 +36,34 @@ process PER_CONTIG_RESISTANCE_SUMMARY {
     publishDir "${params.outdir}/${meta_id}", mode: 'copy'
     tag "$meta_id"
     label 'process_low'
-    container "/bigdata/Jessin/Softwares/containers/pip_pandas_b119e1f6a52aae23.sif"
+    container "oras://community.wave.seqera.io/library/r-dplyr_r-openxlsx_r-purrr_r-readr_pruned:5398fb4260ea96f2"
 
     input:
-    tuple val(meta_id), path(amrfinder_results), \
-                        path(plasmidfinder_results)
-    path(amrfinderplus_classes)
+    tuple val(meta_id), path(hybracter_summary),
+                        path(plassembler_summary), \
+                        path(mlst_results), \
+                        path(rmlst_results), \
+                        path(amrfinder_results), \
+                        path(plasmidfinder_results), \
+                        path(kleborate_results)
+    path(longread_summary_script)
 
     output:
-    tuple val(meta_id), path("${meta_id}_per_contig_resistance_table.tsv"), emit: summary
+    tuple val(meta_id), path("${meta_id}_longread_summary.xlsx"), emit: summary
 
     script:
     def prefix = task.ext.prefix ?: "${meta_id}"
     """
-    per_contig_resistance.py \\
-        $plasmidfinder_results \\
-        $amrfinder_results \\
-        $amrfinderplus_classes \\
-        ${prefix}_per_contig_resistance_table.tsv
+    Rscript -e "rmarkdown::render(input = '${longread_summary_script}', output_format=NULL, params=list(
+        hybracter_files='${hybracter_summary}'
+        plassembler_files='${plassembler_summary}'
+        mlst_files='${mlst_results}',
+        rmlst_files='${rmlst_results}',
+        kleborate_files='${kleborate_results}',
+        amrfinder_files='${amrfinder_results}',
+        plasmidfinder_files='${plasmidfinder_results}',
+        output_file='${prefix}_longread_summary.xlsx'
+        ))"
     """
 }
 
