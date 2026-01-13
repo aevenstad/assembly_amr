@@ -124,7 +124,6 @@ plasmidfinder_df <- read_tsv(params$plasmidfinder_files, col_names = TRUE, show_
 kleborate_df <- read_tsv(params$kleborate_files, show_col_types = FALSE, col_names = TRUE) %>%
   mutate(contig = paste0(sub("^[^_]*_", "", strain), "00001")) %>%
   select(-c(1:11))
-
 ```
 
 
