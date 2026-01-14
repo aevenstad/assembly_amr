@@ -164,7 +164,7 @@ plasmidfinder_df <- map_dfr(
 kleborate_df <- map_dfr(
   split_files(params$kleborate_files),
   function(f) {
-    read_tsv(f, show_col_types = FALSE) %>%
+    read_tsv(f, show_col_types = FALSE, col_types = cols(.default = "c")) %>%
       mutate(
         sample_id = tools::file_path_sans_ext(basename(f)),
         contig = paste0(sub("^[^_]*_", "", strain), "00001")
