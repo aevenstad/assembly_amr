@@ -103,7 +103,7 @@ workflow LONGREAD_ASSEMBLY {
         def files = file("${dir}/complete/*_per_contig_stats.tsv")
         tuple(meta, files)
     }
-    ch_plassembler_summary = ch_trimmed.map { ,eta. dir ->
+    ch_plassembler_summary = ch_trimmed.map { meta, dir ->
         def files = file("${dir}/plassembler/*/*plassembler_summary.tsv")
         tuple(meta, files)
     }
