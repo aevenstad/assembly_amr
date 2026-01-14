@@ -13,7 +13,7 @@ process KLEBORATE {
     tuple val(meta), path(fastas)
 
     output:
-    tuple val(meta), path("*.txt")  , emit: txt
+    tuple val(meta), path("*_kleborate_out.txt")  , emit: txt
     path "versions.yml"             , emit: versions
 
     when:
@@ -28,6 +28,8 @@ process KLEBORATE {
     $args \\
     --outdir ./ \\
     --assemblies $fastas
+
+    mv *output.txt ${prefix}_kleborate_out.txt
 
     kleborate_version=\$(kleborate --version 2>&1 | grep "Kleborate v" | sed 's/Kleborate v//;')
     echo "Kleborate version: \$kleborate_version"
