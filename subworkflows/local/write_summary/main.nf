@@ -22,11 +22,14 @@ workflow WRITE_SUMMARY {
 
         SHORTREAD_SUMMARY(
             ch_quast_results,
-            ch_bbmap_results
+            ch_bbmap_results,
+            ch_mlst_results,
+            ch_rmlst_results,
+            ch_kleborate_results,
+            ch_amrfinder_results,
+            ch_plasmidfinder_results,
+            ch_lrefinder_results
         )
-
-        ch_run_summary = SHORTREAD_SUMMARY.out.run_summary
-        CREATE_RUN_TABLE(ch_run_summary)
     }
     else {
 
