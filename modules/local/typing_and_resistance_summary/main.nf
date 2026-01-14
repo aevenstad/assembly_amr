@@ -1,5 +1,5 @@
 process TYPING_AND_RESISTANCE_TABLE {
-    publishDir "${params.outdir}/${meta_id}", mode: 'copy'
+    publishDir "${params.outdir}/tables", mode: 'copy'
     tag "$meta_id"
     label 'process_low'
     container "community.wave.seqera.io/library/pip_pandas:9cf85c2568d5b002"
@@ -70,23 +70,23 @@ process PER_CONTIG_RESISTANCE_SUMMARY {
 }
 
 process MERGE_TYPING_AND_RESISTANCE_TABLES {
-    publishDir "${params.outdir}", mode: 'copy'
+    publishDir "${params.outdir}/tables", mode: 'copy'
     label 'process_low'
 
     input:
     path(resistance_summaries)
 
     output:
-    path("resistance_summary.tsv"), emit: summary
+    path("*_resistance_summary.tsv"), emit: summary
 
     script:
     """
     # Get header from the first file
-    head -n 1 \$(ls $resistance_summaries | head -n 1) > resistance_summary.tsv
+    head -n 1 \$(ls $resistance_summaries | head -n 1) > ${params.run_name}_resistance_summary.tsv
 
     # Append rows from all summaries
     for file in $resistance_summaries; do
-        tail -n +2 \$file >> resistance_summary.tsv
+        tail -n +2 \$file >> ${params.run_name}_resistance_summary.tsv
     done
     """
 }
