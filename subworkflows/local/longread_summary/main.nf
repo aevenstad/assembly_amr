@@ -4,7 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { HYBRACTER_TABLE                       } from '../../../modules/local/hybracter_summary/main'
-include { PER_CONTIG_RESISTANCE_SUMMARY         } from '../../../modules/local/typing_and_resistance_summary/main'
+include { LONGREAD_SUMMARY_TABLE         } from '../../../modules/local/longread_typing_and_resistance_table/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -44,7 +44,7 @@ workflow LONGREAD_SUMMARY {
     ch_kleborate_all      = ch_kleborate_results.map { meta, f -> f }.collect()
 
 
-    PER_CONTIG_RESISTANCE_SUMMARY(
+    LONGREAD_SUMMARY_TABLE(
         ch_hybracter_all,
         ch_plassembler_all,
         ch_mlst_all,

@@ -6,8 +6,8 @@
 include { SHORTREAD_STATS                       } from '../../../modules/local/shortread_summary/main'
 include { STATS_FROM_FASTA                      } from '../../../modules/local/shortread_summary/main'
 include { MERGE_SHORTREAD_STATS                 } from '../../../modules/local/shortread_summary/main'
-include { TYPING_AND_RESISTANCE_TABLE           } from '../../../modules/local/typing_and_resistance_summary/main'
-include { MERGE_TYPING_AND_RESISTANCE_TABLES    } from '../../../modules/local/typing_and_resistance_summary/main'
+include { TYPING_AND_RESISTANCE_TABLE           } from '../../../modules/local/shortread_typing_and_resistance_table/main'
+include { MERGE_TYPING_AND_RESISTANCE_TABLES    } from '../../../modules/local/merge_shortread_typing_and_resistance_table/main'
 include { CREATE_RUN_TABLE                      } from '../../../modules/local/create_run_table/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
