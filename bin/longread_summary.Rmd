@@ -28,117 +28,172 @@ library(tidyr)
 library(stringr)
 ```
 
+```{r }
+split_files <- function(x) {
+  if (is.null(x) || x == "") character(0)
+  else strsplit(x, "\\s+")[[1]]
+}
+```
 
 ## Get results
 ```{r }
 ## Hybracter summary
-hybracter_df <- read_tsv(params$hybracter_files, show_col_types = FALSE, col_names = TRUE) %>%
-  select(`contig_name`, `contig_type`, `length`, `gc`, `circular`) %>%
-  rename(contig = contig_name)
+hybracter_df <- map_dfr(
+  split_files(params$hybracter_files),
+  function(f) {
+    read_tsv(f, show_col_types = FALSE) %>%
+      select(contig_name, contig_type, length, gc, circular) %>%
+      rename(contig = contig_name) %>%
+      mutate(sample_id = tools::file_path_sans_ext(basename(f)))
+  }
+)
+
+
 
 ## Plassembler results
-plassembler_df <- read_tsv(params$plassembler_files, show_col_types = FALSE, col_names = TRUE) %>%
-  select(c(1:15)) %>%
-  select(-length) %>%
-  mutate(contig = ifelse(contig != "chromosome",
-                         paste0("plasmid0000", contig),
-                          "chromosome00001")
-         )
+plassembler_df <- map_dfr(
+  split_files(params$plassembler_files),
+  function(f) {
+    read_tsv(f, show_col_types = FALSE) %>%
+      select(1:15) %>%
+      select(-length) %>%
+      mutate(
+        contig = ifelse(
+          contig != "chromosome",
+          paste0("plasmid0000", contig),
+          "chromosome00001"
+        ),
+        sample_id = tools::file_path_sans_ext(basename(f))
+      )
+  }
+)
 
 ## MLST
-mlst_df <- read_tsv(params$mlst_files, show_col_types = FALSE, col_names = FALSE) %>%
-    select(X2, X3) %>%
-  rename(Species = X2) %>%
-  rename(ST = X3) %>%
-  mutate(contig = "chromosome00001")
+mlst_df <- map_dfr(
+  split_files(params$mlst_files),
+  function(f) {
+    read_tsv(f, col_names = FALSE, show_col_types = FALSE) %>%
+      select(X2, X3) %>%
+      rename(Species = X2, ST = X3) %>%
+      mutate(
+        contig = "chromosome00001",
+        sample_id = tools::file_path_sans_ext(basename(f))
+      )
+  }
+)
 
 ## rMLST
-rmlst_df <- read_tsv(params$rmlst_files, show_col_types = FALSE, col_names = FALSE)
-rmlst_df <- {
-  taxon_line   <- rmlst_df$X1[str_detect(rmlst_df$X1, "^Taxon:")]
-  support_line <- rmlst_df$X1[str_detect(rmlst_df$X1, "^Support:")]
+rmlst_df <- map_dfr(
+  split_files(params$rmlst_files),
+  function(f) {
+    tbl <- read_tsv(f, col_names = FALSE, show_col_types = FALSE)
 
-  tibble(
-    sample_id = params$sample_id,      # or derive from filename
-    contig    = "chromosome00001",
-    species   = str_remove(taxon_line, "^Taxon:"),
-    support   = str_remove(support_line, "^Support:")
-  )
-}
+    taxon_line   <- tbl$X1[str_detect(tbl$X1, "^Taxon:")]
+    support_line <- tbl$X1[str_detect(tbl$X1, "^Support:")]
+
+    tibble(
+      sample_id = tools::file_path_sans_ext(basename(f)),
+      contig    = "chromosome00001",
+      species   = str_remove(taxon_line, "^Taxon:"),
+      support   = str_remove(support_line, "^Support:")
+    )
+  }
+)
 
 
 ## AMRFinderPlus results
-amrfinderplus_df  <- read_tsv(params$amrfinder_files, show_col_types = FALSE, col_names = TRUE) %>%
-  filter(`% Coverage of reference` >= 90 &
-           `% Identity to reference` >= 90) %>%
-  select(c(`Contig id`,
-           `Element symbol`,
-           `Type`,
-           `Subtype`,
-           `Class`,
-           `Subclass`)) %>%
+amrfinderplus_raw <- map_dfr(
+  split_files(params$amrfinder_files),
+  function(f) {
+    read_tsv(f, show_col_types = FALSE) %>%
+      mutate(sample_id = tools::file_path_sans_ext(basename(f)))
+  }
+)
+
+amrfinderplus_df <- amrfinderplus_raw %>%
+  filter(`% Coverage of reference` >= 90,
+         `% Identity to reference` >= 90) %>%
+  select(
+    sample_id,
+    `Contig id`,
+    `Element symbol`,
+    Type, Subtype, Class, Subclass
+  ) %>%
   rename(contig = `Contig id`) %>%
   mutate(
     sort_level = case_when(
-      `Type` == "STRESS" & !is.na(Class)      ~ paste(`Type`, ": ", `Class`),
-      `Type` == "STRESS" & is.na(Class)       ~ paste(`Type`, ": ", `Subtype`),
-      `Type` == "AMR" & `Subtype` == "POINT"  ~ paste(`Subtype`, ": ", `Class`),
-      `Type` == "AMR" & `Subtype` == "AMR"    ~ `Class`,
-      `Type` == "VIRULENCE"                   ~ `Type`
+      Type == "STRESS" & !is.na(Class)     ~ paste(Type, Class),
+      Type == "STRESS" & is.na(Class)      ~ paste(Type, Subtype),
+      Type == "AMR" & Subtype == "POINT"   ~ paste(Subtype, Class),
+      Type == "AMR" & Subtype == "AMR"     ~ Class,
+      Type == "VIRULENCE"                  ~ Type
+    )
   )
-         )
-
 amrfinderplus_df2 <- amrfinderplus_df %>%
-  arrange(`contig`, `Element symbol`, `sort_level`) %>%
-  group_by(`contig`, `sort_level`) %>%
-  summarise(`Element symbol` = paste(unique(na.omit(`Element symbol`)), collapse = "; "), .groups = "drop") %>%
-  pivot_wider(names_from = `sort_level`, values_from = `Element symbol`)
-
-## Get AMR column order
-amr_col_order <- amrfinderplus_df %>%
-  select(c(Type, Subtype, Class, Subclass, sort_level)) %>%
-  distinct() %>%
-  arrange(Type, Subtype, Class, Subclass) %>%
-  select(sort_level) %>%
-  distinct() %>%
-  pull(sort_level)
-amr_col_order <- c("contig", amr_col_order)
-
-## Sort columns
-col_indices <- match(amr_col_order, colnames(amrfinderplus_df2))
-amrfinderplus_df2 <- amrfinderplus_df2[, col_indices]
+  arrange(sample_id, contig, sort_level, `Element symbol`) %>%
+  group_by(sample_id, contig, sort_level) %>%
+  summarise(
+    `Element symbol` = paste(unique(`Element symbol`), collapse = "; "),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(names_from = sort_level, values_from = `Element symbol`)
 
 
 
 ## PlasmidFinder results
-plasmidfinder_df <- read_tsv(params$plasmidfinder_files, col_names = TRUE, show_col_types = FALSE) %>%
-  select(`Plasmid`, `Contig`) %>%
-  rename(contig = Contig) %>%
-  mutate(`contig` = gsub(" .*", "", `contig`)) %>%
-  arrange(`contig`, `Plasmid`) %>%
-  group_by(`contig`) %>%
-  summarize(`Plasmid` = paste(unique(na.omit(`Plasmid`)), collapse = "; "), .groups = "drop")
+plasmidfinder_df <- map_dfr(
+  split_files(params$plasmidfinder_files),
+  function(f) {
+    read_tsv(f, show_col_types = FALSE) %>%
+      select(Plasmid, Contig) %>%
+      rename(contig = Contig) %>%
+      mutate(
+        contig = gsub(" .*", "", contig),
+        sample_id = tools::file_path_sans_ext(basename(f))
+      ) %>%
+      group_by(sample_id, contig) %>%
+      summarise(
+        Plasmid = paste(unique(Plasmid), collapse = "; "),
+        .groups = "drop"
+      )
+  }
+)
 
 
-## Kleborate results
-kleborate_df <- read_tsv(params$kleborate_files, show_col_types = FALSE, col_names = TRUE) %>%
-  mutate(contig = paste0(sub("^[^_]*_", "", strain), "00001")) %>%
-  select(-c(1:11))
+## Kleborate result
+kleborate_df <- map_dfr(
+  split_files(params$kleborate_files),
+  function(f) {
+    read_tsv(f, show_col_types = FALSE) %>%
+      mutate(
+        sample_id = tools::file_path_sans_ext(basename(f)),
+        contig = paste0(sub("^[^_]*_", "", strain), "00001")
+      ) %>%
+      select(-c(1:11))
+  }
+)
 ```
 
 
 ## Join all data frames on sample identifiers and contig name columns
 ```{r }
 combined_df <- hybracter_df %>%
-  left_join(plassembler_df, by = c("contig")) %>%
-  left_join(plasmidfinder_df, by = c("contig")) %>%
-  left_join(amrfinderplus_df2, by = c("contig")) %>%
-  left_join(kleborate_df, by = c("contig")) %>%
-  left_join(mlst_df, by = c("contig")) %>%
-  left_join(rmlst_df, by = c("contig")) %>%
-  arrange(contig, Species, ST) %>%
-  mutate(Species = sub("Klebsiella_pneumoniae_SC", "Klebsiella pneumoniae", Species), Species) %>%
-  mutate(circular = as.character(circular))
+  left_join(plassembler_df,    by = c("sample_id", "contig")) %>%
+  left_join(plasmidfinder_df,  by = c("sample_id", "contig")) %>%
+  left_join(amrfinderplus_df2, by = c("sample_id", "contig")) %>%
+  left_join(kleborate_df,      by = c("sample_id", "contig")) %>%
+  left_join(mlst_df,           by = c("sample_id", "contig")) %>%
+  left_join(rmlst_df,          by = c("sample_id", "contig")) %>%
+  arrange(sample_id, contig) %>%
+  mutate(
+    Species = sub(
+      "Klebsiella_pneumoniae_SC",
+      "Klebsiella pneumoniae",
+      Species
+    ),
+    circular = as.character(circular)
+  )
+
 ```
 
 
