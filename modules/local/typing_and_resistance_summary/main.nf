@@ -33,37 +33,39 @@ process TYPING_AND_RESISTANCE_TABLE {
 }
 
 process PER_CONTIG_RESISTANCE_SUMMARY {
-    publishDir "${params.outdir}/${meta_id}", mode: 'copy'
-    tag "$meta_id"
+    publishDir "${params.outdir}", mode: 'copy'
     label 'process_low'
-    container "oras://community.wave.seqera.io/library/r-dplyr_r-openxlsx_r-purrr_r-readr_pruned:5398fb4260ea96f2"
+    container "oras://community.wave.seqera.io/library/r-dplyr_r-openxlsx_r-purrr_r-readr_pruned:9c3c5e7a8434d04f"
 
     input:
-    tuple val(meta_id), path(hybracter_summary),
-                        path(plassembler_summary), \
-                        path(mlst_results), \
-                        path(rmlst_results), \
-                        path(amrfinder_results), \
-                        path(plasmidfinder_results), \
-                        path(kleborate_results)
-    path(longread_summary_script)
+        path(hybracter_summary)
+        path(plassembler_summary)
+        path(mlst_results)
+        path(rmlst_results)
+        path(amrfinder_results)
+        path(plasmidfinder_results)
+        path(kleborate_results)
+        path(longread_summary_script)
 
     output:
-    tuple val(meta_id), path("${meta_id}_longread_summary.xlsx"), emit: summary
+    path("longread_summary.tsv"), emit: summary
 
     script:
-    def prefix = task.ext.prefix ?: "${meta_id}"
     """
-    Rscript -e "rmarkdown::render(input = '${longread_summary_script}', output_format=NULL, params=list(
-        hybracter_files='${hybracter_summary}'
-        plassembler_files='${plassembler_summary}'
-        mlst_files='${mlst_results}',
-        rmlst_files='${rmlst_results}',
-        kleborate_files='${kleborate_results}',
-        amrfinder_files='${amrfinder_results}',
-        plasmidfinder_files='${plasmidfinder_results}',
-        output_file='${prefix}_longread_summary.xlsx'
-        ))"
+    Rscript -e "rmarkdown::render(
+        input = '${longread_summary_script}',
+        output_format=NULL,
+        params=list(
+            hybracter_files='${hybracter_summary.join(" ")}',
+            plassembler_files='${plassembler_summary.join(" ")}',
+            mlst_files='${mlst_results.join(" ")}',
+            rmlst_files='${rmlst_results.join(" ")}',
+            kleborate_files='${kleborate_results.join(" ")}',
+            amrfinder_files='${amrfinder_results.join(" ")}',
+            plasmidfinder_files='${plasmidfinder_results.join(" ")}',
+            output_file='longread_summary.tsv'
+        )
+    )"
     """
 }
 
