@@ -48,7 +48,7 @@ process PER_CONTIG_RESISTANCE_SUMMARY {
         path(longread_summary_script)
 
     output:
-    path("longread_summary.tsv"), emit: summary
+    path("*.xlsx"), emit: summary
 
     script:
     """
@@ -63,7 +63,7 @@ process PER_CONTIG_RESISTANCE_SUMMARY {
             kleborate_files='${kleborate_results.join(" ")}',
             amrfinder_files='${amrfinder_results.join(" ")}',
             plasmidfinder_files='${plasmidfinder_results.join(" ")}',
-            output_file='longread_summary.tsv'
+            output_file='${params.run_name}_summary_table.xlsx'
         )
     )"
     """
