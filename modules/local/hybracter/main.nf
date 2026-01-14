@@ -87,6 +87,11 @@ process HYBRACTER {
            "${prefix}/hybracter/FINAL_OUTPUT/${prefix}_hybracter_summary.tsv"
     fi
 
+    # Rename Plassembler summary
+    mv "${prefix}/hybracter/processing/plassembler/${prefix}/plassembler_summary.tsv" \
+        "${prefix}/hybracter/processing/plassembler/${prefix}/${prefix}_plassembler_summary.tsv"
+
+
     # Versions
     cat <<-END_VERSIONS > ${prefix}/hybracter/versions.yml
     "${task.process}":
