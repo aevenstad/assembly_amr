@@ -1,15 +1,15 @@
 process SHORTREAD_STATS {
-    publishDir "${params.outdir}/${meta_id}", mode: 'copy'
+    publishDir "${params.outdir}/tables", mode: 'copy'
     tag "$meta_id"
     label 'process_low'
 
     input:
     tuple val(meta_id), path(quast_results), \
                         path(bbmap_results)
-    
+
     output:
     tuple val(meta_id), path("*assembly.tsv"), emit: summary
-    
+
     script:
     def prefix = task.ext.prefix ?: "${meta_id}"
     """
@@ -28,17 +28,17 @@ process SHORTREAD_STATS {
 }
 
 process STATS_FROM_FASTA {
-    publishDir "${params.outdir}/${meta_id}", mode: 'copy'
+    publishDir "${params.outdir}/tables", mode: 'copy'
     tag "$meta_id"
     label 'process_low'
 
     input:
     tuple val(meta_id), path(quast_results)
 
-    
+
     output:
     tuple val(meta_id), path("*assembly.tsv"), emit: summary
-    
+
     script:
     def prefix = task.ext.prefix ?: "${meta_id}"
     """
@@ -54,23 +54,23 @@ process STATS_FROM_FASTA {
 }
 
 process MERGE_SHORTREAD_STATS {
-    publishDir "${params.outdir}", mode: 'copy'
+    publishDir "${params.outdir}/tables", mode: 'copy'
     label 'process_low'
 
     input:
     path(assembly_summary)
 
     output:
-    path("assembly_summary.tsv"), emit: summary
+    path("*assembly_summary.tsv"), emit: summary
 
     script:
     """
     # Get header from the first file
-    head -n 1 \$(ls $assembly_summary | head -n 1) > assembly_summary.tsv
+    head -n 1 \$(ls $assembly_summary | head -n 1) > ${params.run_name}_assembly_summary.tsv
 
     # Append rows from all summaries
     for file in $assembly_summary; do
-        tail -n +2 \$file >> assembly_summary.tsv
+        tail -n +2 \$file >> ${params.run_name}_assembly_summary.tsv
     done
    """
 }
