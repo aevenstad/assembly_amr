@@ -98,11 +98,13 @@ singularity exec <bakta_image> bakta_db download --output ./ --type [light|full]
 -profile                [string] Name of profile from `nextflow.conf` (Currently only <singularity> supported)
 --input                 [string] Path to input samplesheet
 --outdir                [string] Path to output directory
+--run_name              [string] Prefix for summary tables
 --assembly_type         [string] Type of assembly to perform  (accepted: hybrid, long, short)
 --amrfinder_db          [string] Path to the AMRFinderPlus database
 --plasmidfinder_db      [string] Path to the PlasmidFinder database
 --bakta                 [boolean] Run annotation with bakta [default: false]
 --bakta_db              [string] Path to the bakta database
+--mlst_db               [string] Path to mlst database [default: use db in container]
 ```
 
 ### Run the pipeline
@@ -112,6 +114,7 @@ nextflow run /path/to/assembly_amr/main.nf \
 -profile singularity \
 --input samplesheet.csv \
 --outdir <outdir> \
+--run_name <run_name> \
 --assembly_type [hybrid|long|short] \
 --amrfinder_db <amrfinder_db> \
 --plasmidfinder_db <plasmidfinder_db>
