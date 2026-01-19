@@ -44,7 +44,8 @@ hybracter_df <- map_dfr(
     read_tsv(f, show_col_types = FALSE) %>%
       select(contig_name, contig_type, length, gc, circular) %>%
       rename(contig = contig_name) %>%
-      mutate(sample_id = tools::file_path_sans_ext(basename(f)))
+      mutate(sample_id = tools::file_path_sans_ext(basename(f))) %>%
+      mutate(sample_id = sub("_per_contig_stats", "", sample_id))
   }
 )
 
@@ -64,7 +65,8 @@ plassembler_df <- map_dfr(
           "chromosome00001"
         ),
         sample_id = tools::file_path_sans_ext(basename(f))
-      )
+      ) %>%
+      mutate(sample_id = sub("_plassembler_summary", "", sample_id))
   }
 )
 
@@ -78,7 +80,8 @@ mlst_df <- map_dfr(
       mutate(
         contig = "chromosome00001",
         sample_id = tools::file_path_sans_ext(basename(f))
-      )
+      ) %>%
+      mutate(sample_id = sub("_renamed", "", sample_id))
   }
 )
 
@@ -99,6 +102,9 @@ rmlst_df <- map_dfr(
     )
   }
 )
+
+rmlst_df <- rmlst_df %>%
+    mutate(sample_id = sub("_rmlst", "", sample_id))
 
 
 ## AMRFinderPlus results
@@ -151,6 +157,7 @@ plasmidfinder_df <- map_dfr(
         contig = gsub(" .*", "", contig),
         sample_id = tools::file_path_sans_ext(basename(f))
       ) %>%
+      mutate(sample_id = sub("_results", "", sample_id)) %>%
       group_by(sample_id, contig) %>%
       summarise(
         Plasmid = paste(unique(Plasmid), collapse = "; "),
@@ -169,6 +176,7 @@ kleborate_df <- map_dfr(
         sample_id = tools::file_path_sans_ext(basename(f)),
         contig = paste0(sub("^[^_]*_", "", strain), "00001")
       ) %>%
+      mutate(sample_id = sub("_kleborate_out", "", sample_id)) %>%
       select(-c(1:11))
   }
 )
