@@ -56,21 +56,20 @@ Clone the repository:
 git clone https://github.com/aevenstad/assembly_amr.git
 ```
 
-### Get dependencies
-You can optionally install dependencies before running the pipeline using the helper scripts in `bin/`.  
+### Download databases
+The most straightforward way to fetch the required databases is to install them via the tools own helper scripts.
+
+Run the script `pull_containers.sh` to download containers for `amrfinderplus`, `PlasmidFinder` and `bakta`.
+  
 It’s recommended to set the container directory using the Nextflow variable `$NXF_SINGULARITY_CACHEDIR`:
 ```
 NXF_SINGULARITY_CACHEDIR=/path/to/containers/
 
 # to pull containers from public registries, run:
+cd assembly_amr
 bash bin/pull_containers.sh $NXF_SINGULARITY_CACHEDIR
-
-# for dependencies without publicly available container images, use:
-bash bin/build_containers.sh $NXF_SINGULARITY_CACHEDIR
 ```
-This will build the required containers using custom definition files in `singularity/`.
 
-### Download databases
 AMRFinderPlus database:
 ```
 singularity exec <amrfinderplus_image> amrfinder_update -d <database_dir>
