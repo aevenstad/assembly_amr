@@ -13,10 +13,10 @@
   - [Get dependencies](#get-dependencies)
   - [Download databases](#download-databases)
   - [Arguments](#arguments)
+  - [Hybrid input](#hybrid-input)
+  - [Long-read input](#long-read-input)
+  - [Short-read input](#short-read-input)
   - [Run the pipeline](#run-the-pipeline)
-    - [Hybrid input](#hybrid-input)
-    - [Long-read input](#long-read-input)
-    - [Short-read input](#short-read-input)
 
 
 ## Introduction
@@ -28,11 +28,12 @@ It`s main function is to asses antimicrobial resistance in the provided isolates
 * Multi locus sequence typing:
     - MLST (2.23.0)
     - rMLST (https://gist.github.com/kjolley/703fa2f00c3b2abeef9242fa193ea901#file-species_api_upload-py)
+* Plasmid typing:
+    - PlasmidFinder (2.1.6)
 * Resistance analysis:
     - AMRFinderPlus (4.0.3)
     - Kleborate (3.1.2) (for Klebsiella)
-    - PlasmidFinder (2.1.6)
-    - LRE-Finder (1.0.0) (for enterobactales)
+    - LRE-Finder (1.0.0) (for Enterococci)
 * Annotation:
     - Bakta (1.10.4)
 
