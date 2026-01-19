@@ -10,7 +10,6 @@
   - [Databases](#databases)
 - [Quickstart](#quickstart)
   - [Download the pipeline](#download-the-pipeline)
-  - [Get dependencies](#get-dependencies)
   - [Download databases](#download-databases)
   - [Arguments](#arguments)
   - [Hybrid input](#hybrid-input)
@@ -23,19 +22,19 @@
 This is a Nextflow pipeline written using the nf-core template, and is made for analyzing whole-genome sequencing data from bacterial isolates.
 It`s main function is to asses antimicrobial resistance in the provided isolates and the main steps of the pipeline is:
 * Genome assembly:
-  - `hybrid` or `long` mode with hybracter (0.11.0)
-  - Short read mode with shovill (1.1.0) (using spades assembler)
+  - [hybracter](https://github.com/gbouras13/hybracter) (hybrid or nanopore-only assembly)
+  - [shovill](https://github.com/tseemann/shovill) (short read assembly)
 * Multi locus sequence typing:
-    - MLST (2.23.0)
-    - rMLST (https://gist.github.com/kjolley/703fa2f00c3b2abeef9242fa193ea901#file-species_api_upload-py)
+    - [mlst](https://github.com/tseemann/mlst)
+    - [rMLST](https://gist.github.com/kjolley/703fa2f00c3b2abeef9242fa193ea901#file-species_api_upload-py)
 * Plasmid typing:
-    - PlasmidFinder (2.1.6)
+    - [PlasmidFinder](https://bitbucket.org/genomicepidemiology/plasmidfinder/src/master/)
 * Resistance analysis:
-    - AMRFinderPlus (4.0.3)
-    - Kleborate (3.1.2) (for Klebsiella)
-    - LRE-Finder (1.0.0) (for Enterococci)
+    - [AMRFinderPlus](https://github.com/ncbi/amr)
+    - [Kleborate](https://github.com/klebgenomics/Kleborate) (for Klebsiella)
+    - [LRE-Finder](https://bitbucket.org/genomicepidemiology/lre-finder/) (for Enterococci)
 * Annotation:
-    - Bakta (1.10.4)
+    - [Bakta](https://github.com/oschwengers/bakta)
 
 ## Requirements
 ### Dependencies
@@ -46,7 +45,7 @@ but for the tools not available in the registries local builds are currently use
 In order for the pipeline to run these databases must be available on the system:
 * AMRFinderPlus database (release 2024-10-22.1 or later)
 * PlasmidFinder database
-* Bakta database (optionally for annotation)
+* Bakta database
 
 
 ## Quickstart
