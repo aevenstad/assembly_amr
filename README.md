@@ -107,18 +107,6 @@ singularity exec <bakta_image> bakta_db download --output ./ --type [light|full]
 --mlst_db               [string] Path to mlst database [default: use db in container]
 ```
 
-### Run the pipeline
-
-```
-nextflow run /path/to/assembly_amr/main.nf \
--profile singularity \
---input samplesheet.csv \
---outdir <outdir> \
---run_name <run_name> \
---assembly_type [hybrid|long|short] \
---amrfinder_db <amrfinder_db> \
---plasmidfinder_db <plasmidfinder_db>
-```
 
 #### Hybrid input
 If you have both Nanopore and Illumina reads from the same isolate and want to run a hybrid assembly, input must be provided in a comma-separated file e.g. `samplesheet.csv`:
@@ -143,6 +131,19 @@ For short read only assembly with Illumina reads:
 sample,illumina_R1,illumina_R2
 isolate1,/path/to/illumina/data/isolate1_R1.fastq.gz,/path/to/illumina/data/isolate1_R2.fastq.gz
 isolate2,/path/to/illumina/data/isolate2_R1.fastq.gz,/path/to/illumina/data/isolate2_R2.fastq.gz
+```
+
+### Run the pipeline
+
+```
+nextflow run /path/to/assembly_amr/main.nf \
+-profile singularity \
+--input samplesheet.csv \
+--outdir <outdir> \
+--run_name <run_name> \
+--assembly_type [hybrid|long|short] \
+--amrfinder_db <amrfinder_db> \
+--plasmidfinder_db <plasmidfinder_db>
 ```
 
 
