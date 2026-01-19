@@ -124,16 +124,16 @@ workflow LONGREAD_ASSEMBLY {
     ch_circular_plasmids = PLASMID_FASTA.out.circular
     ch_linear_plasmids = PLASMID_FASTA.out.linear
 
-    ch_kleborate_longread = ch_chromosome
-        .join(ch_circular_plasmids)
-        .join(ch_linear_plasmids)
-        .map { meta, chromosome, circular, linear ->
-            tuple(
-                meta,
-                [chromosome, circular, linear]
-                    .collect { it ?: [] }
-                    .flatten()
-            )
+    ch_all_fasta = channel.empty()
+        .mix(ch_chromosome)
+        .mix(ch_circular_plasmids)
+        .mix(ch_linear_plasmids)
+
+    ch_kleborate_longread = ch_all_fasta
+        .groupTuple()
+        .map { meta, fasta_list ->
+            def flat_fastas = fasta_list.collect { it instanceof List ? it : [it] }.flatten()
+            tuple(meta, flat_fastas)
         }
 
     // MODULE: NANOSTAT_TRIMMED
