@@ -39,7 +39,7 @@ workflow TYPING_AND_RESISTANCE {
     RENAME_MLST(ch_mlst_out, file("${projectDir}/bin/mlst_species_names.sh"))
     ch_mlst_renamed = RENAME_MLST.out.tsv
     ch_mlst_species = RENAME_MLST.out.species
-    ch_mlst_speciel_value = ch_mlst_species
+    ch_mlst_species_value = ch_mlst_species
     .map { meta, file ->
         def content = file.text.trim()
         tuple(meta, content)
@@ -55,7 +55,7 @@ workflow TYPING_AND_RESISTANCE {
     // Only run Kleborate fot Klebsiella assemblies identified through rMLST
     ch_species_fasta = ch_mlst_species.join(ch_final_fasta)
 
-    ch_klebsiella = ch_mlst_speciel_value
+    ch_klebsiella = ch_mlst_species_value
         .filter { meta, species ->
             species == "Klebsiella pneumoniae"
         }
