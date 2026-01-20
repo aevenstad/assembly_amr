@@ -207,7 +207,8 @@ combined_df <- hybracter_df %>%
     ),
     circular = as.character(circular)
   ) %>%
-  relocate(sample_id, .before = contig)
+  relocate(sample_id, .before = contig) %>%
+  filter(length >= 1500)
 
 ```
 
