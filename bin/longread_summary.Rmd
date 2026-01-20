@@ -206,7 +206,8 @@ combined_df <- hybracter_df %>%
       Species
     ),
     circular = as.character(circular)
-  )
+  ) %>%
+  relocate(sample_id, .before = contig)
 
 ```
 
@@ -215,7 +216,7 @@ combined_df <- hybracter_df %>%
 ```{r }
 ## Create multilevel headers
 group_map <- list(
-  "Hybracter"        = c("contig", "contig_type", "length", "gc", "circular"),
+  "Hybracter"        = c("sample_id", "contig", "contig_type", "length", "gc", "circular"),
   "MLST"             = setdiff(names(mlst_df), c("contig")),
   "rMLST"            = setdiff(names(rmlst_df), c("contig")),
   "Plassembler"      = setdiff(names(plassembler_df), c("contig")),
