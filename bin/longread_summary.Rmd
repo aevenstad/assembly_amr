@@ -79,7 +79,8 @@ mlst_df <- map_dfr(
       rename(Species = X2, ST = X3) %>%
       mutate(
         contig = "chromosome00001",
-        sample_id = tools::file_path_sans_ext(basename(f))
+        sample_id = tools::file_path_sans_ext(basename(f)),
+        ST = as.character(ST)
       ) %>%
       mutate(sample_id = sub("_renamed", "", sample_id))
   }
@@ -171,6 +172,11 @@ plasmidfinder_df <- map_dfr(
 kleborate_df <- map_dfr(
   split_files(params$kleborate_files),
   function(f) {
+    if (file.info(f)$size == 0) {
+      return(tibble(
+        sample_id = sub("_kleborate_out", "", tools::file_path_sans_ext(basename(f)))
+      ))
+    }
     read_tsv(f, show_col_types = FALSE, col_types = cols(.default = "c")) %>%
       mutate(
         sample_id = tools::file_path_sans_ext(basename(f)),
