@@ -72,7 +72,7 @@ workflow TYPING_AND_RESISTANCE {
         .filter { meta, species -> species != "Klebsiella pneumoniae" }
     ch_kleborate_placeholder = ch_non_klebsiella.map { meta, species ->
         tuple(meta, file("${projectDir}/assets/kleborate_placeholder.tsv")
-            .copyTo("${meta.id}_kleborate.txt"))
+            .copyTo("${meta.id}_kleborate_out.txt"))
     }
     ch_kleborate_all_results = ch_kleborate_results
         .mix(ch_kleborate_placeholder)
