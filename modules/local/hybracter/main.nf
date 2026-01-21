@@ -88,9 +88,10 @@ process HYBRACTER {
     fi
 
     # Rename Plassembler summary
-    mv "${prefix}/hybracter/processing/plassembler/${prefix}/plassembler_summary.tsv" \
-        "${prefix}/hybracter/processing/plassembler/${prefix}/${prefix}_plassembler_summary.tsv"
-
+    if [ -f "${prefix}/hybracter/processing/plassembler/${prefix}/plassembler_summary.tsv" ]; then
+        mv "${prefix}/hybracter/processing/plassembler/${prefix}/plassembler_summary.tsv" \
+            "${prefix}/hybracter/processing/plassembler/${prefix}/${prefix}_plassembler_summary.tsv"
+    fi
 
     # Versions
     cat <<-END_VERSIONS > ${prefix}/hybracter/versions.yml
