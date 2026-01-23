@@ -88,12 +88,8 @@ def get_kleborate_results(kleborate_results):
                                   "OMP mutations": "NA",
                                   "Col mutations": "NA"}])
 
-    if not os.path.isfile(kleborate_results):
-        print(f"Error: Kleborate results file '{kleborate_results}' does not exist.")
-        sys.exit(1)
-
     file_name = os.path.basename(kleborate_results)
-    if not file_name.startswith("kleborate_placeholder"):
+    if os.path.getsize(file_name) > 0:
         # Read in Kleborate results
         kleborate_df = pd.read_csv(kleborate_results, sep="\t", header=0)
         kleborate_df = kleborate_df[
