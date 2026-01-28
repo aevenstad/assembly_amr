@@ -1,6 +1,8 @@
 process MLST {
     publishDir "${params.outdir}/${meta.id}/mlst", mode: 'copy'
-    containerOptions "-B ${params.mlst_db}"
+    containerOptions {
+        params.mlst_db ? "-B ${params.mlst_db}" : ''
+    }
     tag "${meta.id}"
     label 'process_low'
 
@@ -22,12 +24,15 @@ process MLST {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def datadirOpt = params.mlst_db ? "--datadir \"${params.mlst_db}/pubmlst\"" : ''
+    def blastdbOpt = params.mlst_db ? "--blastdb \"${params.mlst_db}/blast/mlst.fa\"" : ''
+
     """
     mlst \\
         ${args} \\
         --threads ${task.cpus} \\
-        --datadir "${params.mlst_db}/pubmlst" \\
-        --blastdb "${params.mlst_db}/blast/mlst.fa" \\
+        ${datadirOpt} \\
+        ${blastdbOpt} \\
         ${fasta} \\
         > ${prefix}.tsv
 
