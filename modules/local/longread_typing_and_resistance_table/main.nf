@@ -4,6 +4,7 @@ process LONGREAD_SUMMARY_TABLE {
     container "oras://community.wave.seqera.io/library/r-dplyr_r-openxlsx_r-purrr_r-readr_pruned:9c3c5e7a8434d04f"
 
     input:
+        path(hybracter_per_contig)
         path(hybracter_summary)
         path(plassembler_summary)
         path(mlst_results)
@@ -22,7 +23,8 @@ process LONGREAD_SUMMARY_TABLE {
         input = '${longread_summary_script}',
         output_format=NULL,
         params=list(
-            hybracter_files='${hybracter_summary.join(" ")}',
+            hybracter_per_contig='${hybracter_per_contig.join(" ")}',
+            hybracter_summary='${hybracter_summary.join(" ")}',
             plassembler_files='${plassembler_summary.join(" ")}',
             mlst_files='${mlst_results.join(" ")}',
             rmlst_files='${rmlst_results.join(" ")}',
