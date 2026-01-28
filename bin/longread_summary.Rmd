@@ -4,7 +4,8 @@ author: "Andreas Evenstad"
 date: "`r Sys.Date()`"
 output: html_document
 params:
-  hybracter_files: ""
+  hybracter_per_contig: ""
+  hybracter_summary: ""
   plassembler_files: ""
   mlst_files: ""
   rmlst_files: ""
@@ -33,13 +34,83 @@ split_files <- function(x) {
   if (is.null(x) || x == "") character(0)
   else strsplit(x, "\\s+")[[1]]
 }
+
+filter_files_by_sample <- function(files, valid_samples, suffix_regex) {
+  files %>%
+    keep(~ {
+             sample_id <- sub(suffix_regex, "", tools::file_path_sans_ext(basename(.x)))
+      sample_id %in% valid_samples
+    })
+}
 ```
 
 ## Get results
 ```{r }
-## Hybracter summary
+## Check hybracter completeness
+hybracter_complete <- map_dfr(
+  split_files(params$hybracter_summary),
+  function(f) {
+      read_tsv(f, show_col_types = FALSE) %>%
+          mutate(sample_id = tools::file_path_sans_ext(basename(f))) %>%
+          mutate(sample_id = sub("_hybracter_summary", "", sample_id)) %>%
+          mutate(Number_circular_plasmids = as.numeric(Number_circular_plasmids))
+  }
+)
+
+## Filter out incomplete assemblies
+complete_samples <- hybracter_complete %>%
+  filter(Complete == "TRUE") %>%
+  pull(sample_id) %>%
+  unique()
+
+
+hybracter_per_contig_files <- filter_files_by_sample(
+  split_files(params$hybracter_per_contig),
+  complete_samples,
+  "_per_contig_stats"
+)
+
+plassembler_files <- filter_files_by_sample(
+  split_files(params$plassembler_files),
+  complete_samples,
+  "_plassembler_summary"
+)
+
+
+mlst_files <- filter_files_by_sample(
+  split_files(params$mlst_files),
+  complete_samples,
+  "_renamed"
+)
+
+rmlst_files <- filter_files_by_sample(
+  split_files(params$mlst_files),
+  complete_samples,
+  "_rmlst"
+)
+
+plasmidfinder_files <- filter_files_by_sample(
+  split_files(params$plasmidfinder_files),
+  complete_samples,
+  "_results"
+)
+
+kleborate_files <- filter_files_by_sample(
+  split_files(params$kleborate_files),
+  complete_samples,
+  "_kleborate_out"
+)
+
+amrfinder_files <- filter_files_by_sample(
+  split_files(params$amrfinder_files),
+  complete_samples,
+  "\\.tsv$"
+)
+
+
+## Hybracter per contig summary
 hybracter_df <- map_dfr(
-  split_files(params$hybracter_files),
+  hybracter_per_contig_files,
   function(f) {
     read_tsv(f, show_col_types = FALSE) %>%
       select(contig_name, contig_type, length, gc, circular) %>%
@@ -50,29 +121,29 @@ hybracter_df <- map_dfr(
 )
 
 
-
-## Plassembler results
 plassembler_df <- map_dfr(
-  split_files(params$plassembler_files),
+  plassembler_files,
   function(f) {
-    read_tsv(f, show_col_types = FALSE) %>%
-      select(1:15) %>%
-      select(-length) %>%
+    read_tsv(f, show_col_types = FALSE, col_types = cols(.default = "c")) %>%
+        mutate(sample_id = tools::file_path_sans_ext(basename(f))) %>%
+        mutate(sample_id = sub("_plassembler_summary", "", sample_id))
+  }
+)
+
+plassembler_df <- plassembler_df %>%
       mutate(
         contig = ifelse(
           contig != "chromosome",
           paste0("plasmid0000", contig),
           "chromosome00001"
-        ),
-        sample_id = tools::file_path_sans_ext(basename(f))
-      ) %>%
-      mutate(sample_id = sub("_plassembler_summary", "", sample_id))
-  }
-)
+        )) %>%
+      select(sample_id, 1:15) %>%
+      select(-length)
+
 
 ## MLST
 mlst_df <- map_dfr(
-  split_files(params$mlst_files),
+  mlst_files,
   function(f) {
     read_tsv(f, col_names = FALSE, show_col_types = FALSE) %>%
       select(X2, X3) %>%
@@ -88,15 +159,15 @@ mlst_df <- map_dfr(
 
 ## rMLST
 rmlst_df <- map_dfr(
-  split_files(params$rmlst_files),
-  function(f) {
+    split_files(params$rmlst_files),
+    function(f) {
     tbl <- read_tsv(f, col_names = FALSE, show_col_types = FALSE)
 
     taxon_line   <- tbl$X1[str_detect(tbl$X1, "^Taxon:")]
     support_line <- tbl$X1[str_detect(tbl$X1, "^Support:")]
 
     tibble(
-      sample_id = tools::file_path_sans_ext(basename(f)),
+      sample_id = sub("_rmlst.*$", "", basename(f)),
       contig    = "chromosome00001",
       species   = str_remove(taxon_line, "^Taxon:"),
       support   = str_remove(support_line, "^Support:")
@@ -104,38 +175,35 @@ rmlst_df <- map_dfr(
   }
 )
 
-rmlst_df <- rmlst_df %>%
-    mutate(sample_id = sub("_rmlst", "", sample_id))
-
 
 ## AMRFinderPlus results
-amrfinderplus_raw <- map_dfr(
+amrfinderplus_df <- map_dfr(
+#  amrfinder_files,
   split_files(params$amrfinder_files),
   function(f) {
     read_tsv(f, show_col_types = FALSE) %>%
-      mutate(sample_id = tools::file_path_sans_ext(basename(f)))
+        mutate(sample_id = tools::file_path_sans_ext(basename(f))) %>%
+    filter(`% Coverage of reference` >= 90,
+         `% Identity to reference` >= 90) %>%
+    select(
+        sample_id,
+        `Contig id`,
+        `Element symbol`,
+        Type, Subtype, Class, Subclass
+    ) %>%
+    rename(contig = `Contig id`) %>%
+    mutate(
+        sort_level = case_when(
+        Type == "STRESS" & !is.na(Class)     ~ paste(Type, Class),
+        Type == "STRESS" & is.na(Class)      ~ paste(Type, Subtype),
+        Type == "AMR" & Subtype == "POINT"   ~ paste(Subtype, Class),
+        Type == "AMR" & Subtype == "AMR"     ~ Class,
+        Type == "VIRULENCE"                  ~ Type
+        )
+    )
   }
 )
 
-amrfinderplus_df <- amrfinderplus_raw %>%
-  filter(`% Coverage of reference` >= 90,
-         `% Identity to reference` >= 90) %>%
-  select(
-    sample_id,
-    `Contig id`,
-    `Element symbol`,
-    Type, Subtype, Class, Subclass
-  ) %>%
-  rename(contig = `Contig id`) %>%
-  mutate(
-    sort_level = case_when(
-      Type == "STRESS" & !is.na(Class)     ~ paste(Type, Class),
-      Type == "STRESS" & is.na(Class)      ~ paste(Type, Subtype),
-      Type == "AMR" & Subtype == "POINT"   ~ paste(Subtype, Class),
-      Type == "AMR" & Subtype == "AMR"     ~ Class,
-      Type == "VIRULENCE"                  ~ Type
-    )
-  )
 amrfinderplus_df2 <- amrfinderplus_df %>%
   arrange(sample_id, contig, sort_level, `Element symbol`) %>%
   group_by(sample_id, contig, sort_level) %>%
@@ -145,11 +213,8 @@ amrfinderplus_df2 <- amrfinderplus_df %>%
   ) %>%
   pivot_wider(names_from = sort_level, values_from = `Element symbol`)
 
-
-
-## PlasmidFinder results
 plasmidfinder_df <- map_dfr(
-  split_files(params$plasmidfinder_files),
+  plasmidfinder_files,
   function(f) {
     read_tsv(f, show_col_types = FALSE) %>%
       select(Plasmid, Contig) %>%
@@ -167,14 +232,14 @@ plasmidfinder_df <- map_dfr(
   }
 )
 
-
 ## Kleborate result
 kleborate_df <- map_dfr(
-  split_files(params$kleborate_files),
+  kleborate_files,
   function(f) {
     if (file.info(f)$size == 0) {
       return(tibble(
-        sample_id = sub("_kleborate_out", "", tools::file_path_sans_ext(basename(f)))
+        sample_id = sub("_kleborate_out", "", tools::file_path_sans_ext(basename(f))),
+        contig    = "chromosome00001"
       ))
     }
     read_tsv(f, show_col_types = FALSE, col_types = cols(.default = "c")) %>%
@@ -186,6 +251,7 @@ kleborate_df <- map_dfr(
       select(-c(1:11))
   }
 )
+
 ```
 
 
@@ -207,8 +273,8 @@ combined_df <- hybracter_df %>%
     ),
     circular = as.character(circular)
   ) %>%
-  relocate(sample_id, .before = contig) %>%
-  filter(length >= 1500)
+  relocate(sample_id, .before = contig) #%>%
+  #filter(length >= 1500)
 
 ```
 
