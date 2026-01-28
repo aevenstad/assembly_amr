@@ -11,7 +11,7 @@ process HYBRACTER_TABLE {
     script:
     """
     # Get header from the first file
-    head -n 1 \$(ls $hybracter_results | head -n 1) > hybracter_summary.tsv
+    head -n 1 \$(ls $hybracter_results | head -n 1) > ${params.run_name}_hybracter_summary.tsv
 
     # Append rows from all summaries
     for file in $hybracter_results; do
