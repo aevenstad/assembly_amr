@@ -154,7 +154,6 @@ These instructions are based on the [hybracter_benchmarking](https://github.com/
 
 #### Download fastqs
 ```
-
 mamba create -n fastq-dl fastq-dl
 conda activate fastq-dl
 fastq-dl -a SRR21386014
@@ -164,7 +163,6 @@ fastq-dl -a SRR21386012
 
 #### Subsample fastqs
 ```
-
 mamba create -n seqkit -c bioconda seqkit
 conda activate seqkit
 seqkit sample -p 0.05 SRR21386012_1.fastq.gz  -o SRR21386012_1_subset2.fastq.gz
@@ -175,7 +173,6 @@ seqkit sample -p 0.1 -s 10 SRR21386014_2.fastq.gz -o SRR21386014_2_subset.fastq.
 
 #### Create samplesheet
 ```
-
 sample,nanopore,illumina_R1,illumina_R2
 SRR213860XX,SRR21386012_1_subset.fastq.gz,SRR21386014_1_subset.fastq.gz,SRR21386014_2_subset.fastq.gz
 ```
