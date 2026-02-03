@@ -59,7 +59,7 @@ git clone https://github.com/aevenstad/assembly_amr.git
 The most straightforward way to fetch the required databases is to install them via the tools own helper scripts.
 
 Run the script `pull_containers.sh` to download containers for `amrfinderplus`, `PlasmidFinder` and `bakta`.
-  
+
 It’s recommended to set the container directory using the Nextflow variable `$NXF_SINGULARITY_CACHEDIR`:
 ```
 NXF_SINGULARITY_CACHEDIR=/path/to/containers/
@@ -109,7 +109,7 @@ singularity exec <bakta_image> bakta_db download --output ./ --type [light|full]
 
 #### Hybrid input
 Input must be provided in a comma-separated file e.g. `samplesheet.csv` with sample names and path to `fastq`-files.
-  
+
 If you have both Nanopore and Illumina reads from the same isolate and want to run a hybrid assembly:
 ```
 sample,nanopore,illumina_R1,illumina_R2
@@ -144,6 +144,40 @@ nextflow run /path/to/assembly_amr/main.nf \
 --assembly_type [hybrid|long|short] \
 --amrfinder_db <amrfinder_db> \
 --plasmidfinder_db <plasmidfinder_db>
+```
+
+
+
+### Test run
+The pipeline can be tested with a small dataset to verify that everything works.
+These instructions are based on the [hybracter_benchmarking](https://github.com/gbouras13/hybracter_benchmarking/blob/main/get_fastqs.md) repo.
+
+#### Download fastqs
+```
+
+mamba create -n fastq-dl fastq-dl
+conda activate fastq-dl
+fastq-dl -a SRR21386014
+fastq-dl -a SRR21386012
+```
+
+
+#### Subsample fastqs
+```
+
+mamba create -n seqkit -c bioconda seqkit
+conda activate seqkit
+seqkit sample -p 0.05 SRR21386012_1.fastq.gz  -o SRR21386012_1_subset2.fastq.gz
+seqkit sample -p 0.1 -s 10 SRR21386014_1.fastq.gz -o SRR21386014_1_subset.fastq.gz
+seqkit sample -p 0.1 -s 10 SRR21386014_2.fastq.gz -o SRR21386014_2_subset.fastq.gz
+```
+
+
+#### Create samplesheet
+```
+
+sample,nanopore,illumina_R1,illumina_R2
+SRR213860XX,SRR21386012_1_subset.fastq.gz,SRR21386014_1_subset.fastq.gz,SRR21386014_2_subset.fastq.gz
 ```
 
 
