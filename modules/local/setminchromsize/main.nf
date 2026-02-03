@@ -23,7 +23,7 @@ process SETMINCHROMSIZE {
             awk -F"," 'NR==1 {print \$2}' \\
             > ${prefix}_minchromsize.txt
     else
-        echo "Genus not found" > ${prefix}_minchromsize.txt
+        echo "NA" > ${prefix}_minchromsize.txt
     fi
     """
 
