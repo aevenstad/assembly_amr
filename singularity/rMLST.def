@@ -2,19 +2,12 @@ Bootstrap: docker
 From: python:3.10-slim
 
 %post
-    # Install the required Python packages
+    # Install required Python packages
     pip install requests
 
     # Install ps required by Nextflow
     apt-get update && apt-get install -y procps
 
-    # Create a directory for your script
-    #mkdir -p /opt/rMLST
-
 %files
     /bigdata/Jessin/Softwares/rMLST/species_api_upload.py /opt/rMLST/species_api_upload.py
-
-#%runscript
-#    # Define the default command that will run when the container is executed
-#    python /opt/rMLST/species_api_upload.py "$@"
 
