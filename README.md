@@ -16,6 +16,7 @@
   - [Long-read input](#long-read-input)
   - [Short-read input](#short-read-input)
   - [Run the pipeline](#run-the-pipeline)
+  - [Test run](#test-run)
 
 
 ## Introduction
