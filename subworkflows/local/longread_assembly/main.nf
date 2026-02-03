@@ -87,12 +87,12 @@ workflow LONGREAD_ASSEMBLY {
         plasmid_fasta      : tuple(meta, file("${dir}/complete/*_plasmid.fasta"))
     }
 
-    ch_final_fasta        = ch_hybracter_outputs.final_fasta
-    ch_chromosome         = ch_hybracter_outputs.chromosome
-    ch_hybracter_summary  = ch_hybracter_outputs.summary
-    ch_plasmid_fasta      = ch_hybracter_outputs.plasmid_fasta
-    ch_plasmid_stats      = ch_hybracter_outputs.per_contig_stats
-    ch_split_plasmids     = ch_plasmid_fasta.join(ch_plasmid_stats)
+    ch_final_fasta             = ch_hybracter_outputs.final_fasta
+    ch_chromosome              = ch_hybracter_outputs.chromosome
+    ch_hybracter_summary       = ch_hybracter_outputs.summary
+    ch_plasmid_fasta           = ch_hybracter_outputs.plasmid_fasta
+    ch_per_contig_summary      = ch_hybracter_outputs.per_contig_stats
+    ch_split_plasmids          = ch_plasmid_fasta.join(ch_per_contig_summary)
 
     ch_hybracter_processing_outputs = ch_hybracter_processing.multiMap { meta, dir ->
         longreads        : tuple(meta, file("${dir}/qc/*filt_trim.fastq.gz"))
@@ -136,7 +136,7 @@ workflow LONGREAD_ASSEMBLY {
     ch_trimmed_longreads
     ch_trimmed_shortreads
     ch_hybracter_summary
-    ch_hybracter_per_contig_summary
+    ch_per_contig_summary
     ch_plassembler_summary
     ch_kleborate_longread
 }
