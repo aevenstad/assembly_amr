@@ -179,5 +179,18 @@ sample,nanopore,illumina_R1,illumina_R2
 SRR213860XX,SRR21386012_1_subset.fastq.gz,SRR21386014_1_subset.fastq.gz,SRR21386014_2_subset.fastq.gz
 ```
 
+#### Run pipeline
+```
+nextflow run assembly_amr/main.nf \
+  -profile singularity \
+  --input samplesheet.csv \
+  --outdir TEST_OUT/ \
+  --assembly_type <short|long|hybrid> \
+  --amrfinderplus_db <database_dir>/bakta_db/db/amrfinderplus-db/latest \
+  --plasmidfinder_db <database_dir>/plasmidfinder_db \
+  --kraken2_db <database_dir>/minikraken2_v1_8GB/ \
+  --mlst_db <database_dir>/mlst \
+  --run_name testrun
+```
 
 
