@@ -151,7 +151,8 @@ nextflow run /path/to/assembly_amr/main.nf \
 
 ### Test run
 The pipeline can be tested with a small dataset to verify that everything works.
-These instructions are based on the [hybracter_benchmarking](https://github.com/gbouras13/hybracter_benchmarking/blob/main/get_fastqs.md) repo.
+  
+Instructions are based on the [hybracter_benchmarking](https://github.com/gbouras13/hybracter_benchmarking/blob/main/get_fastqs.md) repo.
 
 #### Download fastqs
 ```
