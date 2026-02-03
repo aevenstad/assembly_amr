@@ -68,18 +68,16 @@ workflow LONGREAD_ASSEMBLY {
         HYBRACTER (
             ch_hybrid_assembly
         )
-        ch_hybracter_final_out = HYBRACTER.out.final_output
-        ch_trimmed = HYBRACTER.out.processing
-        ch_versions = ch_versions.mix(HYBRACTER.out.versions)
-
     } else if (params.assembly_type == 'long') {
         HYBRACTER (
             ch_long_assembly
         )
-        ch_hybracter_final_out = HYBRACTER.out.final_output
-        ch_trimmed = HYBRACTER.out.processing
-        ch_versions = ch_versions.mix(HYBRACTER.out.versions)
     }
+
+    ch_hybracter_final_out = HYBRACTER.out.final_output
+    ch_trimmed = HYBRACTER.out.processing
+    ch_versions = ch_versions.mix(HYBRACTER.out.versions)
+
 
     ch_final_fasta = ch_hybracter_final_out.map { meta, dir ->
         tuple(meta, file("${dir}/*_final.fasta"))
@@ -123,11 +121,11 @@ workflow LONGREAD_ASSEMBLY {
     )
     ch_circular_plasmids = PLASMID_FASTA.out.circular
     ch_linear_plasmids = PLASMID_FASTA.out.linear
-
     ch_all_fasta = channel.empty()
         .mix(ch_chromosome)
         .mix(ch_circular_plasmids)
         .mix(ch_linear_plasmids)
+
 
     ch_kleborate_longread = ch_all_fasta
         .groupTuple()
