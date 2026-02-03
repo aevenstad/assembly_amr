@@ -48,8 +48,8 @@ workflow LONGREAD_ASSEMBLY {
         false,
         true
     )
-    ch_kraken2_genus = KRAKEN2_KRAKEN2.out.genus
-    ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions)
+    ch_kraken2_genus    = KRAKEN2_KRAKEN2.out.genus
+    ch_versions         = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions)
 
 
 
@@ -74,46 +74,36 @@ workflow LONGREAD_ASSEMBLY {
         )
     }
 
-    ch_hybracter_final_out = HYBRACTER.out.final_output
-    ch_trimmed = HYBRACTER.out.processing
-    ch_versions = ch_versions.mix(HYBRACTER.out.versions)
+    ch_hybracter_final_out      = HYBRACTER.out.final_output
+    ch_hybracter_processing     = HYBRACTER.out.processing
+    ch_versions                 = ch_versions.mix(HYBRACTER.out.versions)
 
+    // Set up channels from hybracter outputs
+    ch_hybracter_outputs = ch_hybracter_final_out.multiMap { meta, dir ->
+        final_fasta        : tuple(meta, file("${dir}/*_final.fasta"))
+        chromosome         : tuple(meta, file("${dir}/complete/*_chromosome.fasta"))
+        summary            : tuple(meta, file("${dir}/*_hybracter_summary.tsv"))
+        per_contig_stats   : tuple(meta, file("${dir}/complete/*_per_contig_stats.tsv"))
+        plasmid_fasta      : tuple(meta, file("${dir}/complete/*_plasmid.fasta"))
+    }
 
-    ch_final_fasta = ch_hybracter_final_out.map { meta, dir ->
-        tuple(meta, file("${dir}/*_final.fasta"))
+    ch_final_fasta        = ch_hybracter_outputs.final_fasta
+    ch_chromosome         = ch_hybracter_outputs.chromosome
+    ch_hybracter_summary  = ch_hybracter_outputs.summary
+    ch_plasmid_fasta      = ch_hybracter_outputs.plasmid_fasta
+    ch_plasmid_stats      = ch_hybracter_outputs.per_contig_stats
+    ch_split_plasmids     = ch_plasmid_fasta.join(ch_plasmid_stats)
+
+    ch_hybracter_processing_outputs = ch_hybracter_processing.multiMap { meta, dir ->
+        longreads        : tuple(meta, file("${dir}/qc/*filt_trim.fastq.gz"))
+        shortreads       : tuple(meta, file("${dir}/qc/fastp/*.fastq.gz"))
+        plassembler      : tuple(meta, file("${dir}/plassembler/*/*plassembler_summary.tsv"))
     }
-    ch_chromosome = ch_hybracter_final_out.map { meta, dir ->
-        tuple(meta, file("${dir}/complete/*_chromosome.fasta"))
-    }
-    ch_trimmed_longreads = ch_trimmed.map { meta, dir ->
-        def files = file("${dir}/qc/*filt_trim.fastq.gz")
-        tuple(meta, files)
-    }
-    ch_trimmed_shortreads = ch_trimmed.map { meta, dir ->
-        def files = file("${dir}/qc/fastp/*.fastq.gz")
-        tuple(meta, files)
-    }
-    ch_hybracter_summary = ch_hybracter_final_out.map { meta, dir ->
-        def files = file("${dir}/*_hybracter_summary.tsv")
-        tuple(meta, files)
-    }
-    ch_hybracter_per_contig_summary = ch_hybracter_final_out.map { meta, dir ->
-        def files = file("${dir}/complete/*_per_contig_stats.tsv")
-        tuple(meta, files)
-    }
-    ch_plassembler_summary = ch_trimmed.map { meta, dir ->
-        def files = file("${dir}/plassembler/*/*plassembler_summary.tsv")
-        tuple(meta, files)
-    }
-    ch_plasmid_fasta = ch_hybracter_final_out.map { meta, dir ->
-        def files = file("${dir}/complete/*_plasmid.fasta")
-        tuple(meta, files)
-    }
-    ch_plasmid_stats = ch_hybracter_final_out.map { meta, dir ->
-        def files = file("${dir}/complete/*_per_contig_stats.tsv")
-        tuple(meta, files)
-    }
-    ch_split_plasmids = ch_plasmid_fasta.join(ch_plasmid_stats)
+
+    ch_trimmed_longreads    = ch_hybracter_processing_outputs.longreads
+    ch_trimmed_shortreads   = ch_hybracter_processing_outputs.shortreads
+    ch_plassembler_summary  = ch_hybracter_processing_outputs.plassembler
+
 
     // MODULE: PLASMID_FASTA
     PLASMID_FASTA (
@@ -127,6 +117,7 @@ workflow LONGREAD_ASSEMBLY {
         .mix(ch_linear_plasmids)
 
 
+    // Set kleborate input channel as a list of chromosome fasta + plasmids
     ch_kleborate_longread = ch_all_fasta
         .groupTuple()
         .map { meta, fasta_list ->
