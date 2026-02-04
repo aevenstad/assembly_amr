@@ -1,0 +1,75 @@
+name: amrfinderplus_run
+description: Identify antimicrobial resistance in gene or protein sequences
+keywords:
+  - bacteria
+  - fasta
+  - antibiotic resistance
+tools:
+  - amrfinderplus:
+      description: AMRFinderPlus finds antimicrobial resistance and other genes in protein
+        or nucleotide sequences.
+      homepage: https://github.com/ncbi/amr/wiki
+      documentation: https://github.com/ncbi/amr/wiki
+      tool_dev_url: https://github.com/ncbi/amr
+      doi: "10.1038/s41598-021-91456-0"
+      licence: ["Public Domain"]
+      identifier: biotools:amrfinderplus
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. [ id:'test', single_end:false ]
+    - species:
+        type: string
+        description: |
+          The species to use for the analysis.
+    - fasta:
+        type: file
+        description: Nucleotide or protein sequences in FASTA format
+        pattern: "*.{fasta,fasta.gz,fa,fa.gz,fna,fna.gz,faa,faa.gz}"
+  - - valid_species_list:
+        type: file
+        description: |
+          A list of valid species for the analysis
+        pattern: "amrfinder_organism_list.txt"
+output:
+  - report:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
+          pattern: "*.tsv"
+      - ${prefix}.tsv:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
+          pattern: "*.tsv"
+  - mutation_report:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
+          pattern: "*-mutations.tsv"
+      - ${prefix}-mutations.tsv:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test', single_end:false ]
+          pattern: "*-mutations.tsv"
+  - versions:
+      - versions.yml:
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+authors:
+  - "@rpetit3"
+  - "@louperelo"
+  - "@jfy133"
+maintainers:
+  - "@rpetit3"
+  - "@louperelo"
+  - "@jfy133"
