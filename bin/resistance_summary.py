@@ -168,6 +168,26 @@ def get_plasmidfinder_results(plasmidfinder_output):
     return plasmids
 
 
+def get_virulencefinder_results(virulencefinder_output):
+    if virulencefinder_output == "virulencefinder_placeholder.tsv":
+        virulencefinder_df = pd.DataFrame([{"VirulenceFinder" : "-"}])
+        return virulencefinder_df
+
+    virulencefinder_df = pd.read_csv(virulencefinder_output, sep = "\t", header = 0)
+    virulencefinder_df = virulencefinder_df[
+        ["virulence_gene", "identity", "coverage"]
+    ]
+    virulence_genes = []
+    for _, row in virulencefinder_df.iterrows():
+        virulence_gene = row["virulence_gene"]
+        identity = row["identity"]
+        coverage = row["coverage"]
+        virulence_genes.append(f"{virulence_gene} ({identity}%, {coverage}%)")
+    virulence_genes_str = " | ".join(virulence_genes)
+    virulence_genes = pd.DataFrame([{" VirulenceFinder" : virulence_genes_str}])
+    return virulence_genes
+
+
 def get_lrefinder_results(lrefinder_output):
     if lrefinder_output == "lre-finder_placeholder.tsv":
         lrefinder_df = pd.DataFrame([{"LRE Genes": "-",
@@ -234,23 +254,13 @@ if __name__ == "__main__":
     amrfinder_classes = sys.argv[5]
     plasmidfinder_output = sys.argv[6]
     lrefinder_output = sys.argv[7]
-    sample_id = sys.argv[8]
-    outfile = sys.argv[9]
-
-    # TESTING
-    #mlst_results = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/xxx/mlst/_mlst.tsv"
-    #translation_table = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/assets/mlst_species_translations.tsv"
-    #rmlst_results = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/xxx/rmlst/_rmlst.txt"
-    #kleborate_results = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/xxx/kleborate/kleborate_skipped.txt"
-    #amrfinder_output = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/xxx/amrfinderplus/.tsv"
-    #amrfinder_classes = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/assets/amrfinderplus_classes.txt"
-    #plasmidfinder_output = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/xxx/plasmidfinder/results.tsv"
-    #sample_id = "xxx"
-    #outfile = "/bigdata/Jessin/Softwares/nextflow_pipeline/assembly_amr/test/illumina_full_test/SHORT_FULL_TEST/xxx/testout.tsv"
+    virulencefinder_output = sys.argv[8]
+    sample_id = sys.argv[9]
+    outfile = sys.argv[10]
 
 
 
-    sample_name = {"Sample": sample_id}
+    sample_name = {"Sample" : sample_id}
     # Create a DataFrame with the sample name
     sample_df = pd.DataFrame([sample_name])
 
@@ -261,7 +271,8 @@ if __name__ == "__main__":
     amrfinder = get_amrfinder_results(amrfinder_output, amrfinder_classes)
     plasmidfinder = get_plasmidfinder_results(plasmidfinder_output)
     lrefinder_genes, lrefinder_mutations = get_lrefinder_results(lrefinder_output)
-    resistance_summary = pd.concat([sample_df, mlst, rmlst, kleborate, lrefinder_genes, lrefinder_mutations, amrfinder, plasmidfinder], axis=1)
+    virulencefinder = get_virulencefinder_results(virulencefinder_output)
+    resistance_summary = pd.concat([sample_df, mlst, rmlst, kleborate, lrefinder_genes, lrefinder_mutations, virulencefinder, amrfinder, plasmidfinder], axis=1)
 
     # Save the final DataFrame to a TSV file
     resistance_summary.to_csv(outfile, sep="\t", index=False)
