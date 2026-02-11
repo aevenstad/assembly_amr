@@ -13,6 +13,7 @@ include { PLASMIDFINDER                         } from '../../../modules/nf-core
 include { RMLST                                 } from '../../../modules/local/rmlst/main'
 include { RENAME_MLST                           } from '../../../modules/local/renamemlst/main'
 include { SPLIT_BAKTA                           } from '../../../modules/local/split_bakta/main'
+include { VIRULENCEFINDER                       } from '../../../modules/local/virulencefinder/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -116,6 +117,14 @@ workflow TYPING_AND_RESISTANCE {
     LRE_FINDER(ch_lrefinder_input)
     ch_lrefinder_results = LRE_FINDER.out.txt
     ch_versions = ch_versions.mix(LRE_FINDER.out.versions)
+
+
+    ch_virulencefinder_input = ch_final_fasta
+        .join(ch_enterococcus)
+        .map { meta , file ,species ->
+        tuple(meta, file)
+        }
+    VIRULENCEFINDER(ch_virulencefinder_input)
 
     // Set output channel for non-Enterococci (use placeholder file)
     ch_non_enterococcus = ch_mlst_species_value
