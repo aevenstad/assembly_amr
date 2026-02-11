@@ -87,13 +87,6 @@
                     "description": "Path to kraken2 database",
                     "fa_icon": "fas fa-folder-open"
                 },
-                "mlst_db": {
-                    "type": "string",
-                    "format": "directory-path",
-                    "exists": true,
-                    "description": "Path to MLST schemes",
-                    "fa_icon": "fas fa-folder-open"
-                },
                 "kleborate_modules": {
                     "type": "array",
                     "exists": false,
