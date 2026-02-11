@@ -5,8 +5,8 @@ process AMRFINDERPLUS_ORGANISMS {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:4.0.3--hf69ffd2_0':
-        'biocontainers/ncbi-amrfinderplus:4.0.3--hf69ffd2_1' }"
+        'https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:4.2.7--hf69ffd2_0':
+        'biocontainers/ncbi-amrfinderplus:4.2.7--hf69ffd2_0' }"
 
     output:
     path "amrfinder_organism_list.txt"                            , emit: txt
