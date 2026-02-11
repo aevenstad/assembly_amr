@@ -125,6 +125,8 @@ workflow TYPING_AND_RESISTANCE {
         tuple(meta, file)
         }
     VIRULENCEFINDER(ch_virulencefinder_input)
+    ch_virulencefinder_results = VIRULENCEFINDER.out.tsv
+    ch_verisons = ch_versions.mix(VIRULENCEFINDER.out.versions)
 
     // Set output channel for non-Enterococci (use placeholder file)
     ch_non_enterococcus = ch_mlst_species_value
@@ -134,6 +136,12 @@ workflow TYPING_AND_RESISTANCE {
     }
     ch_lrefinder_all_results = ch_lrefinder_results
         .mix(ch_lrefinder_placeholder)
+
+    ch_virulencefinder_placeholder = ch_non_enterococcus.map { meta, species ->
+        tuple(meta, file("${projectDir}/assets/virulencefinder_placeholder.tsv"))
+    }
+    ch_virulencefinder_all_results = ch_virulencefinder_results
+        .mix(ch_virulencefinder_placeholder)
 
     // MODULE: PLASMIDFINDER
     PLASMIDFINDER(ch_final_fasta)
@@ -147,5 +155,6 @@ workflow TYPING_AND_RESISTANCE {
     ch_amrfinder_results
     ch_plasmidfinder_results
     ch_lrefinder_all_results
+    ch_virulencefinder_all_results
     ch_versions
 }
