@@ -16,6 +16,7 @@ workflow WRITE_SUMMARY {
     ch_amrfinder_results
     ch_plasmidfinder_results
     ch_lrefinder_results
+    ch_virulencefinder_results
 
     main:
     if (params.assembly_type == 'short') {
@@ -28,7 +29,8 @@ workflow WRITE_SUMMARY {
             ch_kleborate_results,
             ch_amrfinder_results,
             ch_plasmidfinder_results,
-            ch_lrefinder_results
+            ch_lrefinder_results,
+            ch_virulencefinder_results
         )
     }
     else {
