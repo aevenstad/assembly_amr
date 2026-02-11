@@ -25,6 +25,7 @@ workflow SHORTREAD_SUMMARY {
     ch_amrfinder_results
     ch_plasmidfinder_results
     ch_lrefinder_results
+    ch_virulencefinder_results
 
     main:
     if (params.from_fasta) {
@@ -60,6 +61,7 @@ workflow SHORTREAD_SUMMARY {
         .join(ch_amrfinder_results)
         .join(ch_plasmidfinder_results)
         .join(ch_lrefinder_results)
+        .join(ch_virulencefinder_results)
         .map { tuple -> [tuple[0].id] + tuple[1..-1] }
 
     TYPING_AND_RESISTANCE_TABLE (
