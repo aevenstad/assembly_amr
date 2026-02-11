@@ -8,7 +8,8 @@ process VIRULENCEFINDER {
     tuple val(meta), path(fasta)
 
     output:
-    tuple val(meta), path("virulencefinder/*.json"), emit: json
+    tuple val(meta), path("virulencefinder/*.json")     , emit: json
+    tuple val(meta), path("virulencefinder/*.tsv")      , emit: tsv
     path "versions.yml", emit: versions
 
     when:
