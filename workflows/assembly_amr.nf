@@ -87,13 +87,14 @@ workflow ASSEMBLY_AMR {
 
     // Run the resistance analysis workflow
     TYPING_AND_RESISTANCE(ch_final_fasta, ch_trimmed, ch_kleborate_fasta)
-    ch_versions = ch_versions.mix(TYPING_AND_RESISTANCE.out.ch_versions)
-    ch_mlst_results = TYPING_AND_RESISTANCE.out.ch_mlst_renamed
-    ch_rmlst_results = TYPING_AND_RESISTANCE.out.ch_rmlst_results
-    ch_kleborate_results = TYPING_AND_RESISTANCE.out.ch_kleborate_all_results
-    ch_amrfinder_results = TYPING_AND_RESISTANCE.out.ch_amrfinder_results
-    ch_plasmidfinder_results = TYPING_AND_RESISTANCE.out.ch_plasmidfinder_results
-    ch_lrefinder_results_report = TYPING_AND_RESISTANCE.out.ch_lrefinder_all_results
+    ch_versions                         = ch_versions.mix(TYPING_AND_RESISTANCE.out.ch_versions)
+    ch_mlst_results                     = TYPING_AND_RESISTANCE.out.ch_mlst_renamed
+    ch_rmlst_results                    = TYPING_AND_RESISTANCE.out.ch_rmlst_results
+    ch_kleborate_results                = TYPING_AND_RESISTANCE.out.ch_kleborate_all_results
+    ch_amrfinder_results                = TYPING_AND_RESISTANCE.out.ch_amrfinder_results
+    ch_plasmidfinder_results            = TYPING_AND_RESISTANCE.out.ch_plasmidfinder_results
+    ch_lrefinder_results_report         = TYPING_AND_RESISTANCE.out.ch_lrefinder_all_results
+    ch_virulencefinder_results_report   = TYPING_AND_RESISTANCE.out.ch_virulencefinder_all_results
 
 
     WRITE_SUMMARY(
@@ -107,7 +108,8 @@ workflow ASSEMBLY_AMR {
         ch_kleborate_results,
         ch_amrfinder_results,
         ch_plasmidfinder_results,
-        ch_lrefinder_results_report
+        ch_lrefinder_results_report,
+        ch_virulencefinder_results_report
     )
 
 
