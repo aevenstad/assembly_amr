@@ -4,8 +4,9 @@ process SHOVILL {
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container '/bigdata/Jessin/Softwares/containers/shovill_test.sif'
-
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/shovill:1.4.2--hdfd78af_0':
+        'biocontainers/shovill:1.4.2--hdfd78af_0' }"
     input:
     tuple val(meta), path(reads)
 
