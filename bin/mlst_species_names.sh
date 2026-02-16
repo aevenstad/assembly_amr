@@ -17,7 +17,7 @@ mlst_species=$(awk '{print $2}' ${mlst_out})
 # For E.coli and certain Klebsiella species, set specific names to be used for the amrfinder --organism option
 
 # Escherichia coli
-if [[ $mlst_species =~ ^ecoli ]]; then
+if [[ $mlst_species == "escherichia" ]]; then
     new_name="Escherichia coli"
     sed "s/$mlst_species/$new_name/g" $mlst_out >${mlst_out%.tsv}_renamed.tsv
 
