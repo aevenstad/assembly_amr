@@ -10,7 +10,7 @@ process VIRULENCEFINDER {
     output:
     tuple val(meta), path("virulencefinder/*.json")     , emit: json
     tuple val(meta), path("virulencefinder/*.tsv")      , emit: tsv
-    path "versions.yml", emit: versions
+    path "virulencefinder/versions.yml"                 , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -29,9 +29,10 @@ process VIRULENCEFINDER {
     # Convert json to tsv
     virulencefinder_json2tsv.py virulencefinder/${prefix}.json virulencefinder/${prefix}_virulencefinder.tsv
 
-    {
-    echo '\\"${task.process}\\":'
-    echo '    VirulenceFinder: '\$(python -m virulencefinder -v)
-    } > versions.yml
+    cat <<-END_VERSIONS > virulencefinder/versions.yml
+    "${task.process}":
+        VirulenceFinder: \$(python -m virulencefinder -v)
+        VirulenceFinder database: \$(cat /databases/virulencefinder_db/VERSION)
+    END_VERSIONS
     """
 }
