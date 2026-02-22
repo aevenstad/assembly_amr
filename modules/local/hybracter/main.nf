@@ -74,7 +74,7 @@ process HYBRACTER {
             --output ${prefix}/hybracter \\
             --threads ${task.cpus} \\
             \${chromosome_size} \\
-            \${extra_params_flye} \\
+            \${extra_params_flye}\"\${genome_size}\${asm_coverage}\" \\
             ${args}
     fi
 
