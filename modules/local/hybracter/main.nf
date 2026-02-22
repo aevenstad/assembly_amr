@@ -33,13 +33,20 @@ process HYBRACTER {
     """
     # Use minimum chromosome limit if genus is in table
     min_chrom_size=\$(cat $minchromsize)
+
     chromosome_size=""
+    extra_params_flye=""
+
     if [[ "\$min_chrom_size" == "NA" ]]; then
         chromosome_size="--auto"
         extra_params_flye=""
+        genome_size=""
+        asm_coverage=""
     else
         chromosome_size="-c \$min_chrom_size"
-        extra_params_flye='--extra_params_flye "--genome-size \${min_chrom_size} --asm-coverage 50"'
+        extra_params_flye="--extra_params_flye "
+        genome_size="--genome-size \$min_chrom_size"
+        asm_coverage=" --asm-coverage 50"
     fi
 
     username=\$(whoami)
@@ -56,7 +63,7 @@ process HYBRACTER {
             --output ${prefix}/hybracter \\
             --threads ${task.cpus} \\
             \${chromosome_size} \\
-            \${extra_params_flye} \\
+            \${extra_params_flye}\"\${genome_size}\${asm_coverage}\" \\
             ${args}
 
     else
